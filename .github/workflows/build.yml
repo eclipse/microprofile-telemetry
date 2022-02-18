@@ -1,4 +1,4 @@
-name: MicroProfile Config Build
+name: MicroProfile Telemetry Build
 
 on:
   push:
