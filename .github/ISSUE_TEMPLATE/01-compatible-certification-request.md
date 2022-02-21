@@ -1,7 +1,7 @@
 ---
 name: Compatible Certification Request
 about: Start a request for a compatible certification 
-title: 'MicroProfile Config [Version] Compatible Certification Request'
+title: 'MicroProfile Telemetry [Version] Compatible Certification Request'
 labels: 'Certification :trophy:'
 assignees: ''
 

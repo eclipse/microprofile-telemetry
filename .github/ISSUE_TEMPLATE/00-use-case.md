@@ -11,7 +11,7 @@ assignees: ''
 
 As a:
 
-- [ ] Application user/user of the configuration itself
+- [ ] Application user/user of the MicroProfile Telemetry itself
 - [ ] API user (application developer)
 - [ ] SPI user (container or runtime developer)
 - [ ] Specification implementer
