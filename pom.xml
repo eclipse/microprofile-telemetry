@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Licensed under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.eclipse.microprofile</groupId>
+        <artifactId>microprofile-parent</artifactId>
+        <version>2.5</version>
+    </parent>
+
+    <groupId>org.eclipse.microprofile.telemetry</groupId>
+    <artifactId>microprofile-telemetry-parent</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <packaging>pom</packaging>
+    <name>MicroProfile Telemetry</name>
+    <url>https://microprofile.io/project/eclipse/microprofile-telemetry</url>
+
+    <properties>
+        <inceptionYear>2022</inceptionYear>
+    </properties>
+
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/eclipse/microprofile-telemetry/issues</url>
+    </issueManagement>
+
+    <developers>
+        <developer>
+            <id>Emily-Jiang</id>
+            <name>Emily Jiang</name>
+            <url>https://github.com/Emily-Jiang</url>
+            <organization>IBM</organization>
+            <organizationUrl>https://www.ibm.com</organizationUrl>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:https://github.com/eclipse/microprofile-telemetry.git</connection>
+        <developerConnection>scm:git:git@github.com:eclipse/microprofile-telemetry.git</developerConnection>
+        <url>https://github.com/eclipse/microprofile-telemetry</url>
+        <tag>HEAD</tag>
+    </scm>
+
+
+    <modules>
+        <module>tracing</module>
+    </modules>
+
+</project>
