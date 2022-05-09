@@ -25,5 +25,12 @@
     <artifactId>microprofile-telemetry-tracing-tck</artifactId>
     <packaging>pom</packaging>
     <name>MicroProfile Telemetry Tracing TCK</name>
+    
+    <dependencies>
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-api</artifactId>
+        </dependency>
+    </dependencies>
 
 </project>
