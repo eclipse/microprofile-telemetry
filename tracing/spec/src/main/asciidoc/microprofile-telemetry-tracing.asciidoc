@@ -11,7 +11,7 @@
 ifdef::backend-pdf[]
 :pagenums:
 endif::[]
-:otel-spec-version: 1.8.0
+:otel-spec-version: 1.11.0
 :otel-java-version: 1.9.0
 
 = Eclipse MicroProfile Telemetry Tracing
