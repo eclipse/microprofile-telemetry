@@ -14,7 +14,7 @@ endif::[]
 :otel-spec-version: 1.11.0
 :otel-java-version: 1.13.0
 
-= Eclipse MicroProfile Telemetry Tracing
+= MicroProfile Telemetry Tracing
 
 == Introduction
 
