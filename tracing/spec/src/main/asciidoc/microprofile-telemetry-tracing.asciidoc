@@ -49,7 +49,8 @@ This document and implementations *MUST* comply with the following OpenTelemetry
 
 IMPORTANT: The Metrics and Logging integrations of https://opentelemetry.io[OpenTelemetry] are out of scope of this
 specification. Implementations are free to provide support for both Metrics and Logging if desired.
-
+```suggestion
+This specification supports the following three type of instrumentions: Automatic Instrumentation, Manual Instrumentation and Agent Instrumentation. 
 === Automatic Instrumentation
 
 Jakarta RESTful Web Services (server and client), and MicroProfile REST Clients are automatically enlisted to
