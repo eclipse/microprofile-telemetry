@@ -15,8 +15,8 @@
 // limitations under the License.
 //
 
-:authors: Roberto Cortez
-:email: radcortez@yahoo.com
+:authors: MicroProfile Telemetry Spec group (Roberto Cortez, Emily Jiang, Bruno Baptista, Jan Westerkamp, Felix Wong, Yasmin Aumeeruddy)
+:email: 
 :version-label!:
 :sectanchors:
 :doctype: book
@@ -29,7 +29,7 @@ ifdef::backend-pdf[]
 :pagenums:
 endif::[]
 :otel-spec-version: 1.11.0
-:otel-java-version: 1.13.0
+:otel-java-version: 1.14.0
 
 = MicroProfile Telemetry Tracing
 
@@ -248,6 +248,11 @@ attribute is optional. Implementations can also add their own attributes.
 Other MicroProfile specifications can add their own attributes under their own attribute name following the
 convention `mp.[specification short name].[attribute name]`.
 
+== Tracing Enablement
+
+By default, MicroProfile Telemetry tracing is off. In order to enable any of the tracing aspects, the configuration `mp.telemetry.trace.enabled=true` 
+must be specified in any of the config sources available via MicroProfile Config. This property is read once when the application is starting. Any changes afterwards will not take effect unless the application is restarted.
+
 == MicroProfile OpenTracing
 
 MicroProfile Telemetry Tracing supercedes MicroProfile OpenTracing. Even if the end goal is the same,
@@ -263,4 +268,27 @@ For these reasons, the MicroProfile Telemetry Tracing specification does not pro
 both projects. While it is certainly possible to achieve a migration path at the code level and at the specification
 level (at the expense of not following the main OpenTelemetry specification), it is unlikely to be able to achieve the
 same compatibility at the data layer. Regardless, implementations are still free to provide migration paths between
-MicroProfile OpenTracing and MicroProfile Telemetry Tracing.
+MicroProfile OpenTracing and MicroProfile Telemetry Tracing. 
+
+If a migration path is provided, the bridge layer provided by OpenTelemetry should be used. This bridge layer implements
+OpenTracing APIs using OpenTelemetry APIs (more details can be found from https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/compatibility/opentracing.md[OpenTracing Compatbility]. 
+The bridge layer takes OpenTelemetry Tracer and exposes as OpenTracing Tracer. See the example below.
+
+[source,java]
+----
+//From the global OpenTelemetry configuration
+Tracer tracer1 = OpenTracingShim.createTracerShim();
+//From a provided OpenTelemetry instance oTel
+Tracer tracer2 = OpenTracingShim.createTracerShim(oTel);
+----
+
+Afterwards, you can then register the tracer as the OpenTracing Global Tracer:
+
+[source,java]
+----
+GlobalTracer.registerIfAbsent(tracer);
+----
+
+== MicroProfile Telemetry and MicroProfile OpenTracing
+
+If MicroProfile Telemetry and MicroProfile OpenTracing are both present in one application, it is advised only to enable one of them. Otherwise, no portalbe behaviour will occur.
