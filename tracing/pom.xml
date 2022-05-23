@@ -31,4 +31,121 @@
         <module>tck</module>
     </modules>
 
+    <properties>
+<!--        <java.version>11</java.version>-->
+<!--        <maven.compiler.target>${java.version}</maven.compiler.target>-->
+<!--        <maven.compiler.source>${java.version}</maven.compiler.source>-->
+
+        <version.opentelemetry>1.12.1</version.opentelemetry>
+        <version.microprofile.config>2.0.1</version.microprofile.config>
+
+        <!-- Test -->
+        <version.arquillian>1.7.0.Alpha10</version.arquillian>
+        <version.arquillian.jetty>1.0.0.CR4</version.arquillian.jetty>
+        <version.jetty>9.4.45.v20220203</version.jetty>
+        <version.weld.core>3.1.7.SP1</version.weld.core>
+<!--        <version.smallrye.config>2.9.2</version.smallrye.config>-->
+        <version.resteasy>4.7.5.Final</version.resteasy>
+        <junit-jupiter.version>5.8.2</junit-jupiter.version>
+        <rest-assured.version>5.0.1</rest-assured.version>
+        <awaitility.version>4.2.0</awaitility.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- This BOM includes the opentelemetry-bom and the opentelemetry-bom-alpha -->
+            <dependency>
+                <groupId>io.opentelemetry.instrumentation</groupId>
+                <artifactId>opentelemetry-instrumentation-bom-alpha</artifactId>
+                <version>${version.opentelemetry}-alpha</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- MicroProfile -->
+            <dependency>
+                <groupId>org.eclipse.microprofile.config</groupId>
+                <artifactId>microprofile-config-api</artifactId>
+                <version>${version.microprofile.config}</version>
+                <scope>provided</scope>
+            </dependency>
+
+<!--            &lt;!&ndash; Internal &ndash;&gt;-->
+<!--            <dependency>-->
+<!--                <groupId>io.smallrye.opentelemetry</groupId>-->
+<!--                <artifactId>smallrye-opentelemetry-api</artifactId>-->
+<!--                <version>${project.version}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>io.smallrye.opentelemetry</groupId>-->
+<!--                <artifactId>smallrye-opentelemetry-implementation-cdi</artifactId>-->
+<!--                <version>${project.version}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>io.smallrye.opentelemetry</groupId>-->
+<!--                <artifactId>smallrye-opentelemetry-implementation-rest</artifactId>-->
+<!--                <version>${project.version}</version>-->
+<!--            </dependency>-->
+
+            <!-- TCK Dependencies -->
+            <dependency>
+                <groupId>org.jboss.arquillian</groupId>
+                <artifactId>arquillian-bom</artifactId>
+                <version>${version.arquillian}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.arquillian.container</groupId>
+                <artifactId>arquillian-jetty-embedded-9</artifactId>
+                <version>${version.arquillian.jetty}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-bom</artifactId>
+                <version>${version.jetty}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.weld.servlet</groupId>
+                <artifactId>weld-servlet-core</artifactId>
+                <version>${version.weld.core}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.resteasy</groupId>
+                <artifactId>resteasy-bom</artifactId>
+                <version>${version.resteasy}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter</artifactId>
+                <version>${junit-jupiter.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.rest-assured</groupId>
+                <artifactId>rest-assured</artifactId>
+                <version>${rest-assured.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.awaitility</groupId>
+                <artifactId>awaitility</artifactId>
+                <version>${awaitility.version}</version>
+                <scope>test</scope>
+            </dependency>
+<!--            <dependency>-->
+<!--                <groupId>io.smallrye.config</groupId>-->
+<!--                <artifactId>smallrye-config</artifactId>-->
+<!--                <version>${version.smallrye.config}</version>-->
+<!--                <scope>test</scope>-->
+<!--            </dependency>-->
+        </dependencies>
+    </dependencyManagement>
+
 </project>
