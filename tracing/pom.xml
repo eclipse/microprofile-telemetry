@@ -38,13 +38,14 @@
 
         <version.opentelemetry>1.12.1</version.opentelemetry>
         <version.microprofile.config>2.0.1</version.microprofile.config>
+        <jakarta.enterprise.cdi-api.version>2.0.2</jakarta.enterprise.cdi-api.version>
 
         <!-- Test -->
         <version.arquillian>1.7.0.Alpha10</version.arquillian>
         <version.arquillian.jetty>1.0.0.CR4</version.arquillian.jetty>
         <version.jetty>9.4.45.v20220203</version.jetty>
         <version.weld.core>3.1.7.SP1</version.weld.core>
-<!--        <version.smallrye.config>2.9.2</version.smallrye.config>-->
+        <!--        <version.smallrye.config>2.9.2</version.smallrye.config>-->
         <version.resteasy>4.7.5.Final</version.resteasy>
         <junit-jupiter.version>5.8.2</junit-jupiter.version>
         <rest-assured.version>5.0.1</rest-assured.version>
@@ -53,6 +54,12 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>jakarta.enterprise</groupId>
+                <artifactId>jakarta.enterprise.cdi-api</artifactId>
+                <version>${jakarta.enterprise.cdi-api.version}</version>
+                <scope>provided</scope>
+            </dependency>
             <!-- This BOM includes the opentelemetry-bom and the opentelemetry-bom-alpha -->
             <dependency>
                 <groupId>io.opentelemetry.instrumentation</groupId>

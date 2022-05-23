@@ -88,6 +88,7 @@ class RestSpanTest {
         assertEquals("0.1.0-SNAPSHOT", spanItems.get(0).getResource().getAttribute(SERVICE_VERSION));
 
         InstrumentationLibraryInfo libraryInfo = spanItems.get(0).getInstrumentationLibraryInfo();
+        //FIXME this will need to come from the MP Config bridge
         assertEquals(OpenTelemetryConfig.INSTRUMENTATION_NAME, libraryInfo.getName());
         assertEquals(OpenTelemetryConfig.INSTRUMENTATION_VERSION, libraryInfo.getVersion());
     }
