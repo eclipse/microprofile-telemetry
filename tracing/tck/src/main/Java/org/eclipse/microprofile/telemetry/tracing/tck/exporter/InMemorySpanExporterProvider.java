@@ -17,13 +17,12 @@
  * limitations under the License.
  *
  */
-package org.eclipse.microprofile.telemetry.tracing.tck;
-
-import javax.enterprise.inject.spi.CDI;
+package org.eclipse.microprofile.telemetry.tracing.tck.exporter;
 
 import io.opentelemetry.sdk.autoconfigure.spi.ConfigProperties;
 import io.opentelemetry.sdk.autoconfigure.spi.traces.ConfigurableSpanExporterProvider;
 import io.opentelemetry.sdk.trace.export.SpanExporter;
+import jakarta.enterprise.inject.spi.CDI;
 
 public class InMemorySpanExporterProvider implements ConfigurableSpanExporterProvider {
     @Override
