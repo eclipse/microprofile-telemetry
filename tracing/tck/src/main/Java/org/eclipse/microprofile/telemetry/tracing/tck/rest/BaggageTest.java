@@ -17,7 +17,7 @@
  * limitations under the License.
  *
  */
-package org.eclipse.microprofile.telemetry.tracing.tck.rest;
+package tck.rest;
 
 import static java.net.HttpURLConnection.HTTP_OK;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -33,7 +33,7 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
 
-import org.eclipse.microprofile.telemetry.tracing.tck.InMemorySpanExporter;
+import tck.InMemorySpanExporter;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit5.ArquillianExtension;
 import org.jboss.arquillian.test.api.ArquillianResource;
@@ -66,7 +66,7 @@ class BaggageTest {
     void baggage() {
         WebTarget target = ClientBuilder.newClient().target(url.toString() + "baggage");
         Response response = target.request().header("baggage", "user=naruto").get();
-        assertEquals(HTTP_OK, response.getStatus());
+        Assertions.assertEquals(HTTP_OK, response.getStatus());
 
         spanExporter.getFinishedSpanItems(2);
     }
@@ -78,7 +78,7 @@ class BaggageTest {
 
         @GET
         public Response baggage() {
-            assertEquals("naruto", baggage.getEntryValue("user"));
+            Assertions.assertEquals("naruto", baggage.getEntryValue("user"));
             return Response.ok().build();
         }
     }

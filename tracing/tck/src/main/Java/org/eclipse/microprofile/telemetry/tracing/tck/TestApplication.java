@@ -17,7 +17,7 @@
  * limitations under the License.
  *
  */
-package org.eclipse.microprofile.telemetry.tracing.tck;
+package tck;
 
 import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -65,8 +65,8 @@ class TestApplication {
     public void servlet() {
         String uri = url.toExternalForm() + "servlet";
         WebTarget echoEndpointTarget = ClientBuilder.newClient().target(uri);
-        Response response = echoEndpointTarget.request(TEXT_PLAIN).get();
-        assertEquals(response.getStatus(), HttpURLConnection.HTTP_OK);
+        Response response = echoEndpointTarget.request(MediaType.TEXT_PLAIN).get();
+        Assertions.assertEquals(response.getStatus(), HttpURLConnection.HTTP_OK);
     }
 
     @Test
@@ -74,8 +74,8 @@ class TestApplication {
     public void rest() {
         String uri = url.toExternalForm() + "rest";
         WebTarget echoEndpointTarget = ClientBuilder.newClient().target(uri);
-        Response response = echoEndpointTarget.request(TEXT_PLAIN).get();
-        assertEquals(response.getStatus(), HttpURLConnection.HTTP_OK);
+        Response response = echoEndpointTarget.request(MediaType.TEXT_PLAIN).get();
+        Assertions.assertEquals(response.getStatus(), HttpURLConnection.HTTP_OK);
     }
 
     @WebServlet(urlPatterns = "/servlet")

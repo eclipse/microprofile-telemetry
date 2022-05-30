@@ -17,7 +17,7 @@
  * limitations under the License.
  *
  */
-package org.eclipse.microprofile.telemetry.tracing.tck;
+package tck;
 
 import javax.enterprise.inject.spi.CDI;
 

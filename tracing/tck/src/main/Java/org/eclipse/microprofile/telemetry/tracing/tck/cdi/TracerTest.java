@@ -18,7 +18,7 @@
  *
  */
 
-package org.eclipse.microprofile.telemetry.tracing.tck.cdi;
+package tck.cdi;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -46,7 +46,7 @@ class TracerTest {
 
     @Test
     void tracer() {
-        assertNotNull(tracerBean.getTracer());
+        Assertions.assertNotNull(tracerBean.getTracer());
     }
 
     @ApplicationScoped

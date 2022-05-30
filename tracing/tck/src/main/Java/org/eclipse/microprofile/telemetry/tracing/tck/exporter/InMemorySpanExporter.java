@@ -18,7 +18,7 @@
  *
  */
 
-package org.eclipse.microprofile.telemetry.tracing.tck;
+package tck;
 
 import static java.util.Comparator.comparingLong;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -54,7 +54,7 @@ public class InMemorySpanExporter implements SpanExporter {
     }
 
     public void assertSpanCount(int spanCount) {
-        await().atMost(10, SECONDS).untilAsserted(() -> assertEquals(spanCount, finishedSpanItems.size()));
+        Awaitility.await().atMost(10, SECONDS).untilAsserted(() -> Assertions.assertEquals(spanCount, finishedSpanItems.size()));
     }
 
     public void reset() {
