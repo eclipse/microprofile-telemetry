@@ -42,12 +42,17 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
 
-import org.eclipse.microprofile.telemetry.tracing.tck.InMemorySpanExporter;
+import io.restassured.RestAssured;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Application;
+import jakarta.ws.rs.core.Response;
+import org.eclipse.microprofile.telemetry.tracing.tck.exporter.InMemorySpanExporter;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit5.ArquillianExtension;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -75,17 +80,17 @@ class RestSpanTest {
 
     @Test
     void span() {
-        given().get("/span").then().statusCode(HTTP_OK);
+        RestAssured.given().get("/span").then().statusCode(HTTP_OK);
 
         List<SpanData> spanItems = spanExporter.getFinishedSpanItems(1);
-        assertEquals(1, spanItems.size());
-        assertEquals(SERVER, spanItems.get(0).getKind());
-        assertEquals(url.getPath() + "span", spanItems.get(0).getName());
-        assertEquals(HTTP_OK, spanItems.get(0).getAttributes().get(HTTP_STATUS_CODE));
-        assertEquals(HttpMethod.GET, spanItems.get(0).getAttributes().get(HTTP_METHOD));
+        Assertions.assertEquals(1, spanItems.size());
+        Assertions.assertEquals(SERVER, spanItems.get(0).getKind());
+        Assertions.assertEquals(url.getPath() + "span", spanItems.get(0).getName());
+        Assertions.assertEquals(HTTP_OK, spanItems.get(0).getAttributes().get(HTTP_STATUS_CODE));
+        Assertions.assertEquals(HttpMethod.GET, spanItems.get(0).getAttributes().get(HTTP_METHOD));
 
-        assertEquals("tck", spanItems.get(0).getResource().getAttribute(SERVICE_NAME));
-        assertEquals("0.1.0-SNAPSHOT", spanItems.get(0).getResource().getAttribute(SERVICE_VERSION));
+        Assertions.assertEquals("org/eclipse/microprofile/telemetry/tracing/tck", spanItems.get(0).getResource().getAttribute(SERVICE_NAME));
+        Assertions.assertEquals("0.1.0-SNAPSHOT", spanItems.get(0).getResource().getAttribute(SERVICE_VERSION));
 
         InstrumentationLibraryInfo libraryInfo = spanItems.get(0).getInstrumentationLibraryInfo();
         //FIXME this will need to come from the MP Config bridge
@@ -95,27 +100,27 @@ class RestSpanTest {
 
     @Test
     void spanName() {
-        given().get("/span/1").then().statusCode(HTTP_OK);
+        RestAssured.given().get("/span/1").then().statusCode(HTTP_OK);
 
         List<SpanData> spanItems = spanExporter.getFinishedSpanItems(1);
-        assertEquals(1, spanItems.size());
-        assertEquals(SERVER, spanItems.get(0).getKind());
-        assertEquals(url.getPath() + "span/{name}", spanItems.get(0).getName());
-        assertEquals(HTTP_OK, spanItems.get(0).getAttributes().get(HTTP_STATUS_CODE));
-        assertEquals(HttpMethod.GET, spanItems.get(0).getAttributes().get(HTTP_METHOD));
+        Assertions.assertEquals(1, spanItems.size());
+        Assertions.assertEquals(SERVER, spanItems.get(0).getKind());
+        Assertions.assertEquals(url.getPath() + "span/{name}", spanItems.get(0).getName());
+        Assertions.assertEquals(HTTP_OK, spanItems.get(0).getAttributes().get(HTTP_STATUS_CODE));
+        Assertions.assertEquals(HttpMethod.GET, spanItems.get(0).getAttributes().get(HTTP_METHOD));
     }
 
     @Test
     void spanNameWithoutQueryString() {
-        given().get("/span/1?id=1").then().statusCode(HTTP_OK);
+        RestAssured.given().get("/span/1?id=1").then().statusCode(HTTP_OK);
 
         List<SpanData> spanItems = spanExporter.getFinishedSpanItems(1);
-        assertEquals(1, spanItems.size());
-        assertEquals(SERVER, spanItems.get(0).getKind());
-        assertEquals(url.getPath() + "span/{name}", spanItems.get(0).getName());
-        assertEquals(HTTP_OK, spanItems.get(0).getAttributes().get(HTTP_STATUS_CODE));
-        assertEquals(HttpMethod.GET, spanItems.get(0).getAttributes().get(HTTP_METHOD));
-        assertEquals(url.getPath() + "span/1?id=1", spanItems.get(0).getAttributes().get(HTTP_TARGET));
+        Assertions.assertEquals(1, spanItems.size());
+        Assertions.assertEquals(SERVER, spanItems.get(0).getKind());
+        Assertions.assertEquals(url.getPath() + "span/{name}", spanItems.get(0).getName());
+        Assertions.assertEquals(HTTP_OK, spanItems.get(0).getAttributes().get(HTTP_STATUS_CODE));
+        Assertions.assertEquals(HttpMethod.GET, spanItems.get(0).getAttributes().get(HTTP_METHOD));
+        Assertions.assertEquals(url.getPath() + "span/1?id=1", spanItems.get(0).getAttributes().get(HTTP_TARGET));
     }
 
     @Path("/")

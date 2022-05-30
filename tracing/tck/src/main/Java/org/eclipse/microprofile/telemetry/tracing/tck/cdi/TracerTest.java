@@ -20,15 +20,14 @@
 
 package org.eclipse.microprofile.telemetry.tracing.tck.cdi;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit5.ArquillianExtension;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -46,7 +45,7 @@ class TracerTest {
 
     @Test
     void tracer() {
-        assertNotNull(tracerBean.getTracer());
+        Assertions.assertNotNull(tracerBean.getTracer());
     }
 
     @ApplicationScoped

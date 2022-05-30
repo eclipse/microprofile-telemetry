@@ -41,12 +41,18 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
 
+import jakarta.enterprise.inject.spi.CDI;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit5.ArquillianExtension;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -65,8 +71,8 @@ class TestApplication {
     public void servlet() {
         String uri = url.toExternalForm() + "servlet";
         WebTarget echoEndpointTarget = ClientBuilder.newClient().target(uri);
-        Response response = echoEndpointTarget.request(TEXT_PLAIN).get();
-        assertEquals(response.getStatus(), HttpURLConnection.HTTP_OK);
+        Response response = echoEndpointTarget.request(MediaType.TEXT_PLAIN).get();
+        Assertions.assertEquals(response.getStatus(), HttpURLConnection.HTTP_OK);
     }
 
     @Test
@@ -74,8 +80,8 @@ class TestApplication {
     public void rest() {
         String uri = url.toExternalForm() + "rest";
         WebTarget echoEndpointTarget = ClientBuilder.newClient().target(uri);
-        Response response = echoEndpointTarget.request(TEXT_PLAIN).get();
-        assertEquals(response.getStatus(), HttpURLConnection.HTTP_OK);
+        Response response = echoEndpointTarget.request(MediaType.TEXT_PLAIN).get();
+        Assertions.assertEquals(response.getStatus(), HttpURLConnection.HTTP_OK);
     }
 
     @WebServlet(urlPatterns = "/servlet")
