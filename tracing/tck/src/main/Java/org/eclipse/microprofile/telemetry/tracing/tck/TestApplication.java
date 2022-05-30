@@ -17,7 +17,7 @@
  * limitations under the License.
  *
  */
-package org.eclipse.microprofile.telemetry.tracing.tck;
+package tck;
 
 import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 import static org.junit.jupiter.api.Assertions.assertEquals;

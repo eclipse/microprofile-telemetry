@@ -18,7 +18,7 @@
  *
  */
 
-package org.eclipse.microprofile.telemetry.tracing.tck.rest;
+package tck.rest;
 
 import static io.opentelemetry.api.trace.SpanKind.SERVER;
 import static io.opentelemetry.semconv.resource.attributes.ResourceAttributes.SERVICE_NAME;
@@ -42,17 +42,12 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
 
-import io.restassured.RestAssured;
-import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.Application;
-import jakarta.ws.rs.core.Response;
-import org.eclipse.microprofile.telemetry.tracing.tck.exporter.InMemorySpanExporter;
+import tck.InMemorySpanExporter;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit5.ArquillianExtension;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -89,7 +84,7 @@ class RestSpanTest {
         Assertions.assertEquals(HTTP_OK, spanItems.get(0).getAttributes().get(HTTP_STATUS_CODE));
         Assertions.assertEquals(HttpMethod.GET, spanItems.get(0).getAttributes().get(HTTP_METHOD));
 
-        Assertions.assertEquals("org/eclipse/microprofile/telemetry/tracing/tck", spanItems.get(0).getResource().getAttribute(SERVICE_NAME));
+        Assertions.assertEquals("tck", spanItems.get(0).getResource().getAttribute(SERVICE_NAME));
         Assertions.assertEquals("0.1.0-SNAPSHOT", spanItems.get(0).getResource().getAttribute(SERVICE_VERSION));
 
         InstrumentationLibraryInfo libraryInfo = spanItems.get(0).getInstrumentationLibraryInfo();

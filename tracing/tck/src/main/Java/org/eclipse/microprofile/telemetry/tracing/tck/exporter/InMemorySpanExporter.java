@@ -18,7 +18,7 @@
  *
  */
 
-package org.eclipse.microprofile.telemetry.tracing.tck.exporter;
+package tck;
 
 import static java.util.Comparator.comparingLong;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -30,13 +30,11 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
+import javax.enterprise.context.ApplicationScoped;
 
 import io.opentelemetry.sdk.common.CompletableResultCode;
 import io.opentelemetry.sdk.trace.data.SpanData;
 import io.opentelemetry.sdk.trace.export.SpanExporter;
-import jakarta.enterprise.context.ApplicationScoped;
-import org.awaitility.Awaitility;
-import org.junit.jupiter.api.Assertions;
 
 @ApplicationScoped
 public class InMemorySpanExporter implements SpanExporter {
