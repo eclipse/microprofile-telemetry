@@ -18,7 +18,7 @@
  *
  */
 
-package org.eclipse.microprofile.telemetry.tracing.tck.cdi;
+package tck.cdi;
 
 
 import jakarta.enterprise.context.ApplicationScoped;
