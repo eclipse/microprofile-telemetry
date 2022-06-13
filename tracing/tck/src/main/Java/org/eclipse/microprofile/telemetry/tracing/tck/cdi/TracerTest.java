@@ -18,11 +18,8 @@
  *
  */
 
-package tck.cdi;
+package org.eclipse.microprofile.telemetry.tracing.tck.cdi;
 
-
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit5.ArquillianExtension;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
@@ -32,6 +29,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import io.opentelemetry.api.trace.Tracer;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 @ExtendWith(ArquillianExtension.class)
 class TracerTest {

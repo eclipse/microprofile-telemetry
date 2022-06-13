@@ -30,6 +30,7 @@
     <modules>
         <module>spec</module>
         <module>tck</module>
+        <module>api</module>
     </modules>
 
     <properties>
@@ -39,21 +40,11 @@
 
         <version.opentelemetry>1.12.1</version.opentelemetry>
         <version.mp.rest.client>3.0</version.mp.rest.client>
-        <!--        <version.microprofile.config>2.0.1</version.microprofile.config>-->
-<!--        <jakarta.enterprise.cdi-api.version>2.0.2</jakarta.enterprise.cdi-api.version>-->
-
-<!--        &lt;!&ndash; Test &ndash;&gt;-->
-<!--        <version.arquillian>1.7.0.Alpha10</version.arquillian>-->
-<!--        <version.arquillian.jetty>1.0.0.CR4</version.arquillian.jetty>-->
-<!--        <version.jetty>9.4.45.v20220203</version.jetty>-->
-<!--        <version.weld.core>3.1.7.SP1</version.weld.core>-->
-<!--        &lt;!&ndash;        <version.smallrye.config>2.9.2</version.smallrye.config>&ndash;&gt;-->
-<!--        <version.resteasy>4.7.5.Final</version.resteasy>-->
-        <junit-jupiter.version>5.8.2</junit-jupiter.version>
-        <rest-assured.version>5.0.1</rest-assured.version>
-        <awaitility.version>4.2.0</awaitility.version>
-
         <version.microprofile-config-api>3.0</version.microprofile-config-api>
+        <version.jakarta.servlet-api>4.0.4</version.jakarta.servlet-api>
+        <version.junit-jupiter>5.8.2</version.junit-jupiter>
+        <version.rest-assured>5.0.1</version.rest-assured>
+        <version.awaitility>4.2.0</version.awaitility>
     </properties>
 
     <dependencyManagement>
@@ -62,6 +53,12 @@
                 <groupId>org.eclipse.microprofile.config</groupId>
                 <artifactId>microprofile-config-api</artifactId>
                 <version>${version.microprofile-config-api}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.microprofile.telemetry.tracing</groupId>
+                <artifactId>microprofile-telemetry-tracing-api</artifactId>
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -86,6 +83,12 @@
                 <groupId>jakarta.json.bind</groupId>
                 <artifactId>jakarta.json.bind-api</artifactId>
                 <version>${version.jakarta.jsonb}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>jakarta.servlet</groupId>
+                <artifactId>jakarta.servlet-api</artifactId>
+                <version>${version.jakarta.servlet-api}</version>
                 <scope>provided</scope>
             </dependency>
         </dependencies>
