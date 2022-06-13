@@ -2,3 +2,13 @@
 
 
 image:https://badges.gitter.im/eclipse/microprofile-telemetry.svg[link="https://gitter.im/eclipse/microprofile-telemetry?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge"]
+
+This specification is to adopt https://opentelemetry.io/[OpenTelemetry] from CNCF to allow MicroProfile Applications benefit from OpenTelemetry and enable Jakarta RESTful Web Services automatically being traced if configured.
+
+== OpenTracing move to OpenTelemetry
+With the merge of OpenTracing and OpenCensus, OpenTelemetry holds the future. OpenTelemetry consists of Tracing, Logging and Metrics support.
+This `tracing` directory only focuses on the tracing aspect.
+
+== Structure of this specification
+Since OpenTelemetry has three parts: Tracing, Metrics and Logging. This specification potentially adopts all three parts when they are stable in OpenTelemetry. If this is the case, they will appear as submodules in this specification. 
+For instance, you can find details related to `tracing` from the directory of `tracing`. This top level project specifies a particular version of OpenTelemetry to pull in so that all submodules can work together.
