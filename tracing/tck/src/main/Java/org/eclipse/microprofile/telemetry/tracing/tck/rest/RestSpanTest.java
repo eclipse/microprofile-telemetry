@@ -26,13 +26,13 @@ import static io.opentelemetry.semconv.resource.attributes.ResourceAttributes.SE
 import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.*;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.net.URL;
 import java.util.List;
 
 import javax.inject.Inject;
 
-import org.eclipse.microprofile.telemetry.tracing.api.TelemetryTracingConfig;
 import org.eclipse.microprofile.telemetry.tracing.tck.exporter.InMemorySpanExporter;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit5.ArquillianExtension;
@@ -62,9 +62,6 @@ class RestSpanTest {
     @Inject
     InMemorySpanExporter spanExporter;
 
-    @Inject
-    TelemetryTracingConfig telemetryTracingConfig;
-
     @BeforeEach
     void setUp() {
         spanExporter.reset();
@@ -85,10 +82,11 @@ class RestSpanTest {
                 spanItems.get(0).getResource().getAttribute(SERVICE_NAME));
         assertEquals("0.1.0-SNAPSHOT", spanItems.get(0).getResource().getAttribute(SERVICE_VERSION));
 
+        // FIXME drop deprecated lib use
         InstrumentationLibraryInfo libraryInfo = spanItems.get(0).getInstrumentationLibraryInfo();
-        // FIXME this will need to come from the MP Config bridge
-        assertEquals(telemetryTracingConfig.instrumentationName, libraryInfo.getName());
-        assertEquals(telemetryTracingConfig.instrumentationVersion, libraryInfo.getVersion());
+        // Was decided at the MP Call on 13/06/2022 that lib name and version are responsibility of lib implementations
+        assertNotNull(libraryInfo.getName());
+        assertNotNull(libraryInfo.getVersion());
     }
 
     @Test

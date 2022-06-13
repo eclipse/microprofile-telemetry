@@ -30,7 +30,6 @@
     <modules>
         <module>spec</module>
         <module>tck</module>
-        <module>api</module>
     </modules>
 
     <properties>
@@ -53,12 +52,6 @@
                 <groupId>org.eclipse.microprofile.config</groupId>
                 <artifactId>microprofile-config-api</artifactId>
                 <version>${version.microprofile-config-api}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.microprofile.telemetry.tracing</groupId>
-                <artifactId>microprofile-telemetry-tracing-api</artifactId>
-                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>

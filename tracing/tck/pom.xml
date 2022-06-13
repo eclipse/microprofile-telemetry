@@ -28,10 +28,6 @@
 
     <dependencies>
         <dependency>
-        <groupId>org.eclipse.microprofile.telemetry.tracing</groupId>
-        <artifactId>microprofile-telemetry-tracing-api</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.eclipse.microprofile.config</groupId>
             <artifactId>microprofile-config-api</artifactId>
         </dependency>

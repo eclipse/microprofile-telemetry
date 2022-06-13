@@ -32,7 +32,7 @@
 
     <properties>
         <inceptionYear>2022</inceptionYear>
-        <opentelemetry-api.version>1.13.1</opentelemetry-api.version>
+        <opentelemetry-api.version>1.14.0</opentelemetry-api.version>
     </properties>
 
     <issueManagement>
