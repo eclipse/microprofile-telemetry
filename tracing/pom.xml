@@ -33,11 +33,6 @@
     </modules>
 
     <properties>
-        <!--        <java.version>11</java.version>-->
-        <!--        <maven.compiler.target>${java.version}</maven.compiler.target>-->
-        <!--        <maven.compiler.source>${java.version}</maven.compiler.source>-->
-
-        <version.opentelemetry>1.12.1</version.opentelemetry>
         <version.mp.rest.client>3.0</version.mp.rest.client>
         <version.microprofile-config-api>3.0</version.microprofile-config-api>
         <version.jakarta.servlet-api>4.0.4</version.jakarta.servlet-api>

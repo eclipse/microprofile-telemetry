@@ -248,9 +248,10 @@ attribute is optional. Implementations can also add their own attributes.
 Other MicroProfile specifications can add their own attributes under their own attribute name following the
 convention `mp.[specification short name].[attribute name]`.
 
-Implementation libraries must set the library name and version using the following properties:
+Implementation libraries can set the library name using the following property:
+
 `mp.telemetry.tracing.name`
-`mp.telemetry.tracing.version`
+
 
 == Tracing Enablement
 

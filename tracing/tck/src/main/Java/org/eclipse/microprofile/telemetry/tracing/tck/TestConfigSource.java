@@ -27,16 +27,16 @@ import java.util.Set;
 import org.eclipse.microprofile.config.spi.ConfigSource;
 
 public class TestConfigSource implements ConfigSource {
-    static final Map<String, String> configuration = new HashMap<>();
+    static final Map<String, String> CONFIGURATION = new HashMap<>();
 
     @Override
     public Set<String> getPropertyNames() {
-        return configuration.keySet();
+        return CONFIGURATION.keySet();
     }
 
     @Override
     public String getValue(final String propertyName) {
-        return configuration.get(propertyName);
+        return CONFIGURATION.get(propertyName);
     }
 
     @Override

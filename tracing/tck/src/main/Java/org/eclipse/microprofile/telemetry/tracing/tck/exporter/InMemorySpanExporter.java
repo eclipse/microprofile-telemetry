@@ -22,8 +22,6 @@ package org.eclipse.microprofile.telemetry.tracing.tck.exporter;
 
 import static java.util.Comparator.comparingLong;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.awaitility.Awaitility.await;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Collection;
 import java.util.List;
