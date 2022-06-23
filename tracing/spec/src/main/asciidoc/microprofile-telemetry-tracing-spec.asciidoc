@@ -248,6 +248,11 @@ attribute is optional. Implementations can also add their own attributes.
 Other MicroProfile specifications can add their own attributes under their own attribute name following the
 convention `mp.[specification short name].[attribute name]`.
 
+Implementation libraries can set the library name using the following property:
+
+`mp.telemetry.tracing.name`
+
+
 == Tracing Enablement
 
 By default, MicroProfile Telemetry tracing is off. In order to enable any of the tracing aspects, the configuration `mp.telemetry.trace.enabled=true` 
