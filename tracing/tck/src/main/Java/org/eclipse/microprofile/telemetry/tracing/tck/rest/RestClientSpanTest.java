@@ -75,7 +75,8 @@ class RestClientSpanTest {
     @Deployment
     public static WebArchive createDeployment() {
         return ShrinkWrap.create(WebArchive.class)
-                .addAsResource(new StringAsset("client/mp-rest/url=${baseUri}"),
+                .addAsResource(new StringAsset("client/mp-rest/url=${baseUri}\n"
+                        + "mp.telemetry.tracing.enabled=true"),
                         "META-INF/microprofile-config.properties");
     }
 

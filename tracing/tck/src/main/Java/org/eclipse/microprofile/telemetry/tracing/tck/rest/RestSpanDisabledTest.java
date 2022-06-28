@@ -17,11 +17,14 @@
  * limitations under the License.
  *
  */
+
 package org.eclipse.microprofile.telemetry.tracing.tck.rest;
 
 import static java.net.HttpURLConnection.HTTP_OK;
 
 import java.net.URL;
+
+import javax.inject.Inject;
 
 import org.eclipse.microprofile.telemetry.tracing.tck.exporter.InMemorySpanExporter;
 import org.jboss.arquillian.container.test.api.Deployment;
@@ -30,27 +33,24 @@ import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import io.opentelemetry.api.baggage.Baggage;
-import jakarta.inject.Inject;
+import io.restassured.RestAssured;
 import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
-import jakarta.ws.rs.client.ClientBuilder;
-import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.core.Application;
 import jakarta.ws.rs.core.Response;
 
 @ExtendWith(ArquillianExtension.class)
-class BaggageTest {
+class RestSpanDisabledTest {
     @Deployment
     public static WebArchive createDeployment() {
         return ShrinkWrap.create(WebArchive.class)
-                .addAsResource(new StringAsset("mp.telemetry.tracing.enabled=true"),
+                .addAsResource(new StringAsset("mp.telemetry.tracing.enabled=false"),
                         "META-INF/microprofile-config.properties");
     }
 
@@ -65,22 +65,34 @@ class BaggageTest {
     }
 
     @Test
-    void baggage() {
-        WebTarget target = ClientBuilder.newClient().target(url.toString() + "baggage");
-        Response response = target.request().header("baggage", "user=naruto").get();
-        Assertions.assertEquals(HTTP_OK, response.getStatus());
-
-        spanExporter.getFinishedSpanItems(2);
+    void span() {
+        RestAssured.given().get("/span").then().statusCode(HTTP_OK);
+        spanExporter.getFinishedSpanItems(0);
     }
 
-    @Path("/baggage")
-    public static class BaggageResource {
-        @Inject
-        Baggage baggage;
+    @Test
+    void spanName() {
+        RestAssured.given().get("/span/1").then().statusCode(HTTP_OK);
+        spanExporter.getFinishedSpanItems(0);
+    }
+
+    @Test
+    void spanNameWithoutQueryString() {
+        RestAssured.given().get("/span/1?id=1").then().statusCode(HTTP_OK);
+        spanExporter.getFinishedSpanItems(0);
+    }
+
+    @Path("/")
+    public static class SpanResource {
+        @GET
+        @Path("/span")
+        public Response span() {
+            return Response.ok().build();
+        }
 
         @GET
-        public Response baggage() {
-            Assertions.assertEquals("naruto", baggage.getEntryValue("user"));
+        @Path("/span/{name}")
+        public Response spanName(@PathParam(value = "name") String name) {
             return Response.ok().build();
         }
     }

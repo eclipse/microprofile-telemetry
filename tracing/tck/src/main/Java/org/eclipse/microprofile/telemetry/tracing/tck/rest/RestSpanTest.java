@@ -40,6 +40,7 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit5.ArquillianExtension;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
+import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -60,7 +61,9 @@ import jakarta.ws.rs.core.Response;
 class RestSpanTest {
     @Deployment
     public static WebArchive createDeployment() {
-        return ShrinkWrap.create(WebArchive.class);
+        return ShrinkWrap.create(WebArchive.class)
+                .addAsResource(new StringAsset("mp.telemetry.tracing.enabled=true"),
+                        "META-INF/microprofile-config.properties");
     }
 
     @ArquillianResource
