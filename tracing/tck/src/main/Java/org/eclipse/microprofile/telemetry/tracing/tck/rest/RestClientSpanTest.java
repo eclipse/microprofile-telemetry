@@ -76,7 +76,7 @@ class RestClientSpanTest {
     public static WebArchive createDeployment() {
         return ShrinkWrap.create(WebArchive.class)
                 .addAsResource(new StringAsset("client/mp-rest/url=${baseUri}\n"
-                        + "mp.telemetry.tracing.enabled=true"),
+                        + "otel.experimental.sdk.enabled=true"),
                         "META-INF/microprofile-config.properties");
     }
 

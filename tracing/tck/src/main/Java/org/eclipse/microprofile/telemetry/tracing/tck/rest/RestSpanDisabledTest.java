@@ -50,7 +50,7 @@ class RestSpanDisabledTest {
     @Deployment
     public static WebArchive createDeployment() {
         return ShrinkWrap.create(WebArchive.class)
-                .addAsResource(new StringAsset("mp.telemetry.tracing.enabled=false"),
+                .addAsResource(new StringAsset("otel.experimental.sdk.enabled=false"),
                         "META-INF/microprofile-config.properties");
     }
 
