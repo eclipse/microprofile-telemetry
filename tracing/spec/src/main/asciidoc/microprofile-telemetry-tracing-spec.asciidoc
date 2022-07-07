@@ -255,7 +255,7 @@ Implementation libraries can set the library name using the following property:
 
 == Tracing Enablement
 
-By default, MicroProfile Telemetry tracing is off. In order to enable any of the tracing aspects, the configuration `mp.telemetry.tracing.enabled=true` 
+By default, MicroProfile Telemetry tracing is off. In order to enable any of the tracing aspects, the configuration `mp.telemetry.trace.enabled=true` 
 must be specified in any of the config sources available via MicroProfile Config. This property is read once when the application is starting. Any changes afterwards will not take effect unless the application is restarted.
 
 == MicroProfile OpenTracing
