@@ -39,5 +39,8 @@ Explicit manual instrumentation can be added into a MicroProfile application usi
 Implementations are free to support the OpenTelemetry Agent Instrumentation.
 
 === Configuration
-By default, MicroProfile Telemetry tracing is off. In order to enable any of the tracing aspects, the configuration mp.telemetry.trace.enabled=true must be specified in any of the config sources available via MicroProfile Config.
+By default, MicroProfile Telemetry tracing is off. In order to enable any of the tracing aspects, the configuration `mp.telemetry.trace.enabled=true` must be specified in any of the config sources available via MicroProfile Config.
+
+CAUTION: This is different from the OpenTelemetry standard
+
 This property is read once when the application is starting. Any changes afterwards will not take effect unless the application is restarted.
