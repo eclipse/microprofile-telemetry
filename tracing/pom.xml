@@ -35,7 +35,7 @@
     <properties>
         <version.mp.rest.client>3.0</version.mp.rest.client>
         <version.microprofile-config-api>3.0</version.microprofile-config-api>
-        <version.jakarta.servlet-api>4.0.4</version.jakarta.servlet-api>
+        <version.jakarta.servlet-api>6.0.0</version.jakarta.servlet-api>
         <version.junit-jupiter>5.9.0</version.junit-jupiter>
         <version.rest-assured>5.1.1</version.rest-assured>
         <version.awaitility>4.2.0</version.awaitility>
