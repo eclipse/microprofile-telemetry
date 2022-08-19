@@ -31,7 +31,7 @@
 
     <properties>
         <inceptionYear>2022</inceptionYear>
-        <opentelemetry-api.version>1.14.0</opentelemetry-api.version>
+        <opentelemetry-api.version>1.17.0-alpha</opentelemetry-api.version>
     </properties>
 
     <issueManagement>
@@ -68,7 +68,7 @@
             <dependency>
                 <groupId>io.opentelemetry.instrumentation</groupId>
                 <artifactId>opentelemetry-instrumentation-bom-alpha</artifactId>
-                <version>${opentelemetry-api.version}-alpha</version>
+                <version>${opentelemetry-api.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
