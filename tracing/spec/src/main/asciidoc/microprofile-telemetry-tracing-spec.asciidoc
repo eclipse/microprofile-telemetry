@@ -31,6 +31,12 @@ endif::[]
 :otel-spec-version: 1.11.0
 :otel-java-version: 1.14.0
 
+// == License
+:sectnums!:
+include::license-efsl.adoc[]
+
+:sectnums:
+
 = MicroProfile Telemetry Tracing
 
 == Introduction
