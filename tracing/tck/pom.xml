@@ -77,11 +77,6 @@
             <artifactId>opentelemetry-instrumentation-api-annotation-support</artifactId>
         </dependency>
         <dependency>
-            <groupId>jakarta.ws.rs</groupId>
-            <artifactId>jakarta.ws.rs-api</artifactId>
-            <version>3.1.0</version>
-        </dependency>
-        <dependency>
             <groupId>org.jboss.arquillian.junit5</groupId>
             <artifactId>arquillian-junit5-container</artifactId>
         </dependency>
