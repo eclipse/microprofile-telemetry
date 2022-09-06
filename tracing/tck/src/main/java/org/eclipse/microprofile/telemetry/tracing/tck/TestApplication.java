@@ -19,14 +19,8 @@
  */
 package org.eclipse.microprofile.telemetry.tracing.tck;
 
-import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
@@ -39,7 +33,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.inject.spi.CDI;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.GET;
@@ -62,28 +55,11 @@ class TestApplication {
 
     @Test
     @RunAsClient
-    public void servlet() {
-        String uri = url.toExternalForm() + "servlet";
-        WebTarget echoEndpointTarget = ClientBuilder.newClient().target(uri);
-        Response response = echoEndpointTarget.request(MediaType.TEXT_PLAIN).get();
-        Assertions.assertEquals(response.getStatus(), HttpURLConnection.HTTP_OK);
-    }
-
-    @Test
-    @RunAsClient
     public void rest() {
         String uri = url.toExternalForm() + "rest";
         WebTarget echoEndpointTarget = ClientBuilder.newClient().target(uri);
         Response response = echoEndpointTarget.request(MediaType.TEXT_PLAIN).get();
         Assertions.assertEquals(response.getStatus(), HttpURLConnection.HTTP_OK);
-    }
-
-    @WebServlet(urlPatterns = "/servlet")
-    public static class TestServlet extends HttpServlet {
-        @Override
-        protected void doGet(final HttpServletRequest req, final HttpServletResponse resp) throws IOException {
-            resp.getWriter().write(CDI.current().select(HelloBean.class).get().hello());
-        }
     }
 
     @ApplicationPath("/rest")
