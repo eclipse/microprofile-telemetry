@@ -27,8 +27,8 @@ import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.HTTP_
 import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.HTTP_STATUS_CODE;
 import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.HTTP_TARGET;
 import static java.net.HttpURLConnection.HTTP_OK;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
 
 import java.net.URL;
 import java.util.List;
@@ -37,14 +37,12 @@ import javax.inject.Inject;
 
 import org.eclipse.microprofile.telemetry.tracing.tck.exporter.InMemorySpanExporter;
 import org.jboss.arquillian.container.test.api.Deployment;
-import org.jboss.arquillian.junit5.ArquillianExtension;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
 
 import io.opentelemetry.sdk.common.InstrumentationLibraryInfo;
 import io.opentelemetry.sdk.trace.data.SpanData;
@@ -57,7 +55,6 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.core.Application;
 import jakarta.ws.rs.core.Response;
 
-@ExtendWith(ArquillianExtension.class)
 class RestSpanTest {
     @Deployment
     public static WebArchive createDeployment() {
@@ -71,7 +68,7 @@ class RestSpanTest {
     @Inject
     InMemorySpanExporter spanExporter;
 
-    @BeforeEach
+    @BeforeTest
     void setUp() {
         spanExporter.reset();
     }
@@ -84,7 +81,7 @@ class RestSpanTest {
         assertEquals(1, spanItems.size());
         assertEquals(SERVER, spanItems.get(0).getKind());
         assertEquals(url.getPath() + "span", spanItems.get(0).getName());
-        assertEquals(HTTP_OK, spanItems.get(0).getAttributes().get(HTTP_STATUS_CODE));
+        assertEquals(HTTP_OK, spanItems.get(0).getAttributes().get(HTTP_STATUS_CODE).intValue());
         assertEquals(HttpMethod.GET, spanItems.get(0).getAttributes().get(HTTP_METHOD));
 
         assertEquals("org/eclipse/microprofile/telemetry/tracing/tck",
@@ -106,7 +103,7 @@ class RestSpanTest {
         assertEquals(1, spanItems.size());
         assertEquals(SERVER, spanItems.get(0).getKind());
         assertEquals(url.getPath() + "span/{name}", spanItems.get(0).getName());
-        assertEquals(HTTP_OK, spanItems.get(0).getAttributes().get(HTTP_STATUS_CODE));
+        assertEquals(HTTP_OK, spanItems.get(0).getAttributes().get(HTTP_STATUS_CODE).intValue());
         assertEquals(HttpMethod.GET, spanItems.get(0).getAttributes().get(HTTP_METHOD));
     }
 
@@ -118,7 +115,7 @@ class RestSpanTest {
         assertEquals(1, spanItems.size());
         assertEquals(SERVER, spanItems.get(0).getKind());
         assertEquals(url.getPath() + "span/{name}", spanItems.get(0).getName());
-        assertEquals(HTTP_OK, spanItems.get(0).getAttributes().get(HTTP_STATUS_CODE));
+        assertEquals(HTTP_OK, spanItems.get(0).getAttributes().get(HTTP_STATUS_CODE).intValue());
         assertEquals(HttpMethod.GET, spanItems.get(0).getAttributes().get(HTTP_METHOD));
         assertEquals(url.getPath() + "span/1?id=1", spanItems.get(0).getAttributes().get(HTTP_TARGET));
     }

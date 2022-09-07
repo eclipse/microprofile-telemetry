@@ -25,15 +25,13 @@ import java.net.URL;
 
 import org.eclipse.microprofile.telemetry.tracing.tck.exporter.InMemorySpanExporter;
 import org.jboss.arquillian.container.test.api.Deployment;
-import org.jboss.arquillian.junit5.ArquillianExtension;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.testng.Assert;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
 
 import io.opentelemetry.api.baggage.Baggage;
 import jakarta.inject.Inject;
@@ -45,7 +43,6 @@ import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Application;
 import jakarta.ws.rs.core.Response;
 
-@ExtendWith(ArquillianExtension.class)
 class BaggageTest {
     @Deployment
     public static WebArchive createDeployment() {
@@ -59,7 +56,7 @@ class BaggageTest {
     @Inject
     InMemorySpanExporter spanExporter;
 
-    @BeforeEach
+    @BeforeTest
     void setUp() {
         spanExporter.reset();
     }
@@ -68,7 +65,7 @@ class BaggageTest {
     void baggage() {
         WebTarget target = ClientBuilder.newClient().target(url.toString() + "baggage");
         Response response = target.request().header("baggage", "user=naruto").get();
-        Assertions.assertEquals(HTTP_OK, response.getStatus());
+        Assert.assertEquals(HTTP_OK, response.getStatus());
 
         spanExporter.getFinishedSpanItems(2);
     }
@@ -80,7 +77,7 @@ class BaggageTest {
 
         @GET
         public Response baggage() {
-            Assertions.assertEquals("naruto", baggage.getEntryValue("user"));
+            Assert.assertEquals("naruto", baggage.getEntryValue("user"));
             return Response.ok().build();
         }
     }

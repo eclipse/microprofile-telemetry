@@ -21,19 +21,16 @@
 package org.eclipse.microprofile.telemetry.tracing.tck.cdi;
 
 import org.jboss.arquillian.container.test.api.Deployment;
-import org.jboss.arquillian.junit5.ArquillianExtension;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 import io.opentelemetry.api.trace.Tracer;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-@ExtendWith(ArquillianExtension.class)
 class TracerTest {
     @Deployment
     public static WebArchive createDeployment() {
@@ -47,7 +44,7 @@ class TracerTest {
 
     @Test
     void tracer() {
-        Assertions.assertNotNull(tracerBean.getTracer());
+        Assert.assertNotNull(tracerBean.getTracer());
     }
 
     @ApplicationScoped

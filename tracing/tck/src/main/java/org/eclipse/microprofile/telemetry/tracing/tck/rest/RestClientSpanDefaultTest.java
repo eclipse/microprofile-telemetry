@@ -30,15 +30,13 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.eclipse.microprofile.telemetry.tracing.tck.exporter.InMemorySpanExporter;
 import org.jboss.arquillian.container.test.api.Deployment;
-import org.jboss.arquillian.junit5.ArquillianExtension;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.testng.Assert;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
 
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.Tracer;
@@ -57,7 +55,6 @@ import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Application;
 import jakarta.ws.rs.core.Response;
 
-@ExtendWith(ArquillianExtension.class)
 class RestClientSpanDefaultTest {
     @Deployment
     public static WebArchive createDeployment() {
@@ -74,7 +71,7 @@ class RestClientSpanDefaultTest {
     @RestClient
     SpanResourceClient client;
 
-    @BeforeEach
+    @BeforeTest
     void setUp() {
         spanExporter.reset();
     }
@@ -82,21 +79,21 @@ class RestClientSpanDefaultTest {
     @Test
     void span() {
         Response response = client.span();
-        Assertions.assertEquals(response.getStatus(), HTTP_OK);
+        Assert.assertEquals(response.getStatus(), HTTP_OK);
         spanExporter.getFinishedSpanItems(0);
     }
 
     @Test
     void spanName() {
         Response response = client.spanName("1");
-        Assertions.assertEquals(response.getStatus(), HTTP_OK);
+        Assert.assertEquals(response.getStatus(), HTTP_OK);
         spanExporter.getFinishedSpanItems(0);
     }
 
     @Test
     void spanNameQuery() {
         Response response = client.spanNameQuery("1", "query");
-        Assertions.assertEquals(response.getStatus(), HTTP_OK);
+        Assert.assertEquals(response.getStatus(), HTTP_OK);
         spanExporter.getFinishedSpanItems(0);
     }
 
@@ -105,28 +102,28 @@ class RestClientSpanDefaultTest {
         // Can't use REST Client here due to org.jboss.resteasy.microprofile.client.DefaultResponseExceptionMapper
         WebTarget target = ClientBuilder.newClient().target(url.toString() + "span/error");
         Response response = target.request().get();
-        Assertions.assertEquals(response.getStatus(), HTTP_INTERNAL_ERROR);
+        Assert.assertEquals(response.getStatus(), HTTP_INTERNAL_ERROR);
         spanExporter.getFinishedSpanItems(0);
     }
 
     @Test
     void spanChild() {
         Response response = client.spanChild();
-        Assertions.assertEquals(response.getStatus(), HTTP_OK);
+        Assert.assertEquals(response.getStatus(), HTTP_OK);
         spanExporter.getFinishedSpanItems(0);
     }
 
     @Test
     void spanCurrent() {
         Response response = client.spanCurrent();
-        Assertions.assertEquals(response.getStatus(), HTTP_OK);
+        Assert.assertEquals(response.getStatus(), HTTP_OK);
         spanExporter.getFinishedSpanItems(0);
     }
 
     @Test
     void spanNew() {
         Response response = client.spanNew();
-        Assertions.assertEquals(response.getStatus(), HTTP_OK);
+        Assert.assertEquals(response.getStatus(), HTTP_OK);
         spanExporter.getFinishedSpanItems(0);
     }
 
