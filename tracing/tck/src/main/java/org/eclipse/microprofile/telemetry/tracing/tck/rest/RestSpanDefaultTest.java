@@ -31,7 +31,7 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import io.restassured.RestAssured;
@@ -53,7 +53,7 @@ class RestSpanDefaultTest {
     @Inject
     InMemorySpanExporter spanExporter;
 
-    @BeforeTest
+    @BeforeMethod
     void setUp() {
         spanExporter.reset();
     }
