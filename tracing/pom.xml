@@ -34,7 +34,7 @@
     <properties>
         <version.mp.rest.client>3.0</version.mp.rest.client>
         <version.microprofile-config-api>3.0</version.microprofile-config-api>
-        <version.junit-jupiter>5.9.0</version.junit-jupiter>
+        <version.junit-jupiter>5.9.1</version.junit-jupiter>
         <version.rest-assured>5.2.0</version.rest-assured>
         <version.awaitility>4.2.0</version.awaitility>
     </properties>
