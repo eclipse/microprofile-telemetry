@@ -31,7 +31,8 @@
 
     <properties>
         <inceptionYear>2022</inceptionYear>
-        <opentelemetry-api.version>1.14.0</opentelemetry-api.version>
+        <opentelemetry.spec.version>1.11.0</opentelemetry.spec.version>
+        <opentelemetry.java.version>1.14.0</opentelemetry.java.version>
     </properties>
 
     <issueManagement>
@@ -61,14 +62,14 @@
             <!--            <dependency>-->
             <!--                    <groupId>io.opentelemetry</groupId>-->
             <!--                    <artifactId>opentelemetry-api</artifactId>-->
-            <!--                    <version>${opentelemetry-api.version}</version>-->
+            <!--                    <version>${opentelemetry.java.version}</version>-->
             <!--                    <scope>provided</scope>-->
             <!--            </dependency>-->
             <!-- This BOM includes the opentelemetry-bom and the opentelemetry-bom-alpha -->
             <dependency>
                 <groupId>io.opentelemetry.instrumentation</groupId>
                 <artifactId>opentelemetry-instrumentation-bom-alpha</artifactId>
-                <version>${opentelemetry-api.version}-alpha</version>
+                <version>${opentelemetry.java.version}-alpha</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -78,5 +79,22 @@
     <modules>
         <module>tracing</module>
     </modules>
+    
+    <build>
+    	<pluginManagement>
+    		<plugins>
+    			<plugin>
+                    <groupId>org.asciidoctor</groupId>
+                    <artifactId>asciidoctor-maven-plugin</artifactId>
+                    <configuration>
+                        <attributes>
+                            <otel-spec-version>${opentelemetry.spec.version}</otel-spec-version>
+                            <otel-java-version>${opentelemetry.java.version}</otel-java-version>
+                        </attributes>
+                    </configuration>
+                 </plugin>   
+    		</plugins>
+    	</pluginManagement>
+    </build>
 
 </project>
