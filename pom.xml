@@ -31,8 +31,8 @@
 
     <properties>
         <inceptionYear>2022</inceptionYear>
-        <opentelemetry.spec.version>1.11.0</opentelemetry.spec.version>
-        <opentelemetry.java.version>1.14.0</opentelemetry.java.version>
+        <opentelemetry.spec.version>1.12.0</opentelemetry.spec.version>
+        <opentelemetry.java.version>1.18.0</opentelemetry.java.version>
         <version.microprofile.tck.bom>3.0</version.microprofile.tck.bom>
     </properties>
 
@@ -60,12 +60,6 @@
 
     <dependencyManagement>
         <dependencies>
-            <!--            <dependency>-->
-            <!--                    <groupId>io.opentelemetry</groupId>-->
-            <!--                    <artifactId>opentelemetry-api</artifactId>-->
-            <!--                    <version>${opentelemetry.java.version}</version>-->
-            <!--                    <scope>provided</scope>-->
-            <!--            </dependency>-->
             <!-- This BOM includes the opentelemetry-bom and the opentelemetry-bom-alpha -->
             <dependency>
                 <groupId>io.opentelemetry.instrumentation</groupId>
@@ -80,7 +74,7 @@
     <modules>
         <module>tracing</module>
     </modules>
-    
+
     <build>
     	<pluginManagement>
     		<plugins>
@@ -93,7 +87,7 @@
                             <otel-java-version>${opentelemetry.java.version}</otel-java-version>
                         </attributes>
                     </configuration>
-                 </plugin>   
+                 </plugin>
     		</plugins>
     	</pluginManagement>
     </build>

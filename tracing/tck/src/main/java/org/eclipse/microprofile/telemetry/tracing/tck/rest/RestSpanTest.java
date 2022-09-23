@@ -46,7 +46,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import io.opentelemetry.sdk.common.InstrumentationLibraryInfo;
+import io.opentelemetry.sdk.common.InstrumentationScopeInfo;
 import io.opentelemetry.sdk.trace.data.SpanData;
 import io.restassured.RestAssured;
 import jakarta.ws.rs.ApplicationPath;
@@ -91,8 +91,7 @@ class RestSpanTest {
                 spanItems.get(0).getResource().getAttribute(SERVICE_NAME));
         assertEquals("0.1.0-SNAPSHOT", spanItems.get(0).getResource().getAttribute(SERVICE_VERSION));
 
-        // FIXME drop deprecated lib use
-        InstrumentationLibraryInfo libraryInfo = spanItems.get(0).getInstrumentationLibraryInfo();
+        InstrumentationScopeInfo libraryInfo = spanItems.get(0).getInstrumentationScopeInfo();
         // Was decided at the MP Call on 13/06/2022 that lib name and version are responsibility of lib implementations
         assertNotNull(libraryInfo.getName());
         assertNotNull(libraryInfo.getVersion());
