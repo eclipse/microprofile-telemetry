@@ -28,8 +28,9 @@
 ifdef::backend-pdf[]
 :pagenums:
 endif::[]
-:otel-spec-version: 1.11.0
-:otel-java-version: 1.14.0
+// Attributes defined in the microprofile-telemetry (parent) maven POM:
+//:otel-spec-version:
+//:otel-java-version:
 
 // == License
 :sectnums!:
