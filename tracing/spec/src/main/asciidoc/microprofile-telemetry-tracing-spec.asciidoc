@@ -15,7 +15,8 @@
 // limitations under the License.
 //
 
-:authors: MicroProfile Telemetry Spec group (Roberto Cortez, Emily Jiang, Bruno Baptista, Jan Westerkamp, Felix Wong, Yasmin Aumeeruddy)
+= MicroProfile Telemetry Tracing
+:authors: MicroProfile Telemetry Spec Group (Roberto Cortez, Emily Jiang, Bruno Baptista, Jan Westerkamp, Felix Wong, Yasmin Aumeeruddy)
 :email: 
 :version-label!:
 :sectanchors:
@@ -35,10 +36,8 @@ endif::[]
 // == License
 :sectnums!:
 include::license-efsl.adoc[]
-
 :sectnums:
 
-= MicroProfile Telemetry Tracing
 
 == Introduction
 
@@ -64,12 +63,11 @@ https://opentracing.io[OpenTracing] and https://opencensus.io[OpenCensus]).
 
 This document and implementations *MUST* comply with the following OpenTelemetry {otel-spec-version} specifications:
 
-- https://github.com/open-telemetry/opentelemetry-specification/blob/v{otel-spec-version}/specification/overview.md[OpenTelemetry Overview]
-(except for Metrics)
-- https://github.com/open-telemetry/opentelemetry-specification/blob/v{otel-spec-version}/specification/trace/api.md[Tracing API]
-- https://github.com/open-telemetry/opentelemetry-specification/blob/v{otel-spec-version}/specification/baggage/api.md[Baggage API]
-- https://github.com/open-telemetry/opentelemetry-specification/tree/v{otel-spec-version}/specification/context[Context API]
-- https://github.com/open-telemetry/opentelemetry-specification/blob/v{otel-spec-version}/specification/resource/sdk.md[Resource SDK]
+* https://github.com/open-telemetry/opentelemetry-specification/blob/v{otel-spec-version}/specification/overview.md[OpenTelemetry Overview]
+* https://github.com/open-telemetry/opentelemetry-specification/blob/v{otel-spec-version}/specification/trace/api.md[Tracing API]
+* https://github.com/open-telemetry/opentelemetry-specification/blob/v{otel-spec-version}/specification/baggage/api.md[Baggage API]
+* https://github.com/open-telemetry/opentelemetry-specification/tree/v{otel-spec-version}/specification/context[Context API]
+* https://github.com/open-telemetry/opentelemetry-specification/blob/v{otel-spec-version}/specification/resource/sdk.md[Resource SDK]
 
 IMPORTANT: The Metrics and Logging integrations of https://opentelemetry.io[OpenTelemetry] are out of scope of this
 specification. Implementations are free to provide support for both Metrics and Logging if desired.
@@ -201,11 +199,10 @@ Implementations are free to support the OpenTelemetry Agent Instrumentation. Thi
 telemetry data without code modifications by attaching a Java Agent JAR to the running JVM.
 
 If an implementation of MicroProfile Telemetry Tracing provides such support, it must conform to the instructions detailed
-in the https://github.com/open-telemetry/opentelemetry-java-instrumentation[OpenTelemetry Java Instrumentation]
-project, including:
+in the https://github.com/open-telemetry/opentelemetry-java-instrumentation[OpenTelemetry Java Instrumentation] (https://github.com/open-telemetry/opentelemetry-java-instrumentation/tree/v1.18.0[v{otel-java-version}]) project, including:
 
-- https://github.com/open-telemetry/opentelemetry-java-instrumentation/blob/v{otel-java-version}/docs/agent-config.md[Agent Configuration]
-- https://github.com/open-telemetry/opentelemetry-java-instrumentation/blob/v{otel-java-version}/docs/suppressing-instrumentation.md[Suppressing Instrumentation]
+* https://opentelemetry.io/docs/instrumentation/java/automatic/agent-config/[Agent Configuration]
+* https://opentelemetry.io/docs/instrumentation/java/automatic/agent-config/#suppressing-specific-auto-instrumentation[Suppressing Instrumentation]
 
 Both Agent and MicroProfile Telemetry Tracing Instrumentation (if any), must coexist with each other.
 
@@ -214,16 +211,16 @@ Both Agent and MicroProfile Telemetry Tracing Instrumentation (if any), must coe
 An implementation of MicroProfile Telemetry Tracing must provide the following CDI beans for supporting contextual instance
 injection:
 
-- `io.opentelemetry.api.OpenTelemetry`
-- `io.opentelemetry.api.trace.Tracer`
-- `io.opentelemetry.api.trace.Span`
-- `io.opentelemetry.api.baggage.Baggage`
+* `io.opentelemetry.api.OpenTelemetry`
+* `io.opentelemetry.api.trace.Tracer`
+* `io.opentelemetry.api.trace.Span`
+* `io.opentelemetry.api.baggage.Baggage`
 
 Calling the OpenTelemetry API directly must work in the same way and yield the same results:
 
-- `io.opentelemetry.api.GlobalOpenTelemetry.get()`
-- `io.opentelemetry.api.trace.Span.current()`
-- `io.opentelemetry.api.baggage.Baggage.current()`
+* `io.opentelemetry.api.GlobalOpenTelemetry.get()`
+* `io.opentelemetry.api.trace.Span.current()`
+* `io.opentelemetry.api.baggage.Baggage.current()`
 
 To obtain the `Tracer` with the OpenTelemetry API, the consumer must use the exact same instrumentation name and version
 used by the implementation. Failure to do so, may result in a different `Tracer` and incorrect handling of the
@@ -233,9 +230,9 @@ OpenTelemetry data.
 
 OpenTelemetry must be configured by MicroProfile Config following the configuration properties detailed in:
 
-- https://github.com/open-telemetry/opentelemetry-java/tree/v{otel-java-version}/sdk-extensions/autoconfigure[OpenTelemetry SDK Autoconfigure]
-(excluding properties related to Metrics).
-- https://github.com/open-telemetry/opentelemetry-java-instrumentation/blob/v{otel-java-version}/docs/manual-instrumentation.md[Manual Instrumentation]
+* https://github.com/open-telemetry/opentelemetry-java/tree/v{otel-java-version}/sdk-extensions/autoconfigure[OpenTelemetry SDK Autoconfigure]
+(excluding properties related to Metrics and Logging).
+* https://opentelemetry.io/docs/instrumentation/java/manual/[Manual Instrumentation]
 
 An implementation may opt to not support a subset of configuration properties related to a specific configuration. For
 instance, `otel.traces.exporter` is required but if the implementation does not support `jaeger` as a valid exporter,
@@ -270,11 +267,11 @@ must be specified in any of the config sources available via MicroProfile Config
 MicroProfile Telemetry Tracing supercedes MicroProfile OpenTracing. Even if the end goal is the same,
 there are some considerable differences:
 
-- Different API (between OpenTracing and OpenTelemetry)
-- No `@Traced` annotation
-- No specific MicroProfile configuration
-- No customization of Span name through MicroProfile API
-- Differences in attribute names and mandatory ones
+* Different API (between OpenTracing and OpenTelemetry)
+* No `@Traced` annotation
+* No specific MicroProfile configuration
+* No customization of Span name through MicroProfile API
+* Differences in attribute names and mandatory ones
 
 For these reasons, the MicroProfile Telemetry Tracing specification does not provide any migration path between
 both projects. While it is certainly possible to achieve a migration path at the code level and at the specification
@@ -283,7 +280,7 @@ same compatibility at the data layer. Regardless, implementations are still free
 MicroProfile OpenTracing and MicroProfile Telemetry Tracing. 
 
 If a migration path is provided, the bridge layer provided by OpenTelemetry should be used. This bridge layer implements
-OpenTracing APIs using OpenTelemetry APIs (more details can be found from https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/compatibility/opentracing.md[OpenTracing Compatbility]. 
+OpenTracing APIs using OpenTelemetry APIs (more details can be found from https://github.com/open-telemetry/opentelemetry-specification/blob/v{otel-spec-version}/specification/compatibility/opentracing.md[OpenTracing Compatbility]. 
 The bridge layer takes OpenTelemetry Tracer and exposes as OpenTracing Tracer. See the example below.
 
 [source,java]
