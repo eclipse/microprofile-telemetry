@@ -24,6 +24,7 @@ import static java.net.HttpURLConnection.HTTP_OK;
 import java.net.URL;
 
 import org.eclipse.microprofile.telemetry.tracing.tck.exporter.InMemorySpanExporter;
+import org.eclipse.microprofile.telemetry.tracing.tck.exporter.InMemorySpanExporterProvider;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.arquillian.testng.Arquillian;
@@ -35,6 +36,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import io.opentelemetry.api.baggage.Baggage;
+import io.opentelemetry.sdk.autoconfigure.spi.traces.ConfigurableSpanExporterProvider;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.GET;
@@ -49,9 +51,7 @@ class BaggageTest extends Arquillian {
     public static WebArchive createDeployment() {
         return ShrinkWrap.create(WebArchive.class)
                 .addClasses(InMemorySpanExporter.class)
-                .addAsServiceProvider(
-                        io.opentelemetry.sdk.autoconfigure.spi.traces.ConfigurableSpanExporterProvider.class,
-                        org.eclipse.microprofile.telemetry.tracing.tck.exporter.InMemorySpanExporterProvider.class)
+                .addAsServiceProvider(ConfigurableSpanExporterProvider.class, InMemorySpanExporterProvider.class)
                 .addAsResource(new StringAsset("otel.experimental.sdk.enabled=true"),
                         "META-INF/microprofile-config.properties");
     }
