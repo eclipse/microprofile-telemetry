@@ -42,6 +42,7 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.eclipse.microprofile.telemetry.tracing.tck.exporter.InMemorySpanExporter;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.test.api.ArquillianResource;
+import org.jboss.arquillian.testng.Arquillian;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
@@ -68,12 +69,15 @@ import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Application;
 import jakarta.ws.rs.core.Response;
 
-class RestClientSpanTest {
+class RestClientSpanTest extends Arquillian {
     @Deployment
     public static WebArchive createDeployment() {
         return ShrinkWrap.create(WebArchive.class)
-                .addAsResource(new StringAsset("client/mp-rest/url=${baseUri}\n"
-                        + "otel.experimental.sdk.enabled=true"),
+                .addClasses(InMemorySpanExporter.class)
+                .addAsServiceProvider(
+                        io.opentelemetry.sdk.autoconfigure.spi.traces.ConfigurableSpanExporterProvider.class,
+                        org.eclipse.microprofile.telemetry.tracing.tck.exporter.InMemorySpanExporterProvider.class)
+                .addAsResource(new StringAsset("otel.experimental.sdk.enabled=true"),
                         "META-INF/microprofile-config.properties");
     }
 
@@ -87,7 +91,10 @@ class RestClientSpanTest {
 
     @BeforeMethod
     void setUp() {
-        spanExporter.reset();
+        // Only want to run on server
+        if (spanExporter != null) {
+            spanExporter.reset();
+        }
     }
 
     @Test
