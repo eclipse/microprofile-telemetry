@@ -34,11 +34,13 @@ import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.HTTP_
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 import static java.net.HttpURLConnection.HTTP_OK;
 
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
 
+import org.eclipse.microprofile.rest.client.RestClientBuilder;
+import org.eclipse.microprofile.rest.client.RestClientDefinitionException;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.eclipse.microprofile.telemetry.tracing.tck.exporter.InMemorySpanExporter;
 import org.eclipse.microprofile.telemetry.tracing.tck.exporter.InMemorySpanExporterProvider;
 import org.jboss.arquillian.container.test.api.Deployment;
@@ -57,6 +59,7 @@ import io.opentelemetry.context.Context;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import io.opentelemetry.sdk.autoconfigure.spi.traces.ConfigurableSpanExporterProvider;
 import io.opentelemetry.sdk.trace.data.SpanData;
+import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
@@ -85,8 +88,7 @@ class RestClientSpanTest extends Arquillian {
     URL url;
     @Inject
     InMemorySpanExporter spanExporter;
-    @Inject
-    @RestClient
+
     SpanResourceClient client;
 
     @BeforeMethod
@@ -94,6 +96,16 @@ class RestClientSpanTest extends Arquillian {
         // Only want to run on server
         if (spanExporter != null) {
             spanExporter.reset();
+        }
+    }
+    
+    @PostConstruct
+    private void createClient() {
+        try {
+            // Create client manually so we can pass in URL from arquillian
+            client = RestClientBuilder.newBuilder().baseUri(url.toURI()).build(SpanResourceClient.class);
+        } catch (IllegalStateException | RestClientDefinitionException | URISyntaxException e) {
+            Assert.fail("Failed to create rest client", e);
         }
     }
 

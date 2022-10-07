@@ -24,10 +24,12 @@ import static io.opentelemetry.api.trace.SpanKind.INTERNAL;
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 import static java.net.HttpURLConnection.HTTP_OK;
 
+import java.net.URISyntaxException;
 import java.net.URL;
 
+import org.eclipse.microprofile.rest.client.RestClientBuilder;
+import org.eclipse.microprofile.rest.client.RestClientDefinitionException;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.eclipse.microprofile.telemetry.tracing.tck.exporter.InMemorySpanExporter;
 import org.eclipse.microprofile.telemetry.tracing.tck.exporter.InMemorySpanExporterProvider;
 import org.jboss.arquillian.container.test.api.Deployment;
@@ -45,6 +47,7 @@ import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.context.Context;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import io.opentelemetry.sdk.autoconfigure.spi.traces.ConfigurableSpanExporterProvider;
+import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
@@ -74,8 +77,6 @@ class RestClientSpanDefaultTest extends Arquillian {
     @Inject
     InMemorySpanExporter spanExporter;
 
-    @Inject
-    @RestClient
     SpanResourceClient client;
 
     @BeforeMethod
@@ -83,6 +84,16 @@ class RestClientSpanDefaultTest extends Arquillian {
         // Only want to run on server
         if (spanExporter != null) {
             spanExporter.reset();
+        }
+    }
+    
+    @PostConstruct
+    private void createClient() {
+        try {
+            // Create client manually so we can pass in URL from arquillian
+            client = RestClientBuilder.newBuilder().baseUri(url.toURI()).build(SpanResourceClient.class);
+        } catch (IllegalStateException | RestClientDefinitionException | URISyntaxException e) {
+            Assert.fail("Failed to create rest client", e);
         }
     }
 
