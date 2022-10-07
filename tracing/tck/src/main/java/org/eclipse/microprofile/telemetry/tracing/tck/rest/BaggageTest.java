@@ -72,7 +72,7 @@ class BaggageTest extends Arquillian {
 
     @Test
     void baggage() {
-        WebTarget target = ClientBuilder.newClient().target(url.toString() + "baggage");
+        WebTarget target = ClientBuilder.newClient().target(url.toString()).path("baggage");
         Response response = target.request().header("baggage", "user=naruto").get();
         Assert.assertEquals(HTTP_OK, response.getStatus());
 
@@ -86,8 +86,15 @@ class BaggageTest extends Arquillian {
 
         @GET
         public Response baggage() {
-            Assert.assertEquals("naruto", baggage.getEntryValue("user"));
-            return Response.ok().build();
+            try {
+                Assert.assertEquals("naruto", baggage.getEntryValue("user"));
+                return Response.ok().build();
+            } catch (Throwable e) {
+                // An error here won't get reported back fully, so output it to the log as well
+                System.err.println("Baggage Resource Exception:");
+                e.printStackTrace();
+                throw e;
+            }
         }
     }
 
