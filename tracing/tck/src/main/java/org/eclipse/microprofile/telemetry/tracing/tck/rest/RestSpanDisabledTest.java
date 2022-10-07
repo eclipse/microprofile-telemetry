@@ -34,15 +34,17 @@ import org.jboss.arquillian.testng.Arquillian;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import io.opentelemetry.sdk.autoconfigure.spi.traces.ConfigurableSpanExporterProvider;
-import io.restassured.RestAssured;
 import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Application;
 import jakarta.ws.rs.core.Response;
 
@@ -71,19 +73,25 @@ class RestSpanDisabledTest extends Arquillian {
 
     @Test
     void span() {
-        RestAssured.given().get("/span").then().statusCode(HTTP_OK);
+        WebTarget target = ClientBuilder.newClient().target(url.toString()).path("span");
+        Response response = target.request().get();
+        Assert.assertEquals(HTTP_OK, response.getStatus());
         spanExporter.getFinishedSpanItems(0);
     }
 
     @Test
     void spanName() {
-        RestAssured.given().get("/span/1").then().statusCode(HTTP_OK);
+        WebTarget target = ClientBuilder.newClient().target(url.toString()).path("span/1");
+        Response response = target.request().get();
+        Assert.assertEquals(HTTP_OK, response.getStatus());
         spanExporter.getFinishedSpanItems(0);
     }
 
     @Test
     void spanNameWithoutQueryString() {
-        RestAssured.given().get("/span/1?id=1").then().statusCode(HTTP_OK);
+        WebTarget target = ClientBuilder.newClient().target(url.toString()).path("span/1").queryParam("id", "1");
+        Response response = target.request().get();
+        Assert.assertEquals(HTTP_OK, response.getStatus());
         spanExporter.getFinishedSpanItems(0);
     }
 
