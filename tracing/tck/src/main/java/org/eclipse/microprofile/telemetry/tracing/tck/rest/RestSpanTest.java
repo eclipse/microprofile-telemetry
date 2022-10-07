@@ -33,8 +33,6 @@ import static org.testng.Assert.assertNotNull;
 import java.net.URL;
 import java.util.List;
 
-import javax.inject.Inject;
-
 import org.eclipse.microprofile.telemetry.tracing.tck.exporter.InMemorySpanExporter;
 import org.eclipse.microprofile.telemetry.tracing.tck.exporter.InMemorySpanExporterProvider;
 import org.jboss.arquillian.container.test.api.Deployment;
@@ -50,6 +48,7 @@ import org.testng.annotations.Test;
 import io.opentelemetry.sdk.autoconfigure.spi.traces.ConfigurableSpanExporterProvider;
 import io.opentelemetry.sdk.common.InstrumentationScopeInfo;
 import io.opentelemetry.sdk.trace.data.SpanData;
+import jakarta.inject.Inject;
 import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.HttpMethod;

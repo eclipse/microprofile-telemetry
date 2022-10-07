@@ -24,8 +24,6 @@ import static java.net.HttpURLConnection.HTTP_OK;
 
 import java.net.URL;
 
-import javax.inject.Inject;
-
 import org.eclipse.microprofile.telemetry.tracing.tck.exporter.InMemorySpanExporter;
 import org.eclipse.microprofile.telemetry.tracing.tck.exporter.InMemorySpanExporterProvider;
 import org.jboss.arquillian.container.test.api.Deployment;
@@ -39,6 +37,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import io.opentelemetry.sdk.autoconfigure.spi.traces.ConfigurableSpanExporterProvider;
+import jakarta.inject.Inject;
 import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
