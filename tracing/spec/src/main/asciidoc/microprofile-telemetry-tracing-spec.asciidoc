@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2022 Eclipse Microprofile Contributors:
+// Copyright (c) 2016-2022 Eclipse MicroProfile Contributors:
 // Bruno Baptista
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -40,26 +40,20 @@ include::license-efsl.adoc[]
 
 
 == Introduction
-
-In cloud-native technology stacks, distributed and polyglot architectures are the norm. Distributed architectures
-introduce a variety of operational challenges including how to solve availability and performance issues quickly.
+In cloud-native technology stacks, distributed and polyglot architectures are the norm.
+Distributed architectures introduce a variety of operational challenges including how to solve availability and performance issues quickly.
 These challenges have led to the rise of observability.
 
-Telemetry data is needed to power observability products. Traditionally, telemetry data has been provided by either
-open-source projects or commercial vendors. With a lack of standardization, the net result is the lack of data
-portability and the burden on the user to maintain the instrumentation.
+Telemetry data is needed to power observability products.
+Traditionally, telemetry data has been provided by either open-source projects or commercial vendors.
+With a lack of standardization, the net result is the lack of data portability and the burden on the user to maintain the instrumentation.
 
-The https://opentelemetry.io[OpenTelemetry] project solves these problems by providing a single, vendor-agnostic
-solution.
+The https://opentelemetry.io[OpenTelemetry] project solves these problems by providing a single, vendor-agnostic solution.
 
 == Architecture
+https://opentelemetry.io[OpenTelemetry] is a set of APIs, SDKs, tooling and integrations that are designed for the creation and management of telemetry data such as traces, metrics, and logs.
 
-https://opentelemetry.io[OpenTelemetry] is a set of APIs, SDKs, tooling and integrations that are designed for the
-creation and management of telemetry data such as traces, metrics, and logs.
-
-This specification defines the behaviors that allow MicroProfile applications to easily participate in an environment
-where distributed tracing is enabled via https://opentelemetry.io[OpenTelemetry] (a merger between
-https://opentracing.io[OpenTracing] and https://opencensus.io[OpenCensus]).
+This specification defines the behaviors that allow MicroProfile applications to easily participate in an environment where distributed tracing is enabled via https://opentelemetry.io[OpenTelemetry] (a merger between https://opentracing.io[OpenTracing] and https://opencensus.io[OpenCensus]).
 
 This document and implementations *MUST* comply with the following OpenTelemetry {otel-spec-version} specifications:
 
@@ -69,30 +63,33 @@ This document and implementations *MUST* comply with the following OpenTelemetry
 * https://github.com/open-telemetry/opentelemetry-specification/tree/v{otel-spec-version}/specification/context[Context API]
 * https://github.com/open-telemetry/opentelemetry-specification/blob/v{otel-spec-version}/specification/resource/sdk.md[Resource SDK]
 
-IMPORTANT: The Metrics and Logging integrations of https://opentelemetry.io[OpenTelemetry] are out of scope of this
-specification. Implementations are free to provide support for both Metrics and Logging if desired.
+[IMPORTANT]
+====
+The Metrics and Logging integrations of https://opentelemetry.io[OpenTelemetry] are out of scope of this specification.
+Implementations are free to provide support for both Metrics and Logging if desired.
+====
 
-This specification supports the following three type of instrumentions: Automatic Instrumentation, Manual Instrumentation and Agent Instrumentation. 
+This specification supports the following three types of instrumentation:
 
+* <<sec:automatic-instrumentation>>
+* <<sec:manual-instrumentation>>
+* <<sec:agent-instrumentation>>
+
+[[sec:automatic-instrumentation]]
 === Automatic Instrumentation
+Jakarta RESTful Web Services (server and client), and MicroProfile REST Clients are automatically enlisted to participate in distributed tracing without code modification as specified in the https://github.com/open-telemetry/opentelemetry-specification/blob/v{otel-spec-version}/specification/trace/api.md[Tracing API].
 
-Jakarta RESTful Web Services (server and client), and MicroProfile REST Clients are automatically enlisted to
-participate in distributed tracing without code modification as specified in the
-https://github.com/open-telemetry/opentelemetry-specification/blob/v{otel-spec-version}/specification/trace/api.md[Tracing API].
+These should follow the rules specified in the <<sec:semantic-conventions>> section.
 
-These should follow the rules specified in the <<semantic-conventions>> section.
-
+[[sec:manual-instrumentation]]
 === Manual Instrumentation
-
 Explicit manual instrumentation can be added into a MicroProfile application in the following ways:
 
 ==== @WithSpan
+Annotating a method in any Jakarta CDI aware beans with the `io.opentelemetry.extension.annotations.WithSpan` annotation.
+This will create a new Span and establish any required relationships with the current Trace context.
 
-Annotating a method in any Jakarta CDI aware beans with the `io.opentelemetry.extension.annotations.WithSpan`
-annotation. This will create a new Span and establish any required relationships with the current Trace context.
-
-Method parameters can be annotated with the `io.opentelemetry.extension.annotations.SpanAttribute` annotation to
-indicate which method parameters should be part of the Trace.
+Method parameters can be annotated with the `io.opentelemetry.extension.annotations.SpanAttribute` annotation to indicate which method parameters should be part of the Trace.
 
 Example:
 [source,java]
@@ -122,10 +119,8 @@ class SpanBean {
 ----
 
 ==== Obtain a SpanBuilder
-
-By obtaining a `SpanBuilder` from the current `Tracer` and calling
-`io.opentelemetry.api.trace.Tracer.spanBuilder(String)`. In this case, it is the developer's responsibility to ensure
-that the `Span` is properly created, closed, and propagated.
+By obtaining a `SpanBuilder` from the current `Tracer` and calling `io.opentelemetry.api.trace.Tracer.spanBuilder(String)`.
+In this case, it is the developer's responsibility to ensure that the `Span` is properly created, closed, and propagated.
 
 Example:
 [source,java]
@@ -151,12 +146,13 @@ public class SpanResource {
     }
 }
 ----
-
-NOTE: Start and end a new `Span` will add a child `Span` to the current one enlisted by the automatic instrumentation
-of Jakarta REST Applications.
+ 
+[NOTE]
+====
+Start and end a new `Span` will add a child `Span` to the current one enlisted by the automatic instrumentation of Jakarta REST applications.
+====
 
 ==== Obtain the current Span
-
 By obtaining the current `Span` to add attributes. The Span lifecycle is managed by the implementation.
 
 Example:
@@ -193,13 +189,12 @@ public class SpanResource {
 }
 ----
 
+[[sec:agent-instrumentation]]
 === Agent Instrumentation
+Implementations are free to support the OpenTelemetry Agent Instrumentation.
+This provides the ability to gather telemetry data without code modifications by attaching a Java Agent JAR to the running JVM.
 
-Implementations are free to support the OpenTelemetry Agent Instrumentation. This provides the ability to gather
-telemetry data without code modifications by attaching a Java Agent JAR to the running JVM.
-
-If an implementation of MicroProfile Telemetry Tracing provides such support, it must conform to the instructions detailed
-in the https://github.com/open-telemetry/opentelemetry-java-instrumentation[OpenTelemetry Java Instrumentation] (https://github.com/open-telemetry/opentelemetry-java-instrumentation/tree/v1.18.0[v{otel-java-version}]) project, including:
+If an implementation of MicroProfile Telemetry Tracing provides such support, it must conform to the instructions detailed in the https://github.com/open-telemetry/opentelemetry-java-instrumentation/tree/v{otel-java-version}[OpenTelemetry Java Instrumentation {otel-java-version}] project, including:
 
 * https://opentelemetry.io/docs/instrumentation/java/automatic/agent-config/[Agent Configuration]
 * https://opentelemetry.io/docs/instrumentation/java/automatic/agent-config/#suppressing-specific-auto-instrumentation[Suppressing Instrumentation]
@@ -207,9 +202,7 @@ in the https://github.com/open-telemetry/opentelemetry-java-instrumentation[Open
 Both Agent and MicroProfile Telemetry Tracing Instrumentation (if any), must coexist with each other.
 
 === Access to the OpenTelemetry Tracing API
-
-An implementation of MicroProfile Telemetry Tracing must provide the following CDI beans for supporting contextual instance
-injection:
+An implementation of MicroProfile Telemetry Tracing must provide the following CDI beans for supporting contextual instance injection:
 
 * `io.opentelemetry.api.OpenTelemetry`
 * `io.opentelemetry.api.trace.Tracer`
@@ -222,50 +215,54 @@ Calling the OpenTelemetry API directly must work in the same way and yield the s
 * `io.opentelemetry.api.trace.Span.current()`
 * `io.opentelemetry.api.baggage.Baggage.current()`
 
-To obtain the `Tracer` with the OpenTelemetry API, the consumer must use the exact same instrumentation name and version
-used by the implementation. Failure to do so, may result in a different `Tracer` and incorrect handling of the
-OpenTelemetry data.
+To obtain the `Tracer` with the OpenTelemetry API, the consumer must use the exact same instrumentation name and version used by the implementation.
+Failure to do so, may result in a different `Tracer` and incorrect handling of the OpenTelemetry data.
 
 === Configuration
-
 OpenTelemetry must be configured by MicroProfile Config following the configuration properties detailed in:
 
-* https://github.com/open-telemetry/opentelemetry-java/tree/v{otel-java-version}/sdk-extensions/autoconfigure[OpenTelemetry SDK Autoconfigure]
-(excluding properties related to Metrics and Logging).
+* https://github.com/open-telemetry/opentelemetry-java/tree/v{otel-java-version}/sdk-extensions/autoconfigure[OpenTelemetry SDK Autoconfigure] (excluding properties related to Metrics and Logging)
 * https://opentelemetry.io/docs/instrumentation/java/manual/[Manual Instrumentation]
 
-An implementation may opt to not support a subset of configuration properties related to a specific configuration. For
-instance, `otel.traces.exporter` is required but if the implementation does not support `jaeger` as a valid exporter,
-then all configuration properties referring to `otel.tracer.jaeger.*` are not required.
+An implementation may opt to not support a subset of configuration properties related to a specific configuration.
+For instance, `otel.traces.exporter` is required but if the implementation does not support `jaeger` as a valid exporter, then all configuration properties referring to `otel.tracer.jaeger.*` are not required.
 
-[[semantic-conventions]]
+[[sec:semantic-conventions]]
 === Semantic Conventions
+The https://github.com/open-telemetry/opentelemetry-specification/tree/v{otel-spec-version}/specification/trace/semantic_conventions[Trace Semantic Conventions] for Spans and Attributes must be followed by any compatible implementation.
 
-The https://github.com/open-telemetry/opentelemetry-specification/tree/v{otel-spec-version}/specification/trace/semantic_conventions[Trace Semantic Conventions]
-for Spans and Attributes must be followed by any compatible implementation.
-
-All attributes marked as `required` must be present in the context of the Span where they are defined. Any other
-attribute is optional. Implementations can also add their own attributes.
+All attributes marked as `required` must be present in the context of the Span where they are defined.
+Any other attribute is optional.
+Implementations can also add their own attributes.
 
 ==== MicroProfile Attributes
-
-Other MicroProfile specifications can add their own attributes under their own attribute name following the
-convention `mp.[specification short name].[attribute name]`.
+Other MicroProfile specifications can add their own attributes under their own attribute name following the convention `mp.[specification short name].[attribute name]`.
 
 Implementation libraries can set the library name using the following property:
 
 `mp.telemetry.tracing.name`
 
-
 == Tracing Enablement
+By default, MicroProfile Telemetry Tracing is deactivated.
 
-By default, MicroProfile Telemetry tracing is off. In order to enable any of the tracing aspects, the configuration `otel.experimental.sdk.enabled=true` 
-must be specified in any of the config sources available via MicroProfile Config. This property is read once when the application is starting. Any changes afterwards will not take effect unless the application is restarted.
+In order to enable any of the tracing aspects, the configuration `otel.sdk.disabled=false` must be specified in any of the configuration sources available via MicroProfile Config.
+
+[IMPORTANT]
+====
+This is a deviation from the https://github.com/open-telemetry/opentelemetry-specification/blob/v{otel-spec-version}/specification/overview.md[OpenTelemetry Specification], where https://opentelemetry.io[OpenTelemetry] is activated by default!
+
+But in fact, it will be activated only by adding it's dependency to the application or platform project.
+To be able to add MicroProfile Telemetry Tracing to MicroProfile implementations by default without side effects, this deviating behaviour has been defined here (see also <<sec:microprofile-telemetry-and-microprofile-opentracing>>).
+
+The original definition for this configuration property and the corresponding `OTEL_SDK_DISABLED` environment variable is specified in the https://github.com/open-telemetry/opentelemetry-specification/blob/v{otel-spec-version}/specification/sdk-environment-variables.md#opentelemetry-environment-variable-specification[OpenTelemetry Environment Variable Specification] and it's https://github.com/open-telemetry/opentelemetry-specification/blob/v{otel-spec-version}/specification/sdk-environment-variables.md#general-sdk-configuration[General SDK Configuration].
+====
+
+This property is read once when the application is starting.
+Any changes afterwards will not take effect unless the application is restarted.
 
 == MicroProfile OpenTracing
-
-MicroProfile Telemetry Tracing supercedes MicroProfile OpenTracing. Even if the end goal is the same,
-there are some considerable differences:
+MicroProfile Telemetry Tracing supersedes MicroProfile OpenTracing.
+Even if the end goal is the same, there are some considerable differences:
 
 * Different API (between OpenTracing and OpenTelemetry)
 * No `@Traced` annotation
@@ -273,15 +270,14 @@ there are some considerable differences:
 * No customization of Span name through MicroProfile API
 * Differences in attribute names and mandatory ones
 
-For these reasons, the MicroProfile Telemetry Tracing specification does not provide any migration path between
-both projects. While it is certainly possible to achieve a migration path at the code level and at the specification
-level (at the expense of not following the main OpenTelemetry specification), it is unlikely to be able to achieve the
-same compatibility at the data layer. Regardless, implementations are still free to provide migration paths between
-MicroProfile OpenTracing and MicroProfile Telemetry Tracing. 
+For these reasons, the MicroProfile Telemetry Tracing specification does not provide any migration path between both projects.
+While it is certainly possible to achieve a migration path at the code level and at the specification level (at the expense of not following the main OpenTelemetry specification), it is unlikely to be able to achieve the same compatibility at the data layer.
+Regardless, implementations are still free to provide migration paths between MicroProfile OpenTracing and MicroProfile Telemetry Tracing. 
 
-If a migration path is provided, the bridge layer provided by OpenTelemetry should be used. This bridge layer implements
-OpenTracing APIs using OpenTelemetry APIs (more details can be found from https://github.com/open-telemetry/opentelemetry-specification/blob/v{otel-spec-version}/specification/compatibility/opentracing.md[OpenTracing Compatbility]. 
-The bridge layer takes OpenTelemetry Tracer and exposes as OpenTracing Tracer. See the example below.
+If a migration path is provided, the bridge layer provided by OpenTelemetry should be used.
+This bridge layer implements OpenTracing APIs using OpenTelemetry APIs (more details can be found from https://github.com/open-telemetry/opentelemetry-specification/blob/v{otel-spec-version}/specification/compatibility/opentracing.md[OpenTracing Compatbility]. 
+The bridge layer takes OpenTelemetry Tracer and exposes as OpenTracing Tracer.
+See the example below.
 
 [source,java]
 ----
@@ -298,6 +294,7 @@ Afterwards, you can then register the tracer as the OpenTracing Global Tracer:
 GlobalTracer.registerIfAbsent(tracer);
 ----
 
+[[sec:microprofile-telemetry-and-microprofile-opentracing]]
 == MicroProfile Telemetry and MicroProfile OpenTracing
-
-If MicroProfile Telemetry and MicroProfile OpenTracing are both present in one application, it is advised only to enable one of them. Otherwise, no portalbe behaviour will occur.
+If MicroProfile Telemetry and MicroProfile OpenTracing are both present in one application, it is advised only to enable one of them.
+Otherwise, no portable behaviour may occur.
