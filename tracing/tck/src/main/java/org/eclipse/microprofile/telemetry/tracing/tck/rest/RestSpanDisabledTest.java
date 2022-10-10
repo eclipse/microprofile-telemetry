@@ -74,7 +74,7 @@ class RestSpanDisabledTest extends Arquillian {
     void span() {
         WebTarget target = ClientBuilder.newClient().target(url.toString()).path("span");
         Response response = target.request().get();
-        Assert.assertEquals(HTTP_OK, response.getStatus());
+        Assert.assertEquals(response.getStatus(), HTTP_OK);
         spanExporter.getFinishedSpanItems(0);
     }
 
@@ -82,7 +82,7 @@ class RestSpanDisabledTest extends Arquillian {
     void spanName() {
         WebTarget target = ClientBuilder.newClient().target(url.toString()).path("span/1");
         Response response = target.request().get();
-        Assert.assertEquals(HTTP_OK, response.getStatus());
+        Assert.assertEquals(response.getStatus(), HTTP_OK);
         spanExporter.getFinishedSpanItems(0);
     }
 
@@ -90,7 +90,7 @@ class RestSpanDisabledTest extends Arquillian {
     void spanNameWithoutQueryString() {
         WebTarget target = ClientBuilder.newClient().target(url.toString()).path("span/1").queryParam("id", "1");
         Response response = target.request().get();
-        Assert.assertEquals(HTTP_OK, response.getStatus());
+        Assert.assertEquals(response.getStatus(), HTTP_OK);
         spanExporter.getFinishedSpanItems(0);
     }
 

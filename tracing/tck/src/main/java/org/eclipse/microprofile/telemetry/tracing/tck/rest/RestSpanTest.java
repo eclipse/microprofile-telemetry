@@ -86,18 +86,19 @@ class RestSpanTest extends Arquillian {
     void span() {
         WebTarget target = ClientBuilder.newClient().target(url.toString()).path("span");
         Response response = target.request().get();
-        Assert.assertEquals(HTTP_OK, response.getStatus());
+        Assert.assertEquals(response.getStatus(), HTTP_OK);
 
         List<SpanData> spanItems = spanExporter.getFinishedSpanItems(1);
-        assertEquals(1, spanItems.size());
-        assertEquals(SERVER, spanItems.get(0).getKind());
-        assertEquals(url.getPath() + "span", spanItems.get(0).getName());
-        assertEquals(HTTP_OK, spanItems.get(0).getAttributes().get(HTTP_STATUS_CODE).intValue());
-        assertEquals(HttpMethod.GET, spanItems.get(0).getAttributes().get(HTTP_METHOD));
+        assertEquals(spanItems.size(), 1);
+        assertEquals(spanItems.get(0).getKind(), SERVER);
+        assertEquals(spanItems.get(0).getName(), url.getPath() + "span");
+        assertEquals(spanItems.get(0).getAttributes().get(HTTP_STATUS_CODE).intValue(), HTTP_OK);
+        assertEquals(spanItems.get(0).getAttributes().get(HTTP_METHOD), HttpMethod.GET);
 
-        assertEquals("org/eclipse/microprofile/telemetry/tracing/tck",
-                spanItems.get(0).getResource().getAttribute(SERVICE_NAME));
-        assertEquals("0.1.0-SNAPSHOT", spanItems.get(0).getResource().getAttribute(SERVICE_VERSION));
+        assertEquals(
+                spanItems.get(0).getResource().getAttribute(SERVICE_NAME),
+                "org/eclipse/microprofile/telemetry/tracing/tck");
+        assertEquals(spanItems.get(0).getResource().getAttribute(SERVICE_VERSION), "0.1.0-SNAPSHOT");
 
         InstrumentationScopeInfo libraryInfo = spanItems.get(0).getInstrumentationScopeInfo();
         // Was decided at the MP Call on 13/06/2022 that lib name and version are responsibility of lib implementations
@@ -109,29 +110,29 @@ class RestSpanTest extends Arquillian {
     void spanName() {
         WebTarget target = ClientBuilder.newClient().target(url.toString()).path("span/1");
         Response response = target.request().get();
-        Assert.assertEquals(HTTP_OK, response.getStatus());
+        Assert.assertEquals(response.getStatus(), HTTP_OK);
 
         List<SpanData> spanItems = spanExporter.getFinishedSpanItems(1);
-        assertEquals(1, spanItems.size());
-        assertEquals(SERVER, spanItems.get(0).getKind());
-        assertEquals(url.getPath() + "span/{name}", spanItems.get(0).getName());
-        assertEquals(HTTP_OK, spanItems.get(0).getAttributes().get(HTTP_STATUS_CODE).intValue());
-        assertEquals(HttpMethod.GET, spanItems.get(0).getAttributes().get(HTTP_METHOD));
+        assertEquals(spanItems.size(), 1);
+        assertEquals(spanItems.get(0).getKind(), SERVER);
+        assertEquals(spanItems.get(0).getName(), url.getPath() + "span/{name}");
+        assertEquals(spanItems.get(0).getAttributes().get(HTTP_STATUS_CODE).intValue(), HTTP_OK);
+        assertEquals(spanItems.get(0).getAttributes().get(HTTP_METHOD), HttpMethod.GET);
     }
 
     @Test
     void spanNameWithoutQueryString() {
         WebTarget target = ClientBuilder.newClient().target(url.toString()).path("span/1").queryParam("id", "1");
         Response response = target.request().get();
-        Assert.assertEquals(HTTP_OK, response.getStatus());
+        Assert.assertEquals(response.getStatus(), HTTP_OK);
 
         List<SpanData> spanItems = spanExporter.getFinishedSpanItems(1);
-        assertEquals(1, spanItems.size());
-        assertEquals(SERVER, spanItems.get(0).getKind());
-        assertEquals(url.getPath() + "span/{name}", spanItems.get(0).getName());
-        assertEquals(HTTP_OK, spanItems.get(0).getAttributes().get(HTTP_STATUS_CODE).intValue());
-        assertEquals(HttpMethod.GET, spanItems.get(0).getAttributes().get(HTTP_METHOD));
-        assertEquals(url.getPath() + "span/1?id=1", spanItems.get(0).getAttributes().get(HTTP_TARGET));
+        assertEquals(spanItems.size(), 1);
+        assertEquals(spanItems.get(0).getKind(), SERVER);
+        assertEquals(spanItems.get(0).getName(), url.getPath() + "span/{name}");
+        assertEquals(spanItems.get(0).getAttributes().get(HTTP_STATUS_CODE).intValue(), HTTP_OK);
+        assertEquals(spanItems.get(0).getAttributes().get(HTTP_METHOD), HttpMethod.GET);
+        assertEquals(spanItems.get(0).getAttributes().get(HTTP_TARGET), url.getPath() + "span/1?id=1");
     }
 
     @Path("/")

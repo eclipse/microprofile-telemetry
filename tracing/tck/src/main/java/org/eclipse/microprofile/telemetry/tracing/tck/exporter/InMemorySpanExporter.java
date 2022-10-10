@@ -55,7 +55,7 @@ public class InMemorySpanExporter implements SpanExporter {
 
     public void assertSpanCount(int spanCount) {
         Awaitility.await().atMost(10, SECONDS)
-                .untilAsserted(() -> Assert.assertEquals(spanCount, finishedSpanItems.size()));
+                .untilAsserted(() -> Assert.assertEquals(finishedSpanItems.size(), spanCount));
     }
 
     public void reset() {

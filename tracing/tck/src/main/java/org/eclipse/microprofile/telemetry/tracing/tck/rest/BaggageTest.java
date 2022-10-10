@@ -74,7 +74,7 @@ class BaggageTest extends Arquillian {
     void baggage() {
         WebTarget target = ClientBuilder.newClient().target(url.toString()).path("baggage");
         Response response = target.request().header("baggage", "user=naruto").get();
-        Assert.assertEquals(HTTP_OK, response.getStatus());
+        Assert.assertEquals(response.getStatus(), HTTP_OK);
 
         spanExporter.getFinishedSpanItems(2);
     }
@@ -87,7 +87,7 @@ class BaggageTest extends Arquillian {
         @GET
         public Response baggage() {
             try {
-                Assert.assertEquals("naruto", baggage.getEntryValue("user"));
+                Assert.assertEquals(baggage.getEntryValue("user"), "naruto");
                 return Response.ok().build();
             } catch (Throwable e) {
                 // An error here won't get reported back fully, so output it to the log as well
