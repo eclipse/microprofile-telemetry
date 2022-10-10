@@ -24,6 +24,7 @@ import static java.net.HttpURLConnection.HTTP_OK;
 
 import java.net.URL;
 
+import org.eclipse.microprofile.telemetry.tracing.tck.TestLibraries;
 import org.eclipse.microprofile.telemetry.tracing.tck.exporter.InMemorySpanExporter;
 import org.eclipse.microprofile.telemetry.tracing.tck.exporter.InMemorySpanExporterProvider;
 import org.jboss.arquillian.container.test.api.Deployment;
@@ -52,6 +53,7 @@ class RestSpanDisabledTest extends Arquillian {
     public static WebArchive createDeployment() {
         return ShrinkWrap.create(WebArchive.class)
                 .addClasses(InMemorySpanExporter.class, InMemorySpanExporterProvider.class)
+                .addAsLibrary(TestLibraries.AWAITILITY_LIB)
                 .addAsServiceProvider(ConfigurableSpanExporterProvider.class, InMemorySpanExporterProvider.class)
                 .addAsResource(new StringAsset("otel.experimental.sdk.enabled=true"),
                         "META-INF/microprofile-config.properties");
