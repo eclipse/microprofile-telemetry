@@ -67,7 +67,7 @@ class RestSpanTest extends Arquillian {
                 .addClasses(InMemorySpanExporter.class, InMemorySpanExporterProvider.class)
                 .addAsLibrary(TestLibraries.AWAITILITY_LIB)
                 .addAsServiceProvider(ConfigurableSpanExporterProvider.class, InMemorySpanExporterProvider.class)
-                .addAsResource(new StringAsset("otel.experimental.sdk.enabled=true"),
+                .addAsResource(new StringAsset("otel.experimental.sdk.enabled=true\notel.traces.exporter=in-memory"),
                         "META-INF/microprofile-config.properties");
     }
 
