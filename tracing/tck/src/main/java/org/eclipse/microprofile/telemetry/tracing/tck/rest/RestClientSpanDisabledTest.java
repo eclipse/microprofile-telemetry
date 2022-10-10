@@ -64,7 +64,7 @@ class RestClientSpanDisabledTest extends Arquillian {
     @Deployment
     public static WebArchive createDeployment() {
         return ShrinkWrap.create(WebArchive.class)
-                .addClasses(InMemorySpanExporter.class)
+                .addClasses(InMemorySpanExporter.class, InMemorySpanExporterProvider.class)
                 .addAsServiceProvider(ConfigurableSpanExporterProvider.class, InMemorySpanExporterProvider.class)
                 .addAsResource(new StringAsset("otel.experimental.sdk.enabled=true"),
                         "META-INF/microprofile-config.properties");
