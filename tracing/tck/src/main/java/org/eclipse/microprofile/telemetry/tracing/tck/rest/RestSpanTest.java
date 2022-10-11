@@ -116,7 +116,6 @@ class RestSpanTest extends Arquillian {
         InstrumentationScopeInfo libraryInfo = spanItems.get(0).getInstrumentationScopeInfo();
         // Was decided at the MP Call on 13/06/2022 that lib name and version are responsibility of lib implementations
         assertNotNull(libraryInfo.getName());
-        assertNotNull(libraryInfo.getVersion());
     }
 
     @Test
