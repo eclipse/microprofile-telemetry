@@ -36,6 +36,7 @@ import java.net.URL;
 import java.util.List;
 
 import org.eclipse.microprofile.telemetry.tracing.tck.BasicHttpClient;
+import org.eclipse.microprofile.telemetry.tracing.tck.ConfigAsset;
 import org.eclipse.microprofile.telemetry.tracing.tck.TestLibraries;
 import org.eclipse.microprofile.telemetry.tracing.tck.exporter.InMemorySpanExporter;
 import org.eclipse.microprofile.telemetry.tracing.tck.exporter.InMemorySpanExporterProvider;
@@ -43,7 +44,6 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.arquillian.testng.Arquillian;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -61,14 +61,24 @@ import jakarta.ws.rs.core.Application;
 import jakarta.ws.rs.core.Response;
 
 class RestSpanTest extends Arquillian {
+
+    private static final String TEST_SERVICE_NAME = "org/eclipse/microprofile/telemetry/tracing/tck";
+    private static final String TEST_SERVICE_VERSION = "0.1.0-TEST";
+
     @Deployment
     public static WebArchive createDeployment() {
+
+        ConfigAsset config = new ConfigAsset()
+                .add("otel.service.name", TEST_SERVICE_NAME)
+                .add("otel.resource.attributes", SERVICE_VERSION.getKey() + "=" + TEST_SERVICE_VERSION)
+                .add("otel.experimental.sdk.enabled", "true")
+                .add("otel.traces.exporter", "in-memory");
+
         return ShrinkWrap.create(WebArchive.class)
                 .addClasses(InMemorySpanExporter.class, InMemorySpanExporterProvider.class, BasicHttpClient.class)
                 .addAsLibrary(TestLibraries.AWAITILITY_LIB)
                 .addAsServiceProvider(ConfigurableSpanExporterProvider.class, InMemorySpanExporterProvider.class)
-                .addAsResource(new StringAsset("otel.experimental.sdk.enabled=true\notel.traces.exporter=in-memory"),
-                        "META-INF/microprofile-config.properties");
+                .addAsResource(config, "META-INF/microprofile-config.properties");
     }
 
     @ArquillianResource
@@ -100,8 +110,8 @@ class RestSpanTest extends Arquillian {
 
         assertEquals(
                 spanItems.get(0).getResource().getAttribute(SERVICE_NAME),
-                "org/eclipse/microprofile/telemetry/tracing/tck");
-        assertEquals(spanItems.get(0).getResource().getAttribute(SERVICE_VERSION), "0.1.0-SNAPSHOT");
+                TEST_SERVICE_NAME);
+        assertEquals(spanItems.get(0).getResource().getAttribute(SERVICE_VERSION), TEST_SERVICE_VERSION);
 
         InstrumentationScopeInfo libraryInfo = spanItems.get(0).getInstrumentationScopeInfo();
         // Was decided at the MP Call on 13/06/2022 that lib name and version are responsibility of lib implementations
