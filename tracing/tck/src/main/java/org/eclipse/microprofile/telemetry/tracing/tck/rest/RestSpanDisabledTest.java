@@ -21,9 +21,11 @@
 package org.eclipse.microprofile.telemetry.tracing.tck.rest;
 
 import static java.net.HttpURLConnection.HTTP_OK;
+import static org.testng.Assert.assertEquals;
 
 import java.net.URL;
 
+import org.eclipse.microprofile.telemetry.tracing.tck.BasicHttpClient;
 import org.eclipse.microprofile.telemetry.tracing.tck.TestLibraries;
 import org.eclipse.microprofile.telemetry.tracing.tck.exporter.InMemorySpanExporter;
 import org.eclipse.microprofile.telemetry.tracing.tck.exporter.InMemorySpanExporterProvider;
@@ -33,7 +35,6 @@ import org.jboss.arquillian.testng.Arquillian;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
-import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -43,8 +44,6 @@ import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.client.ClientBuilder;
-import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Application;
 import jakarta.ws.rs.core.Response;
 
@@ -52,7 +51,7 @@ class RestSpanDisabledTest extends Arquillian {
     @Deployment
     public static WebArchive createDeployment() {
         return ShrinkWrap.create(WebArchive.class)
-                .addClasses(InMemorySpanExporter.class, InMemorySpanExporterProvider.class)
+                .addClasses(InMemorySpanExporter.class, InMemorySpanExporterProvider.class, BasicHttpClient.class)
                 .addAsLibrary(TestLibraries.AWAITILITY_LIB)
                 .addAsServiceProvider(ConfigurableSpanExporterProvider.class, InMemorySpanExporterProvider.class)
                 .addAsResource(new StringAsset("otel.experimental.sdk.enabled=true\notel.traces.exporter=in-memory"),
@@ -64,35 +63,32 @@ class RestSpanDisabledTest extends Arquillian {
     @Inject
     InMemorySpanExporter spanExporter;
 
+    private BasicHttpClient basicClient;
+
     @BeforeMethod
     void setUp() {
         // Only want to run on server
         if (spanExporter != null) {
             spanExporter.reset();
+            basicClient = new BasicHttpClient(url);
         }
     }
 
     @Test
     void span() {
-        WebTarget target = ClientBuilder.newClient().target(url.toString()).path("span");
-        Response response = target.request().get();
-        Assert.assertEquals(response.getStatus(), HTTP_OK);
+        assertEquals(basicClient.get("/span"), HTTP_OK);
         spanExporter.getFinishedSpanItems(0);
     }
 
     @Test
     void spanName() {
-        WebTarget target = ClientBuilder.newClient().target(url.toString()).path("span/1");
-        Response response = target.request().get();
-        Assert.assertEquals(response.getStatus(), HTTP_OK);
+        assertEquals(basicClient.get("/span/1"), HTTP_OK);
         spanExporter.getFinishedSpanItems(0);
     }
 
     @Test
     void spanNameWithoutQueryString() {
-        WebTarget target = ClientBuilder.newClient().target(url.toString()).path("span/1").queryParam("id", "1");
-        Response response = target.request().get();
-        Assert.assertEquals(response.getStatus(), HTTP_OK);
+        assertEquals(basicClient.get("/span/1?id=1"), HTTP_OK);
         spanExporter.getFinishedSpanItems(0);
     }
 
