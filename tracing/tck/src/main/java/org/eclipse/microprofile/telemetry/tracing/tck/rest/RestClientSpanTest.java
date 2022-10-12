@@ -34,27 +34,31 @@ import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.HTTP_
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 import static java.net.HttpURLConnection.HTTP_OK;
 
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
 
+import org.eclipse.microprofile.rest.client.RestClientBuilder;
+import org.eclipse.microprofile.rest.client.RestClientDefinitionException;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.eclipse.microprofile.telemetry.tracing.tck.TestLibraries;
 import org.eclipse.microprofile.telemetry.tracing.tck.exporter.InMemorySpanExporter;
+import org.eclipse.microprofile.telemetry.tracing.tck.exporter.InMemorySpanExporterProvider;
 import org.jboss.arquillian.container.test.api.Deployment;
-import org.jboss.arquillian.junit5.ArquillianExtension;
 import org.jboss.arquillian.test.api.ArquillianResource;
+import org.jboss.arquillian.testng.Arquillian;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.testng.Assert;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.context.Context;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
+import io.opentelemetry.sdk.autoconfigure.spi.traces.ConfigurableSpanExporterProvider;
 import io.opentelemetry.sdk.trace.data.SpanData;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.RequestScoped;
@@ -70,13 +74,14 @@ import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Application;
 import jakarta.ws.rs.core.Response;
 
-@ExtendWith(ArquillianExtension.class)
-class RestClientSpanTest {
+class RestClientSpanTest extends Arquillian {
     @Deployment
     public static WebArchive createDeployment() {
         return ShrinkWrap.create(WebArchive.class)
-                .addAsResource(new StringAsset("client/mp-rest/url=${baseUri}\n"
-                        + "otel.experimental.sdk.enabled=true"),
+                .addClasses(InMemorySpanExporter.class, InMemorySpanExporterProvider.class)
+                .addAsLibrary(TestLibraries.AWAITILITY_LIB)
+                .addAsServiceProvider(ConfigurableSpanExporterProvider.class, InMemorySpanExporterProvider.class)
+                .addAsResource(new StringAsset("otel.experimental.sdk.enabled=true\notel.traces.exporter=in-memory"),
                         "META-INF/microprofile-config.properties");
     }
 
@@ -84,97 +89,106 @@ class RestClientSpanTest {
     URL url;
     @Inject
     InMemorySpanExporter spanExporter;
-    @Inject
-    @RestClient
+
     SpanResourceClient client;
 
-    @BeforeEach
+    @BeforeMethod
     void setUp() {
-        spanExporter.reset();
+        // Only want to run on server
+        if (spanExporter != null) {
+            spanExporter.reset();
+
+            try {
+                // Create client manually so we can pass in URL from arquillian
+                client = RestClientBuilder.newBuilder().baseUri(url.toURI()).build(SpanResourceClient.class);
+            } catch (IllegalStateException | RestClientDefinitionException | URISyntaxException e) {
+                Assert.fail("Failed to create rest client", e);
+            }
+        }
     }
 
     @Test
     void span() {
         Response response = client.span();
-        Assertions.assertEquals(response.getStatus(), HTTP_OK);
+        Assert.assertEquals(response.getStatus(), HTTP_OK);
 
         List<SpanData> spans = spanExporter.getFinishedSpanItems(2);
 
         SpanData server = spans.get(0);
-        Assertions.assertEquals(SERVER, server.getKind());
-        Assertions.assertEquals(url.getPath() + "span", server.getName());
-        Assertions.assertEquals(HTTP_OK, server.getAttributes().get(HTTP_STATUS_CODE));
-        Assertions.assertEquals(HttpMethod.GET, server.getAttributes().get(HTTP_METHOD));
-        Assertions.assertEquals("http", server.getAttributes().get(HTTP_SCHEME));
-        Assertions.assertEquals(url.getHost(), server.getAttributes().get(HTTP_SERVER_NAME));
-        Assertions.assertEquals(url.getHost() + ":" + url.getPort(), server.getAttributes().get(HTTP_HOST));
-        Assertions.assertEquals(url.getPath() + "span", server.getAttributes().get(HTTP_TARGET));
+        Assert.assertEquals(server.getKind(), SERVER);
+        Assert.assertEquals(server.getName(), url.getPath() + "span");
+        Assert.assertEquals(server.getAttributes().get(HTTP_STATUS_CODE).intValue(), HTTP_OK);
+        Assert.assertEquals(server.getAttributes().get(HTTP_METHOD), HttpMethod.GET);
+        Assert.assertEquals(server.getAttributes().get(HTTP_SCHEME), "http");
+        Assert.assertEquals(server.getAttributes().get(HTTP_SERVER_NAME), url.getHost());
+        Assert.assertEquals(server.getAttributes().get(HTTP_HOST), url.getHost() + ":" + url.getPort());
+        Assert.assertEquals(server.getAttributes().get(HTTP_TARGET), url.getPath() + "span");
 
         SpanData client = spans.get(1);
-        Assertions.assertEquals(CLIENT, client.getKind());
-        Assertions.assertEquals("HTTP GET", client.getName());
-        Assertions.assertEquals(HTTP_OK, client.getAttributes().get(HTTP_STATUS_CODE));
-        Assertions.assertEquals(HttpMethod.GET, client.getAttributes().get(HTTP_METHOD));
-        Assertions.assertEquals(url.toString() + "span", client.getAttributes().get(HTTP_URL));
+        Assert.assertEquals(client.getKind(), CLIENT);
+        Assert.assertEquals(client.getName(), "HTTP GET");
+        Assert.assertEquals(client.getAttributes().get(HTTP_STATUS_CODE).intValue(), HTTP_OK);
+        Assert.assertEquals(client.getAttributes().get(HTTP_METHOD), HttpMethod.GET);
+        Assert.assertEquals(client.getAttributes().get(HTTP_URL), url.toString() + "span");
 
-        Assertions.assertEquals(client.getTraceId(), server.getTraceId());
-        Assertions.assertEquals(server.getParentSpanId(), client.getSpanId());
+        Assert.assertEquals(client.getTraceId(), server.getTraceId());
+        Assert.assertEquals(server.getParentSpanId(), client.getSpanId());
     }
 
     @Test
     void spanName() {
         Response response = client.spanName("1");
-        Assertions.assertEquals(response.getStatus(), HTTP_OK);
+        Assert.assertEquals(response.getStatus(), HTTP_OK);
 
         List<SpanData> spans = spanExporter.getFinishedSpanItems(2);
 
         SpanData server = spans.get(0);
-        Assertions.assertEquals(SERVER, server.getKind());
-        Assertions.assertEquals(url.getPath() + "span/{name}", server.getName());
-        Assertions.assertEquals(HTTP_OK, server.getAttributes().get(HTTP_STATUS_CODE));
-        Assertions.assertEquals(HttpMethod.GET, server.getAttributes().get(HTTP_METHOD));
-        Assertions.assertEquals("http", server.getAttributes().get(HTTP_SCHEME));
-        Assertions.assertEquals(url.getHost(), server.getAttributes().get(HTTP_SERVER_NAME));
-        Assertions.assertEquals(url.getHost() + ":" + url.getPort(), server.getAttributes().get(HTTP_HOST));
-        Assertions.assertEquals(url.getPath() + "span/1", server.getAttributes().get(HTTP_TARGET));
+        Assert.assertEquals(server.getKind(), SERVER);
+        Assert.assertEquals(server.getName(), (url.getPath() + "span/{name}"));
+        Assert.assertEquals(server.getAttributes().get(HTTP_STATUS_CODE).intValue(), HTTP_OK);
+        Assert.assertEquals(server.getAttributes().get(HTTP_METHOD), HttpMethod.GET);
+        Assert.assertEquals(server.getAttributes().get(HTTP_SCHEME), "http");
+        Assert.assertEquals(server.getAttributes().get(HTTP_SERVER_NAME), url.getHost());
+        Assert.assertEquals(server.getAttributes().get(HTTP_HOST), url.getHost() + ":" + url.getPort());
+        Assert.assertEquals(server.getAttributes().get(HTTP_TARGET), url.getPath() + "span/1");
 
         SpanData client = spans.get(1);
-        Assertions.assertEquals(CLIENT, client.getKind());
-        Assertions.assertEquals("HTTP GET", client.getName());
-        Assertions.assertEquals(HTTP_OK, client.getAttributes().get(HTTP_STATUS_CODE));
-        Assertions.assertEquals(HttpMethod.GET, client.getAttributes().get(HTTP_METHOD));
-        Assertions.assertEquals(url.toString() + "span/1", client.getAttributes().get(HTTP_URL));
+        Assert.assertEquals(client.getKind(), CLIENT);
+        Assert.assertEquals(client.getName(), "HTTP GET");
+        Assert.assertEquals(client.getAttributes().get(HTTP_STATUS_CODE).intValue(), HTTP_OK);
+        Assert.assertEquals(client.getAttributes().get(HTTP_METHOD), HttpMethod.GET);
+        Assert.assertEquals(client.getAttributes().get(HTTP_URL), url.toString() + "span/1");
 
-        Assertions.assertEquals(server.getTraceId(), client.getTraceId());
-        Assertions.assertEquals(server.getParentSpanId(), client.getSpanId());
+        Assert.assertEquals(server.getTraceId(), client.getTraceId());
+        Assert.assertEquals(server.getParentSpanId(), client.getSpanId());
     }
 
     @Test
     void spanNameQuery() {
         Response response = client.spanNameQuery("1", "query");
-        Assertions.assertEquals(response.getStatus(), HTTP_OK);
+        Assert.assertEquals(response.getStatus(), HTTP_OK);
 
         List<SpanData> spans = spanExporter.getFinishedSpanItems(2);
 
         SpanData server = spans.get(0);
-        Assertions.assertEquals(SERVER, server.getKind());
-        Assertions.assertEquals(url.getPath() + "span/{name}", server.getName());
-        Assertions.assertEquals(HTTP_OK, server.getAttributes().get(HTTP_STATUS_CODE));
-        Assertions.assertEquals(HttpMethod.GET, server.getAttributes().get(HTTP_METHOD));
-        Assertions.assertEquals("http", server.getAttributes().get(HTTP_SCHEME));
-        Assertions.assertEquals(url.getHost(), server.getAttributes().get(HTTP_SERVER_NAME));
-        Assertions.assertEquals(url.getHost() + ":" + url.getPort(), server.getAttributes().get(HTTP_HOST));
-        Assertions.assertEquals(url.getPath() + "span/1?query=query", server.getAttributes().get(HTTP_TARGET));
+        Assert.assertEquals(server.getKind(), SERVER);
+        Assert.assertEquals(server.getName(), url.getPath() + "span/{name}");
+        Assert.assertEquals(server.getAttributes().get(HTTP_STATUS_CODE).intValue(), HTTP_OK);
+        Assert.assertEquals(server.getAttributes().get(HTTP_METHOD), HttpMethod.GET);
+        Assert.assertEquals(server.getAttributes().get(HTTP_SCHEME), "http");
+        Assert.assertEquals(server.getAttributes().get(HTTP_SERVER_NAME), url.getHost());
+        Assert.assertEquals(server.getAttributes().get(HTTP_HOST), url.getHost() + ":" + url.getPort());
+        Assert.assertEquals(server.getAttributes().get(HTTP_TARGET), url.getPath() + "span/1?query=query");
 
         SpanData client = spans.get(1);
-        Assertions.assertEquals(CLIENT, client.getKind());
-        Assertions.assertEquals("HTTP GET", client.getName());
-        Assertions.assertEquals(HTTP_OK, client.getAttributes().get(HTTP_STATUS_CODE));
-        Assertions.assertEquals(HttpMethod.GET, client.getAttributes().get(HTTP_METHOD));
-        Assertions.assertEquals(url.toString() + "span/1?query=query", client.getAttributes().get(HTTP_URL));
+        Assert.assertEquals(client.getKind(), CLIENT);
+        Assert.assertEquals(client.getName(), "HTTP GET");
+        Assert.assertEquals(client.getAttributes().get(HTTP_STATUS_CODE).intValue(), HTTP_OK);
+        Assert.assertEquals(client.getAttributes().get(HTTP_METHOD), HttpMethod.GET);
+        Assert.assertEquals(client.getAttributes().get(HTTP_URL), url.toString() + "span/1?query=query");
 
-        Assertions.assertEquals(client.getTraceId(), server.getTraceId());
-        Assertions.assertEquals(server.getParentSpanId(), client.getSpanId());
+        Assert.assertEquals(client.getTraceId(), server.getTraceId());
+        Assert.assertEquals(server.getParentSpanId(), client.getSpanId());
     }
 
     @Test
@@ -182,127 +196,127 @@ class RestClientSpanTest {
         // Can't use REST Client here due to org.jboss.resteasy.microprofile.client.DefaultResponseExceptionMapper
         WebTarget target = ClientBuilder.newClient().target(url.toString() + "span/error");
         Response response = target.request().get();
-        Assertions.assertEquals(response.getStatus(), HTTP_INTERNAL_ERROR);
+        Assert.assertEquals(response.getStatus(), HTTP_INTERNAL_ERROR);
 
         List<SpanData> spans = spanExporter.getFinishedSpanItems(2);
 
         SpanData server = spans.get(0);
-        Assertions.assertEquals(SERVER, server.getKind());
-        Assertions.assertEquals(url.getPath() + "span/error", server.getName());
-        Assertions.assertEquals(HTTP_INTERNAL_ERROR, server.getAttributes().get(HTTP_STATUS_CODE));
-        Assertions.assertEquals(HttpMethod.GET, server.getAttributes().get(HTTP_METHOD));
-        Assertions.assertEquals("http", server.getAttributes().get(HTTP_SCHEME));
-        Assertions.assertEquals(url.getHost(), server.getAttributes().get(HTTP_SERVER_NAME));
-        Assertions.assertEquals(url.getHost() + ":" + url.getPort(), server.getAttributes().get(HTTP_HOST));
-        Assertions.assertEquals(url.getPath() + "span/error", server.getAttributes().get(HTTP_TARGET));
+        Assert.assertEquals(server.getKind(), SERVER);
+        Assert.assertEquals(server.getName(), url.getPath() + "span/error");
+        Assert.assertEquals(server.getAttributes().get(HTTP_STATUS_CODE).intValue(), HTTP_INTERNAL_ERROR);
+        Assert.assertEquals(server.getAttributes().get(HTTP_METHOD), HttpMethod.GET);
+        Assert.assertEquals(server.getAttributes().get(HTTP_SCHEME), "http");
+        Assert.assertEquals(server.getAttributes().get(HTTP_SERVER_NAME), url.getHost());
+        Assert.assertEquals(server.getAttributes().get(HTTP_HOST), url.getHost() + ":" + url.getPort());
+        Assert.assertEquals(server.getAttributes().get(HTTP_TARGET), url.getPath() + "span/error");
 
         SpanData client = spans.get(1);
-        Assertions.assertEquals(CLIENT, client.getKind());
-        Assertions.assertEquals("HTTP GET", client.getName());
-        Assertions.assertEquals(HTTP_INTERNAL_ERROR, client.getAttributes().get(HTTP_STATUS_CODE));
-        Assertions.assertEquals(HttpMethod.GET, client.getAttributes().get(HTTP_METHOD));
-        Assertions.assertEquals(url.toString() + "span/error", client.getAttributes().get(HTTP_URL));
+        Assert.assertEquals(client.getKind(), CLIENT);
+        Assert.assertEquals(client.getName(), "HTTP GET");
+        Assert.assertEquals(client.getAttributes().get(HTTP_STATUS_CODE).intValue(), HTTP_INTERNAL_ERROR);
+        Assert.assertEquals(client.getAttributes().get(HTTP_METHOD), HttpMethod.GET);
+        Assert.assertEquals(client.getAttributes().get(HTTP_URL), url.toString() + "span/error");
 
-        Assertions.assertEquals(client.getTraceId(), server.getTraceId());
-        Assertions.assertEquals(server.getParentSpanId(), client.getSpanId());
+        Assert.assertEquals(client.getTraceId(), server.getTraceId());
+        Assert.assertEquals(server.getParentSpanId(), client.getSpanId());
     }
 
     @Test
     void spanChild() {
         Response response = client.spanChild();
-        Assertions.assertEquals(response.getStatus(), HTTP_OK);
+        Assert.assertEquals(response.getStatus(), HTTP_OK);
 
         List<SpanData> spans = spanExporter.getFinishedSpanItems(3);
 
         SpanData internal = spans.get(0);
-        Assertions.assertEquals(INTERNAL, internal.getKind());
-        Assertions.assertEquals("SpanBean.spanChild", internal.getName());
+        Assert.assertEquals(internal.getKind(), INTERNAL);
+        Assert.assertEquals(internal.getName(), "SpanBean.spanChild");
 
         SpanData server = spans.get(1);
-        Assertions.assertEquals(SERVER, server.getKind());
-        Assertions.assertEquals(url.getPath() + "span/child", server.getName());
-        Assertions.assertEquals(HTTP_OK, server.getAttributes().get(HTTP_STATUS_CODE));
-        Assertions.assertEquals(HttpMethod.GET, server.getAttributes().get(HTTP_METHOD));
-        Assertions.assertEquals("http", server.getAttributes().get(HTTP_SCHEME));
-        Assertions.assertEquals(url.getHost(), server.getAttributes().get(HTTP_SERVER_NAME));
-        Assertions.assertEquals(url.getHost() + ":" + url.getPort(), server.getAttributes().get(HTTP_HOST));
-        Assertions.assertEquals(url.getPath() + "span/child", server.getAttributes().get(HTTP_TARGET));
+        Assert.assertEquals(server.getKind(), SERVER);
+        Assert.assertEquals(server.getName(), url.getPath() + "span/child");
+        Assert.assertEquals(server.getAttributes().get(HTTP_STATUS_CODE).intValue(), HTTP_OK);
+        Assert.assertEquals(server.getAttributes().get(HTTP_METHOD), HttpMethod.GET);
+        Assert.assertEquals(server.getAttributes().get(HTTP_SCHEME), "http");
+        Assert.assertEquals(server.getAttributes().get(HTTP_SERVER_NAME), url.getHost());
+        Assert.assertEquals(server.getAttributes().get(HTTP_HOST), url.getHost() + ":" + url.getPort());
+        Assert.assertEquals(server.getAttributes().get(HTTP_TARGET), url.getPath() + "span/child");
 
         SpanData client = spans.get(2);
-        Assertions.assertEquals(CLIENT, client.getKind());
-        Assertions.assertEquals("HTTP GET", client.getName());
-        Assertions.assertEquals(HTTP_OK, client.getAttributes().get(HTTP_STATUS_CODE));
-        Assertions.assertEquals(HttpMethod.GET, client.getAttributes().get(HTTP_METHOD));
-        Assertions.assertEquals(url.toString() + "span/child", client.getAttributes().get(HTTP_URL));
+        Assert.assertEquals(client.getKind(), CLIENT);
+        Assert.assertEquals(client.getName(), "HTTP GET");
+        Assert.assertEquals(client.getAttributes().get(HTTP_STATUS_CODE).intValue(), HTTP_OK);
+        Assert.assertEquals(client.getAttributes().get(HTTP_METHOD), HttpMethod.GET);
+        Assert.assertEquals(client.getAttributes().get(HTTP_URL), url.toString() + "span/child");
 
-        Assertions.assertEquals(client.getTraceId(), internal.getTraceId());
-        Assertions.assertEquals(client.getTraceId(), server.getTraceId());
-        Assertions.assertEquals(internal.getParentSpanId(), server.getSpanId());
-        Assertions.assertEquals(server.getParentSpanId(), client.getSpanId());
+        Assert.assertEquals(internal.getTraceId(), client.getTraceId());
+        Assert.assertEquals(server.getTraceId(), client.getTraceId());
+        Assert.assertEquals(server.getSpanId(), internal.getParentSpanId());
+        Assert.assertEquals(client.getSpanId(), server.getParentSpanId());
     }
 
     @Test
     void spanCurrent() {
         Response response = client.spanCurrent();
-        Assertions.assertEquals(response.getStatus(), HTTP_OK);
+        Assert.assertEquals(response.getStatus(), HTTP_OK);
 
         List<SpanData> spans = spanExporter.getFinishedSpanItems(2);
 
         SpanData server = spans.get(0);
-        Assertions.assertEquals(SERVER, server.getKind());
-        Assertions.assertEquals(url.getPath() + "span/current", server.getName());
-        Assertions.assertEquals(HTTP_OK, server.getAttributes().get(HTTP_STATUS_CODE));
-        Assertions.assertEquals(HttpMethod.GET, server.getAttributes().get(HTTP_METHOD));
-        Assertions.assertEquals("http", server.getAttributes().get(HTTP_SCHEME));
-        Assertions.assertEquals(url.getHost(), server.getAttributes().get(HTTP_SERVER_NAME));
-        Assertions.assertEquals(url.getHost() + ":" + url.getPort(), server.getAttributes().get(HTTP_HOST));
-        Assertions.assertEquals(url.getPath() + "span/current", server.getAttributes().get(HTTP_TARGET));
-        Assertions.assertEquals("tck.current.value", server.getAttributes().get(stringKey("tck.current.key")));
+        Assert.assertEquals(server.getKind(), SERVER);
+        Assert.assertEquals(server.getName(), url.getPath() + "span/current");
+        Assert.assertEquals(server.getAttributes().get(HTTP_STATUS_CODE).intValue(), HTTP_OK);
+        Assert.assertEquals(server.getAttributes().get(HTTP_METHOD), HttpMethod.GET);
+        Assert.assertEquals(server.getAttributes().get(HTTP_SCHEME), "http");
+        Assert.assertEquals(server.getAttributes().get(HTTP_SERVER_NAME), url.getHost());
+        Assert.assertEquals(server.getAttributes().get(HTTP_HOST), url.getHost() + ":" + url.getPort());
+        Assert.assertEquals(server.getAttributes().get(HTTP_TARGET), url.getPath() + "span/current");
+        Assert.assertEquals(server.getAttributes().get(stringKey("tck.current.key")), "tck.current.value");
 
         SpanData client = spans.get(1);
-        Assertions.assertEquals(CLIENT, client.getKind());
-        Assertions.assertEquals("HTTP GET", client.getName());
-        Assertions.assertEquals(HTTP_OK, client.getAttributes().get(HTTP_STATUS_CODE));
-        Assertions.assertEquals(HttpMethod.GET, client.getAttributes().get(HTTP_METHOD));
-        Assertions.assertEquals(url.toString() + "span/current", client.getAttributes().get(HTTP_URL));
+        Assert.assertEquals(client.getKind(), CLIENT);
+        Assert.assertEquals(client.getName(), "HTTP GET");
+        Assert.assertEquals(client.getAttributes().get(HTTP_STATUS_CODE).intValue(), HTTP_OK);
+        Assert.assertEquals(client.getAttributes().get(HTTP_METHOD), HttpMethod.GET);
+        Assert.assertEquals(client.getAttributes().get(HTTP_URL), url.toString() + "span/current");
 
-        Assertions.assertEquals(client.getTraceId(), server.getTraceId());
-        Assertions.assertEquals(server.getParentSpanId(), client.getSpanId());
+        Assert.assertEquals(server.getTraceId(), client.getTraceId());
+        Assert.assertEquals(client.getSpanId(), server.getParentSpanId());
     }
 
     @Test
     void spanNew() {
         Response response = client.spanNew();
-        Assertions.assertEquals(response.getStatus(), HTTP_OK);
+        Assert.assertEquals(response.getStatus(), HTTP_OK);
 
         List<SpanData> spans = spanExporter.getFinishedSpanItems(3);
 
         SpanData internal = spans.get(0);
-        Assertions.assertEquals(INTERNAL, internal.getKind());
-        Assertions.assertEquals("span.new", internal.getName());
-        Assertions.assertEquals("tck.new.value", internal.getAttributes().get(stringKey("tck.new.key")));
+        Assert.assertEquals(internal.getKind(), INTERNAL);
+        Assert.assertEquals(internal.getName(), "span.new");
+        Assert.assertEquals(internal.getAttributes().get(stringKey("tck.new.key")), "tck.new.value");
 
         SpanData server = spans.get(1);
-        Assertions.assertEquals(SERVER, server.getKind());
-        Assertions.assertEquals(url.getPath() + "span/new", server.getName());
-        Assertions.assertEquals(HTTP_OK, server.getAttributes().get(HTTP_STATUS_CODE));
-        Assertions.assertEquals(HttpMethod.GET, server.getAttributes().get(HTTP_METHOD));
-        Assertions.assertEquals("http", server.getAttributes().get(HTTP_SCHEME));
-        Assertions.assertEquals(url.getHost(), server.getAttributes().get(HTTP_SERVER_NAME));
-        Assertions.assertEquals(url.getHost() + ":" + url.getPort(), server.getAttributes().get(HTTP_HOST));
-        Assertions.assertEquals(url.getPath() + "span/new", server.getAttributes().get(HTTP_TARGET));
+        Assert.assertEquals(server.getKind(), SERVER);
+        Assert.assertEquals(server.getName(), url.getPath() + "span/new");
+        Assert.assertEquals(server.getAttributes().get(HTTP_STATUS_CODE).intValue(), HTTP_OK);
+        Assert.assertEquals(server.getAttributes().get(HTTP_METHOD), HttpMethod.GET);
+        Assert.assertEquals(server.getAttributes().get(HTTP_SCHEME), "http");
+        Assert.assertEquals(server.getAttributes().get(HTTP_SERVER_NAME), url.getHost());
+        Assert.assertEquals(server.getAttributes().get(HTTP_HOST), url.getHost() + ":" + url.getPort());
+        Assert.assertEquals(server.getAttributes().get(HTTP_TARGET), url.getPath() + "span/new");
 
         SpanData client = spans.get(2);
-        Assertions.assertEquals(CLIENT, client.getKind());
-        Assertions.assertEquals("HTTP GET", client.getName());
-        Assertions.assertEquals(HTTP_OK, client.getAttributes().get(HTTP_STATUS_CODE));
-        Assertions.assertEquals(HttpMethod.GET, client.getAttributes().get(HTTP_METHOD));
-        Assertions.assertEquals(url.toString() + "span/new", client.getAttributes().get(HTTP_URL));
+        Assert.assertEquals(client.getKind(), CLIENT);
+        Assert.assertEquals(client.getName(), "HTTP GET");
+        Assert.assertEquals(client.getAttributes().get(HTTP_STATUS_CODE).intValue(), HTTP_OK);
+        Assert.assertEquals(client.getAttributes().get(HTTP_METHOD), HttpMethod.GET);
+        Assert.assertEquals(client.getAttributes().get(HTTP_URL), url.toString() + "span/new");
 
-        Assertions.assertEquals(client.getTraceId(), internal.getTraceId());
-        Assertions.assertEquals(client.getTraceId(), server.getTraceId());
-        Assertions.assertEquals(internal.getParentSpanId(), server.getSpanId());
-        Assertions.assertEquals(server.getParentSpanId(), client.getSpanId());
+        Assert.assertEquals(internal.getTraceId(), client.getTraceId());
+        Assert.assertEquals(server.getTraceId(), client.getTraceId());
+        Assert.assertEquals(server.getSpanId(), internal.getParentSpanId());
+        Assert.assertEquals(client.getSpanId(), server.getParentSpanId());
     }
 
     @RequestScoped

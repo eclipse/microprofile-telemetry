@@ -23,19 +23,21 @@ import static java.net.HttpURLConnection.HTTP_OK;
 
 import java.net.URL;
 
+import org.eclipse.microprofile.telemetry.tracing.tck.TestLibraries;
 import org.eclipse.microprofile.telemetry.tracing.tck.exporter.InMemorySpanExporter;
+import org.eclipse.microprofile.telemetry.tracing.tck.exporter.InMemorySpanExporterProvider;
 import org.jboss.arquillian.container.test.api.Deployment;
-import org.jboss.arquillian.junit5.ArquillianExtension;
 import org.jboss.arquillian.test.api.ArquillianResource;
+import org.jboss.arquillian.testng.Arquillian;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.testng.Assert;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import io.opentelemetry.api.baggage.Baggage;
+import io.opentelemetry.sdk.autoconfigure.spi.traces.ConfigurableSpanExporterProvider;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.GET;
@@ -45,30 +47,36 @@ import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Application;
 import jakarta.ws.rs.core.Response;
 
-@ExtendWith(ArquillianExtension.class)
-class BaggageTest {
+class BaggageTest extends Arquillian {
     @Deployment
     public static WebArchive createDeployment() {
         return ShrinkWrap.create(WebArchive.class)
-                .addAsResource(new StringAsset("otel.experimental.sdk.enabled=true"),
+                .addClasses(InMemorySpanExporter.class, InMemorySpanExporterProvider.class)
+                .addAsServiceProvider(ConfigurableSpanExporterProvider.class, InMemorySpanExporterProvider.class)
+                .addAsLibrary(TestLibraries.AWAITILITY_LIB)
+                .addAsResource(new StringAsset("otel.experimental.sdk.enabled=true\notel.traces.exporter=in-memory"),
                         "META-INF/microprofile-config.properties");
     }
 
     @ArquillianResource
     URL url;
+
     @Inject
     InMemorySpanExporter spanExporter;
 
-    @BeforeEach
+    @BeforeMethod
     void setUp() {
-        spanExporter.reset();
+        // Only want to run on server
+        if (spanExporter != null) {
+            spanExporter.reset();
+        }
     }
 
     @Test
     void baggage() {
-        WebTarget target = ClientBuilder.newClient().target(url.toString() + "baggage");
+        WebTarget target = ClientBuilder.newClient().target(url.toString()).path("baggage");
         Response response = target.request().header("baggage", "user=naruto").get();
-        Assertions.assertEquals(HTTP_OK, response.getStatus());
+        Assert.assertEquals(response.getStatus(), HTTP_OK);
 
         spanExporter.getFinishedSpanItems(2);
     }
@@ -80,8 +88,15 @@ class BaggageTest {
 
         @GET
         public Response baggage() {
-            Assertions.assertEquals("naruto", baggage.getEntryValue("user"));
-            return Response.ok().build();
+            try {
+                Assert.assertEquals(baggage.getEntryValue("user"), "naruto");
+                return Response.ok().build();
+            } catch (Throwable e) {
+                // An error here won't get reported back fully, so output it to the log as well
+                System.err.println("Baggage Resource Exception:");
+                e.printStackTrace();
+                throw e;
+            }
         }
     }
 

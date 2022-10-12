@@ -21,23 +21,25 @@
 package org.eclipse.microprofile.telemetry.tracing.tck.rest;
 
 import static java.net.HttpURLConnection.HTTP_OK;
+import static org.testng.Assert.assertEquals;
 
 import java.net.URL;
 
-import javax.inject.Inject;
-
+import org.eclipse.microprofile.telemetry.tracing.tck.BasicHttpClient;
+import org.eclipse.microprofile.telemetry.tracing.tck.TestLibraries;
 import org.eclipse.microprofile.telemetry.tracing.tck.exporter.InMemorySpanExporter;
+import org.eclipse.microprofile.telemetry.tracing.tck.exporter.InMemorySpanExporterProvider;
 import org.jboss.arquillian.container.test.api.Deployment;
-import org.jboss.arquillian.junit5.ArquillianExtension;
 import org.jboss.arquillian.test.api.ArquillianResource;
+import org.jboss.arquillian.testng.Arquillian;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
-import io.restassured.RestAssured;
+import io.opentelemetry.sdk.autoconfigure.spi.traces.ConfigurableSpanExporterProvider;
+import jakarta.inject.Inject;
 import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -45,12 +47,14 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.core.Application;
 import jakarta.ws.rs.core.Response;
 
-@ExtendWith(ArquillianExtension.class)
-class RestSpanDisabledTest {
+class RestSpanDisabledTest extends Arquillian {
     @Deployment
     public static WebArchive createDeployment() {
         return ShrinkWrap.create(WebArchive.class)
-                .addAsResource(new StringAsset("otel.experimental.sdk.enabled=false"),
+                .addClasses(InMemorySpanExporter.class, InMemorySpanExporterProvider.class, BasicHttpClient.class)
+                .addAsLibrary(TestLibraries.AWAITILITY_LIB)
+                .addAsServiceProvider(ConfigurableSpanExporterProvider.class, InMemorySpanExporterProvider.class)
+                .addAsResource(new StringAsset("otel.experimental.sdk.enabled=false\notel.traces.exporter=in-memory"),
                         "META-INF/microprofile-config.properties");
     }
 
@@ -59,26 +63,32 @@ class RestSpanDisabledTest {
     @Inject
     InMemorySpanExporter spanExporter;
 
-    @BeforeEach
+    private BasicHttpClient basicClient;
+
+    @BeforeMethod
     void setUp() {
-        spanExporter.reset();
+        // Only want to run on server
+        if (spanExporter != null) {
+            spanExporter.reset();
+            basicClient = new BasicHttpClient(url);
+        }
     }
 
     @Test
     void span() {
-        RestAssured.given().get("/span").then().statusCode(HTTP_OK);
+        assertEquals(basicClient.get("/span"), HTTP_OK);
         spanExporter.getFinishedSpanItems(0);
     }
 
     @Test
     void spanName() {
-        RestAssured.given().get("/span/1").then().statusCode(HTTP_OK);
+        assertEquals(basicClient.get("/span/1"), HTTP_OK);
         spanExporter.getFinishedSpanItems(0);
     }
 
     @Test
     void spanNameWithoutQueryString() {
-        RestAssured.given().get("/span/1?id=1").then().statusCode(HTTP_OK);
+        assertEquals(basicClient.get("/span/1?id=1"), HTTP_OK);
         spanExporter.getFinishedSpanItems(0);
     }
 
