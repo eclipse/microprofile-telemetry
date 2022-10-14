@@ -54,7 +54,7 @@ class BaggageTest extends Arquillian {
                 .addClasses(InMemorySpanExporter.class, InMemorySpanExporterProvider.class)
                 .addAsServiceProvider(ConfigurableSpanExporterProvider.class, InMemorySpanExporterProvider.class)
                 .addAsLibrary(TestLibraries.AWAITILITY_LIB)
-                .addAsResource(new StringAsset("otel.experimental.sdk.enabled=true\notel.traces.exporter=in-memory"),
+                .addAsResource(new StringAsset("otel.sdk.disabled=false\notel.traces.exporter=in-memory"),
                         "META-INF/microprofile-config.properties");
     }
 
