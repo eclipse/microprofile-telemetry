@@ -1,13 +1,32 @@
-= MicroProfile Telemetry
+//
+// Copyright (c) 2022-2022 Contributors to the Eclipse Foundation
+//
+// See the NOTICE file(s) distributed with this work for additional
+// information regarding copyright ownership.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
 
-This specification is to adopt https://opentelemetry.io/[OpenTelemetry] from CNCF to allow MicroProfile Applications benefit from OpenTelemetry and enable Jakarta RESTful Web Services automatically being traced if configured.
+= MicroProfile Telemetry Tracing
+This specification is to adopt https://opentelemetry.io/[OpenTelemetry] from CNCF to allow MicroProfile applications benefit from OpenTelemetry and enable Jakarta RESTful Web Services automatically being traced if configured.
 
-== OpenTracing move to OpenTelemetry
-With the merge of OpenTracing and OpenCensus, OpenTelemetry holds the future. OpenTelemetry consists of Tracing, Logging and Metrics support.
-This `tracing` directory only focuses on the tracing aspect.
+== OpenTracing moves to OpenTelemetry
+With the merge of OpenTracing and OpenCensus, OpenTelemetry holds the future.
+OpenTelemetry consists of Tracing, Logging, Metrics and Baggage support.
+
+This `tracing` directory only focuses on the Tracing aspect (including Baggage use in this context).
 
 == Directly adopt the APIs from OpenTelemetry Tracing
-
 This specification directly expose the Tracing APIs from OpenTelemetry and then provide CDI and Jakarta RESTful Web Services integration.
 The https://github.com/open-telemetry/opentelemetry-java/tree/main/api/all/src/main/java/io/opentelemetry/api/trace Tracer APIs from OpenTelemetry will be exposed.
 This specification does not plan to reinvent the wheels but rather exposes OpenTelemetry APIs due to the following reasons:
@@ -17,14 +36,16 @@ This specification does not plan to reinvent the wheels but rather exposes OpenT
 * OpenTelemetry has Java API and annotations that are readily to be used
 * OpenTelemetry is active and open for the collaboration with us
 * OpenTelemetry is platform technology and we use the effort to make Java libraries to be used directly instead of reinventing our own APIs
-* OpenTelemetry has broad vendor support. Many APMs are contributing to the spec, providing a guarantee that traces can be used out of the box, with minimal integrations.
+* OpenTelemetry has broad vendor support.
+Many observability vendors are contributing to the spec, providing a guarantee that traces can be used out of the box, with minimal integrations.
 * OpenTelemetry is serious with backward incompatible changes and communicates openly
 
 MicroProfile Telemetry pulls in a particular version of OpenTelemetry.
 Whenever we upgrade, we evaluate the backward compatibility status ourselves as well.
 
 == MicroProfile Telemetry Tracing
-MicroProfile Telemetry pulls in OpenTelemetry Tracing and integrate with CDI and Jakarta Restful Services. It provides three types of instrumentations:
+MicroProfile Telemetry pulls in OpenTelemetry Tracing and integrate with CDI and Jakarta RESTful Web Services.
+It provides three types of instrumentation:
 
 * Automatic Instrumentation
 
@@ -39,5 +60,7 @@ Explicit manual instrumentation can be added into a MicroProfile application usi
 Implementations are free to support the OpenTelemetry Agent Instrumentation.
 
 === Configuration
-By default, MicroProfile Telemetry tracing is off. In order to enable any of the tracing aspects, the configuration `otel.sdk.disabled=false` must be specified in any of the config sources available via MicroProfile Config.
-This property is read once when the application is starting. Any changes afterwards will not take effect unless the application is restarted.
+By default, MicroProfile Telemetry Tracing is off.
+In order to enable any of the Tracing aspects, the configuration `otel.sdk.disabled=false` must be specified in any of the configuration sources available via MicroProfile Config.
+This property is read once when the application is starting.
+Any changes afterwards will not take effect unless the application is restarted.

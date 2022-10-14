@@ -1,6 +1,8 @@
 //
-// Copyright (c) 2022 Eclipse Microprofile Contributors:
-// 
+// Copyright (c) 2022-2022 Contributors to the Eclipse Foundation
+//
+// See the NOTICE file(s) distributed with this work for additional
+// information regarding copyright ownership.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,13 +17,11 @@
 // limitations under the License.
 //
 
-= Running the MicroProfile Telemetry Tracing TCK
-
+= MicroProfile Telemetry Tracing TCK
 Any MicroProfile Telemetry implementation must pass this test suite.
-The TCK uses `testng`
+The TCK uses `TestNG` and `Arquillian`.
 
 == Hardware Requirements
-
 All systems should meet the following recommended hardware requirements:
 
     * CPU running at 2.0 GHz or higher
@@ -29,14 +29,12 @@ All systems should meet the following recommended hardware requirements:
     * Network access to the Internet
 
 == Software Requirements
-
 You can run this TCK on platforms running the Solaris, Linux, Windows, and Mac OS with the following software installed:
 
     * Maven
     * JDK11+
 
 == Dependencies
-
 To enable the tests in your project you need to add the following dependency to your build:
 
 [source, xml]
@@ -52,8 +50,8 @@ To enable the tests in your project you need to add the following dependency to 
 ----
 
 == Declaring the Tests to run
-
 You also need to specify which tests you want to run, e.g. create a file `tck-suite.xml` in your project which contains the following content:
+
 [source, xml]
 ----
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
@@ -71,8 +69,8 @@ You also need to specify which tests you want to run, e.g. create a file `tck-su
 ----
 
 == Configuration in Apache Maven pom.xml
-
 If you use Apache Maven then the tests are run via the `maven-surefire-plugin`
+
 [source, xml]
 ----
 <build>
@@ -92,11 +90,9 @@ If you use Apache Maven then the tests are run via the `maven-surefire-plugin`
 ----
 
 == Running as a Scanned Dependency
-
 You can also run the TCK as a scanned dependency.
 
 === Surefire Configuration in your pom.xml
-
 Once you've added the dependency, you don't need a `tck-suite.xml` you can just scan the dependency for tests.
 
 [source, xml]
