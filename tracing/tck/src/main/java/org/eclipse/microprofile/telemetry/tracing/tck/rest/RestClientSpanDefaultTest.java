@@ -24,26 +24,30 @@ import static io.opentelemetry.api.trace.SpanKind.INTERNAL;
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 import static java.net.HttpURLConnection.HTTP_OK;
 
+import java.net.URISyntaxException;
 import java.net.URL;
 
+import org.eclipse.microprofile.rest.client.RestClientBuilder;
+import org.eclipse.microprofile.rest.client.RestClientDefinitionException;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.eclipse.microprofile.telemetry.tracing.tck.TestLibraries;
 import org.eclipse.microprofile.telemetry.tracing.tck.exporter.InMemorySpanExporter;
+import org.eclipse.microprofile.telemetry.tracing.tck.exporter.InMemorySpanExporterProvider;
 import org.jboss.arquillian.container.test.api.Deployment;
-import org.jboss.arquillian.junit5.ArquillianExtension;
 import org.jboss.arquillian.test.api.ArquillianResource;
+import org.jboss.arquillian.testng.Arquillian;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.testng.Assert;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.context.Context;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
+import io.opentelemetry.sdk.autoconfigure.spi.traces.ConfigurableSpanExporterProvider;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
@@ -57,46 +61,58 @@ import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Application;
 import jakarta.ws.rs.core.Response;
 
-@ExtendWith(ArquillianExtension.class)
-class RestClientSpanDefaultTest {
+class RestClientSpanDefaultTest extends Arquillian {
     @Deployment
     public static WebArchive createDeployment() {
         return ShrinkWrap.create(WebArchive.class)
-                .addAsResource(new StringAsset("client/mp-rest/url=${baseUri}"),
+                .addClasses(InMemorySpanExporter.class, InMemorySpanExporterProvider.class)
+                .addAsLibrary(TestLibraries.AWAITILITY_LIB)
+                .addAsServiceProvider(ConfigurableSpanExporterProvider.class, InMemorySpanExporterProvider.class)
+                .addAsResource(new StringAsset("otel.traces.exporter=in-memory"),
                         "META-INF/microprofile-config.properties");
     }
 
     @ArquillianResource
     URL url;
+
     @Inject
     InMemorySpanExporter spanExporter;
-    @Inject
-    @RestClient
+
     SpanResourceClient client;
 
-    @BeforeEach
+    @BeforeMethod
     void setUp() {
-        spanExporter.reset();
+        // Only want to run on server
+        if (spanExporter != null) {
+            spanExporter.reset();
+
+            try {
+                // Create client manually so we can pass in URL from arquillian
+                client = RestClientBuilder.newBuilder().baseUri(url.toURI()).build(SpanResourceClient.class);
+            } catch (IllegalStateException | RestClientDefinitionException | URISyntaxException e) {
+                Assert.fail("Failed to create rest client", e);
+            }
+        }
     }
 
     @Test
     void span() {
         Response response = client.span();
-        Assertions.assertEquals(response.getStatus(), HTTP_OK);
+        Assert.assertEquals(response.getStatus(), HTTP_OK);
         spanExporter.getFinishedSpanItems(0);
     }
 
     @Test
     void spanName() {
         Response response = client.spanName("1");
-        Assertions.assertEquals(response.getStatus(), HTTP_OK);
+        Assert.assertEquals(response.getStatus(), HTTP_OK);
         spanExporter.getFinishedSpanItems(0);
     }
 
     @Test
     void spanNameQuery() {
         Response response = client.spanNameQuery("1", "query");
-        Assertions.assertEquals(response.getStatus(), HTTP_OK);
+        Assert.assertEquals(response.getStatus(), HTTP_OK);
         spanExporter.getFinishedSpanItems(0);
     }
 
@@ -105,28 +121,28 @@ class RestClientSpanDefaultTest {
         // Can't use REST Client here due to org.jboss.resteasy.microprofile.client.DefaultResponseExceptionMapper
         WebTarget target = ClientBuilder.newClient().target(url.toString() + "span/error");
         Response response = target.request().get();
-        Assertions.assertEquals(response.getStatus(), HTTP_INTERNAL_ERROR);
+        Assert.assertEquals(response.getStatus(), HTTP_INTERNAL_ERROR);
         spanExporter.getFinishedSpanItems(0);
     }
 
     @Test
     void spanChild() {
         Response response = client.spanChild();
-        Assertions.assertEquals(response.getStatus(), HTTP_OK);
+        Assert.assertEquals(response.getStatus(), HTTP_OK);
         spanExporter.getFinishedSpanItems(0);
     }
 
     @Test
     void spanCurrent() {
         Response response = client.spanCurrent();
-        Assertions.assertEquals(response.getStatus(), HTTP_OK);
+        Assert.assertEquals(response.getStatus(), HTTP_OK);
         spanExporter.getFinishedSpanItems(0);
     }
 
     @Test
     void spanNew() {
         Response response = client.spanNew();
-        Assertions.assertEquals(response.getStatus(), HTTP_OK);
+        Assert.assertEquals(response.getStatus(), HTTP_OK);
         spanExporter.getFinishedSpanItems(0);
     }
 

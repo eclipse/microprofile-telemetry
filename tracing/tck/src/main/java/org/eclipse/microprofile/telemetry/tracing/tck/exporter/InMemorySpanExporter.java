@@ -29,7 +29,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 import org.awaitility.Awaitility;
-import org.junit.jupiter.api.Assertions;
+import org.testng.Assert;
 
 import io.opentelemetry.sdk.common.CompletableResultCode;
 import io.opentelemetry.sdk.trace.data.SpanData;
@@ -54,8 +54,8 @@ public class InMemorySpanExporter implements SpanExporter {
     }
 
     public void assertSpanCount(int spanCount) {
-        Awaitility.await().atMost(10, SECONDS)
-                .untilAsserted(() -> Assertions.assertEquals(spanCount, finishedSpanItems.size()));
+        Awaitility.await().pollDelay(3, SECONDS).atMost(10, SECONDS)
+                .untilAsserted(() -> Assert.assertEquals(finishedSpanItems.size(), spanCount));
     }
 
     public void reset() {
