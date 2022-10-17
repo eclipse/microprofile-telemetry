@@ -24,10 +24,8 @@ import static io.opentelemetry.api.common.AttributeKey.stringKey;
 import static io.opentelemetry.api.trace.SpanKind.CLIENT;
 import static io.opentelemetry.api.trace.SpanKind.INTERNAL;
 import static io.opentelemetry.api.trace.SpanKind.SERVER;
-import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.HTTP_HOST;
 import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.HTTP_METHOD;
 import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.HTTP_SCHEME;
-import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.HTTP_SERVER_NAME;
 import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.HTTP_STATUS_CODE;
 import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.HTTP_TARGET;
 import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.HTTP_URL;
@@ -120,8 +118,6 @@ class RestClientSpanTest extends Arquillian {
         Assert.assertEquals(server.getAttributes().get(HTTP_STATUS_CODE).intValue(), HTTP_OK);
         Assert.assertEquals(server.getAttributes().get(HTTP_METHOD), HttpMethod.GET);
         Assert.assertEquals(server.getAttributes().get(HTTP_SCHEME), "http");
-        Assert.assertEquals(server.getAttributes().get(HTTP_SERVER_NAME), url.getHost());
-        Assert.assertEquals(server.getAttributes().get(HTTP_HOST), url.getHost() + ":" + url.getPort());
         Assert.assertEquals(server.getAttributes().get(HTTP_TARGET), url.getPath() + "span");
 
         SpanData client = spans.get(1);
@@ -148,8 +144,6 @@ class RestClientSpanTest extends Arquillian {
         Assert.assertEquals(server.getAttributes().get(HTTP_STATUS_CODE).intValue(), HTTP_OK);
         Assert.assertEquals(server.getAttributes().get(HTTP_METHOD), HttpMethod.GET);
         Assert.assertEquals(server.getAttributes().get(HTTP_SCHEME), "http");
-        Assert.assertEquals(server.getAttributes().get(HTTP_SERVER_NAME), url.getHost());
-        Assert.assertEquals(server.getAttributes().get(HTTP_HOST), url.getHost() + ":" + url.getPort());
         Assert.assertEquals(server.getAttributes().get(HTTP_TARGET), url.getPath() + "span/1");
 
         SpanData client = spans.get(1);
@@ -176,8 +170,6 @@ class RestClientSpanTest extends Arquillian {
         Assert.assertEquals(server.getAttributes().get(HTTP_STATUS_CODE).intValue(), HTTP_OK);
         Assert.assertEquals(server.getAttributes().get(HTTP_METHOD), HttpMethod.GET);
         Assert.assertEquals(server.getAttributes().get(HTTP_SCHEME), "http");
-        Assert.assertEquals(server.getAttributes().get(HTTP_SERVER_NAME), url.getHost());
-        Assert.assertEquals(server.getAttributes().get(HTTP_HOST), url.getHost() + ":" + url.getPort());
         Assert.assertEquals(server.getAttributes().get(HTTP_TARGET), url.getPath() + "span/1?query=query");
 
         SpanData client = spans.get(1);
@@ -206,8 +198,6 @@ class RestClientSpanTest extends Arquillian {
         Assert.assertEquals(server.getAttributes().get(HTTP_STATUS_CODE).intValue(), HTTP_INTERNAL_ERROR);
         Assert.assertEquals(server.getAttributes().get(HTTP_METHOD), HttpMethod.GET);
         Assert.assertEquals(server.getAttributes().get(HTTP_SCHEME), "http");
-        Assert.assertEquals(server.getAttributes().get(HTTP_SERVER_NAME), url.getHost());
-        Assert.assertEquals(server.getAttributes().get(HTTP_HOST), url.getHost() + ":" + url.getPort());
         Assert.assertEquals(server.getAttributes().get(HTTP_TARGET), url.getPath() + "span/error");
 
         SpanData client = spans.get(1);
@@ -238,8 +228,6 @@ class RestClientSpanTest extends Arquillian {
         Assert.assertEquals(server.getAttributes().get(HTTP_STATUS_CODE).intValue(), HTTP_OK);
         Assert.assertEquals(server.getAttributes().get(HTTP_METHOD), HttpMethod.GET);
         Assert.assertEquals(server.getAttributes().get(HTTP_SCHEME), "http");
-        Assert.assertEquals(server.getAttributes().get(HTTP_SERVER_NAME), url.getHost());
-        Assert.assertEquals(server.getAttributes().get(HTTP_HOST), url.getHost() + ":" + url.getPort());
         Assert.assertEquals(server.getAttributes().get(HTTP_TARGET), url.getPath() + "span/child");
 
         SpanData client = spans.get(2);
@@ -268,8 +256,6 @@ class RestClientSpanTest extends Arquillian {
         Assert.assertEquals(server.getAttributes().get(HTTP_STATUS_CODE).intValue(), HTTP_OK);
         Assert.assertEquals(server.getAttributes().get(HTTP_METHOD), HttpMethod.GET);
         Assert.assertEquals(server.getAttributes().get(HTTP_SCHEME), "http");
-        Assert.assertEquals(server.getAttributes().get(HTTP_SERVER_NAME), url.getHost());
-        Assert.assertEquals(server.getAttributes().get(HTTP_HOST), url.getHost() + ":" + url.getPort());
         Assert.assertEquals(server.getAttributes().get(HTTP_TARGET), url.getPath() + "span/current");
         Assert.assertEquals(server.getAttributes().get(stringKey("tck.current.key")), "tck.current.value");
 
@@ -302,8 +288,6 @@ class RestClientSpanTest extends Arquillian {
         Assert.assertEquals(server.getAttributes().get(HTTP_STATUS_CODE).intValue(), HTTP_OK);
         Assert.assertEquals(server.getAttributes().get(HTTP_METHOD), HttpMethod.GET);
         Assert.assertEquals(server.getAttributes().get(HTTP_SCHEME), "http");
-        Assert.assertEquals(server.getAttributes().get(HTTP_SERVER_NAME), url.getHost());
-        Assert.assertEquals(server.getAttributes().get(HTTP_HOST), url.getHost() + ":" + url.getPort());
         Assert.assertEquals(server.getAttributes().get(HTTP_TARGET), url.getPath() + "span/new");
 
         SpanData client = spans.get(2);
