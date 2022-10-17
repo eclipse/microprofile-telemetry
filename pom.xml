@@ -31,7 +31,7 @@
 
     <properties>
         <inceptionYear>2022</inceptionYear>
-        <opentelemetry.spec.version>1.14.0</opentelemetry.spec.version>
+        <opentelemetry.spec.version>1.13.0</opentelemetry.spec.version>
         <opentelemetry.java.version>1.19.0</opentelemetry.java.version>
         <version.microprofile.tck.bom>3.0</version.microprofile.tck.bom>
     </properties>
