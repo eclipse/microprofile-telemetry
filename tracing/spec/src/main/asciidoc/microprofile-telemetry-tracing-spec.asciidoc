@@ -249,14 +249,15 @@ By default, MicroProfile Telemetry Tracing is deactivated.
 
 In order to enable any of the tracing aspects, the configuration `otel.sdk.disabled=false` must be specified in any of the configuration sources available via MicroProfile Config.
 
+// TODO The hard coded otel-spec-version need to be replaced in future spec releases!
 [IMPORTANT]
 ====
-This is a deviation from the https://github.com/open-telemetry/opentelemetry-specification/blob/v{otel-spec-version}/specification/overview.md[OpenTelemetry Specification], where https://opentelemetry.io[OpenTelemetry] is activated by default!
+This is a deviation from the https://github.com/open-telemetry/opentelemetry-specification/blob/v1.14.0/specification/overview.md[OpenTelemetry Specification version 1.14.0] that specifies this configuration property officially, where https://opentelemetry.io[OpenTelemetry] is activated by default!
 
 But in fact, it will be activated only by adding it's dependency to the application or platform project.
 To be able to add MicroProfile Telemetry Tracing to MicroProfile implementations by default without side effects, this deviating behaviour has been defined here (see also <<sec:microprofile-telemetry-and-microprofile-opentracing>>).
 
-The original definition for this configuration property and the corresponding `OTEL_SDK_DISABLED` environment variable is specified in the https://github.com/open-telemetry/opentelemetry-specification/blob/v{otel-spec-version}/specification/sdk-environment-variables.md#opentelemetry-environment-variable-specification[OpenTelemetry Environment Variable Specification] and it's https://github.com/open-telemetry/opentelemetry-specification/blob/v{otel-spec-version}/specification/sdk-environment-variables.md#general-sdk-configuration[General SDK Configuration].
+The original definition for this configuration property and the corresponding `OTEL_SDK_DISABLED` environment variable is specified in the https://github.com/open-telemetry/opentelemetry-specification/blob/v1.14.0/specification/sdk-environment-variables.md#opentelemetry-environment-variable-specification[OpenTelemetry Environment Variable Specification version 1.14.0] and it's https://github.com/open-telemetry/opentelemetry-specification/blob/v1.14.0/specification/sdk-environment-variables.md#general-sdk-configuration[General SDK Configuration].
 ====
 
 This property is read once when the application is starting.
