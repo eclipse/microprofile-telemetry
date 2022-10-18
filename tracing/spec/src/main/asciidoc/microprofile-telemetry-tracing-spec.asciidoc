@@ -88,10 +88,10 @@ These should follow the rules specified in the <<sec:semantic-conventions>> sect
 Explicit manual instrumentation can be added into a MicroProfile application in the following ways:
 
 ==== @WithSpan
-Annotating a method in any Jakarta CDI aware beans with the `io.opentelemetry.extension.annotations.WithSpan` annotation.
+Annotating a method in any Jakarta CDI aware beans with the `io.opentelemetry.instrumentation.annotations.WithSpan` annotation.
 This will create a new Span and establish any required relationships with the current Trace context.
 
-Method parameters can be annotated with the `io.opentelemetry.extension.annotations.SpanAttribute` annotation to indicate which method parameters should be part of the Trace.
+Method parameters can be annotated with the `io.opentelemetry.instrumentation.annotations.SpanAttribute` annotation to indicate which method parameters should be part of the Trace.
 
 Example:
 [source,java]
@@ -108,7 +108,7 @@ class SpanBean {
 
     }
 
-    @WithSpan(kind = SERVER)
+    @WithSpan(kind = SpanKind.SERVER)
     void spanKind() {
 
     }
@@ -137,7 +137,7 @@ public class SpanResource {
     @Path("/span/new")
     public Response spanNew() {
         Span span = tracer.spanBuilder("span.new")
-                .setSpanKind(INTERNAL)
+                .setSpanKind(SpanKind.INTERNAL)
                 .setParent(Context.current().with(this.span))
                 .setAttribute("my.attribute", "value")
                 .startSpan();
