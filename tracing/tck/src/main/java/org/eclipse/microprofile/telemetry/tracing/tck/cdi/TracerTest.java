@@ -38,7 +38,7 @@ class TracerTest extends Arquillian {
     public static WebArchive createDeployment() {
         return ShrinkWrap.create(WebArchive.class)
                 .addClasses(TracerBean.class)
-                .addAsResource(new StringAsset("otel.experimental.sdk.enabled=true"),
+                .addAsResource(new StringAsset("otel.sdk.disabled=false"),
                         "META-INF/microprofile-config.properties");
     }
 
