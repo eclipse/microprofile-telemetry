@@ -33,7 +33,10 @@ ifdef::backend-pdf[]
 endif::[]
 // Attributes defined in the microprofile-telemetry (parent) maven POM:
 //:otel-spec-version:
+//:otel-spec-main-version:
 //:otel-java-version:
+//:otel-java-main-version:
+
 
 // == License
 :sectnums!:
@@ -57,7 +60,7 @@ https://opentelemetry.io[OpenTelemetry] is a set of APIs, SDKs, tooling and inte
 
 This specification defines the behaviors that allow MicroProfile applications to easily participate in an environment where distributed tracing is enabled via https://opentelemetry.io[OpenTelemetry] (a merger between https://opentracing.io[OpenTracing] and https://opencensus.io[OpenCensus]).
 
-This document and implementations *MUST* comply with the following OpenTelemetry {otel-spec-version} specifications:
+This document and implementations *MUST* comply with the following OpenTelemetry {otel-spec-main-version} specifications:
 
 * https://github.com/open-telemetry/opentelemetry-specification/blob/v{otel-spec-version}/specification/overview.md[OpenTelemetry Overview]
 * https://github.com/open-telemetry/opentelemetry-specification/blob/v{otel-spec-version}/specification/trace/api.md[Tracing API]
@@ -196,7 +199,7 @@ public class SpanResource {
 Implementations are free to support the OpenTelemetry Agent Instrumentation.
 This provides the ability to gather telemetry data without code modifications by attaching a Java Agent JAR to the running JVM.
 
-If an implementation of MicroProfile Telemetry Tracing provides such support, it must conform to the instructions detailed in the https://github.com/open-telemetry/opentelemetry-java-instrumentation/tree/v{otel-java-version}[OpenTelemetry Java Instrumentation {otel-java-version}] project, including:
+If an implementation of MicroProfile Telemetry Tracing provides such support, it must conform to the instructions detailed in the https://github.com/open-telemetry/opentelemetry-java-instrumentation/tree/v{otel-java-version}[OpenTelemetry Java Instrumentation {otel-java-main-version}] project, including:
 
 * https://opentelemetry.io/docs/instrumentation/java/automatic/agent-config/[Agent Configuration]
 * https://opentelemetry.io/docs/instrumentation/java/automatic/agent-config/#suppressing-specific-auto-instrumentation[Suppressing Instrumentation]
