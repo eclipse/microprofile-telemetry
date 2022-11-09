@@ -216,9 +216,12 @@ An implementation of MicroProfile Telemetry Tracing must provide the following C
 
 Calling the OpenTelemetry API directly must work in the same way and yield the same results:
 
-* `io.opentelemetry.api.GlobalOpenTelemetry.get()`
 * `io.opentelemetry.api.trace.Span.current()`
 * `io.opentelemetry.api.baggage.Baggage.current()`
+
+Implementations MAY support 
+
+* `io.opentelemetry.api.GlobalOpenTelemetry.get()`
 
 To obtain the `Tracer` with the OpenTelemetry API, the consumer must use the exact same instrumentation name and version used by the implementation.
 Failure to do so, may result in a different `Tracer` and incorrect handling of the OpenTelemetry data.
