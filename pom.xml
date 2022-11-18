@@ -34,7 +34,7 @@
         <opentelemetry.spec.main.version>1.13</opentelemetry.spec.main.version>
         <opentelemetry.spec.version>1.13.0</opentelemetry.spec.version>
         <opentelemetry.java.main.version>1.19</opentelemetry.java.main.version>
-        <opentelemetry.java.version>1.19.0</opentelemetry.java.version>
+        <opentelemetry.java.version>1.20.0-alpha</opentelemetry.java.version>
         <version.microprofile.tck.bom>3.0</version.microprofile.tck.bom>
     </properties>
 
@@ -65,7 +65,7 @@
             <dependency>
                 <groupId>io.opentelemetry.instrumentation</groupId>
                 <artifactId>opentelemetry-instrumentation-bom-alpha</artifactId>
-                <version>${opentelemetry.java.version}-alpha</version>
+                <version>${opentelemetry.java.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
