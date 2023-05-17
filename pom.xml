@@ -19,7 +19,7 @@
     <parent>
         <groupId>org.eclipse.microprofile</groupId>
         <artifactId>microprofile-parent</artifactId>
-        <version>3.0</version>
+        <version>3.1</version>
     </parent>
 
     <groupId>org.eclipse.microprofile.telemetry</groupId>
@@ -31,10 +31,10 @@
 
     <properties>
         <inceptionYear>2022</inceptionYear>
-        <opentelemetry.spec.main.version>1.13</opentelemetry.spec.main.version>
-        <opentelemetry.spec.version>1.13.0</opentelemetry.spec.version>
-        <opentelemetry.java.main.version>1.19</opentelemetry.java.main.version>
-        <opentelemetry.java.version>1.19.0</opentelemetry.java.version>
+        <opentelemetry.spec.main.version>1.19</opentelemetry.spec.main.version>
+        <opentelemetry.spec.version>1.19.0</opentelemetry.spec.version>
+        <opentelemetry.java.main.version>1.26</opentelemetry.java.main.version>
+        <opentelemetry.java.version>1.26.0</opentelemetry.java.version>
         <version.microprofile.tck.bom>3.0</version.microprofile.tck.bom>
     </properties>
 

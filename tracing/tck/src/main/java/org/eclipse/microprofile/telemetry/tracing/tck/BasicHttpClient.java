@@ -50,7 +50,7 @@ public class BasicHttpClient {
 
     /**
      * Makes a GET request to a path and returns the response code
-     * 
+     *
      * @param path
      *            the path to request, relative to the baseUrl
      * @return the response code
