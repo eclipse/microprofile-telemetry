@@ -219,7 +219,7 @@ Calling the OpenTelemetry API directly must work in the same way and yield the s
 * `io.opentelemetry.api.trace.Span.current()`
 * `io.opentelemetry.api.baggage.Baggage.current()`
 
-Implementations MAY support 
+Implementations MAY support: 
 
 * `io.opentelemetry.api.GlobalOpenTelemetry.get()`
 
