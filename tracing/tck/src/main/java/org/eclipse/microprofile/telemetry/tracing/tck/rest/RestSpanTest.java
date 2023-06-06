@@ -24,8 +24,12 @@ import static io.opentelemetry.api.trace.SpanKind.SERVER;
 import static io.opentelemetry.semconv.resource.attributes.ResourceAttributes.SERVICE_NAME;
 import static io.opentelemetry.semconv.resource.attributes.ResourceAttributes.SERVICE_VERSION;
 import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.HTTP_METHOD;
+import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.HTTP_ROUTE;
+import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.HTTP_SCHEME;
 import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.HTTP_STATUS_CODE;
 import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.HTTP_TARGET;
+import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.NET_HOST_NAME;
+import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.NET_HOST_PORT;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
@@ -45,6 +49,7 @@ import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.arquillian.testng.Arquillian;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -97,23 +102,39 @@ class RestSpanTest extends Arquillian {
         }
     }
 
+    private void assertServerSpan(SpanData server, String path) {
+        assertServerSpan(server, path, HTTP_OK);
+    }
+    private void assertServerSpan(SpanData server, String path, int statusCode) {
+        Assert.assertEquals(server.getKind(), SERVER);
+        Assert.assertEquals(server.getAttributes().get(HTTP_STATUS_CODE).intValue(), statusCode);
+        Assert.assertEquals(server.getAttributes().get(HTTP_METHOD), HttpMethod.GET);
+        Assert.assertEquals(server.getAttributes().get(HTTP_SCHEME), url.getProtocol());
+        Assert.assertEquals(server.getAttributes().get(HTTP_TARGET), url.getPath() + path);
+        // route is required when available, definitely available for REST endpoints
+        Assert.assertNotNull(server.getAttributes().get(HTTP_ROUTE));
+        // not asserting specific value as it is only recommended, and should contain application prefix
+        Assert.assertEquals(server.getAttributes().get(NET_HOST_NAME), url.getHost());
+        if (url.getPort() != url.getDefaultPort()) {
+            Assert.assertEquals(server.getAttributes().get(NET_HOST_PORT).intValue(), url.getPort());
+        }
+    }
+
     @Test
     void span() throws URISyntaxException, IOException {
         assertEquals(basicClient.get("/span"), HTTP_OK);
 
         List<SpanData> spanItems = spanExporter.getFinishedSpanItems(1);
         assertEquals(spanItems.size(), 1);
-        assertEquals(spanItems.get(0).getKind(), SERVER);
-        assertEquals(spanItems.get(0).getName(), url.getPath() + "span");
-        assertEquals(spanItems.get(0).getAttributes().get(HTTP_STATUS_CODE).intValue(), HTTP_OK);
-        assertEquals(spanItems.get(0).getAttributes().get(HTTP_METHOD), HttpMethod.GET);
+        SpanData span = spanItems.get(0);
+        assertServerSpan(span, "span");
 
         assertEquals(
-                spanItems.get(0).getResource().getAttribute(SERVICE_NAME),
+                span.getResource().getAttribute(SERVICE_NAME),
                 TEST_SERVICE_NAME);
-        assertEquals(spanItems.get(0).getResource().getAttribute(SERVICE_VERSION), TEST_SERVICE_VERSION);
+        assertEquals(span.getResource().getAttribute(SERVICE_VERSION), TEST_SERVICE_VERSION);
 
-        InstrumentationScopeInfo libraryInfo = spanItems.get(0).getInstrumentationScopeInfo();
+        InstrumentationScopeInfo libraryInfo = span.getInstrumentationScopeInfo();
         // Was decided at the MP Call on 13/06/2022 that lib name and version are responsibility of lib implementations
         assertNotNull(libraryInfo.getName());
     }
@@ -124,10 +145,12 @@ class RestSpanTest extends Arquillian {
 
         List<SpanData> spanItems = spanExporter.getFinishedSpanItems(1);
         assertEquals(spanItems.size(), 1);
-        assertEquals(spanItems.get(0).getKind(), SERVER);
-        assertEquals(spanItems.get(0).getName(), url.getPath() + "span/{name}");
-        assertEquals(spanItems.get(0).getAttributes().get(HTTP_STATUS_CODE).intValue(), HTTP_OK);
-        assertEquals(spanItems.get(0).getAttributes().get(HTTP_METHOD), HttpMethod.GET);
+        SpanData span = spanItems.get(0);
+        assertServerSpan(span, "span/1");
+        Assert.assertFalse(span.getName().contains("span/1"),
+                "Span name should not contain full path when using @PathParam");
+        Assert.assertTrue(span.getAttributes().get(HTTP_ROUTE).contains("span/{name}"),
+                "Route should contain path template");
     }
 
     @Test
@@ -136,11 +159,11 @@ class RestSpanTest extends Arquillian {
 
         List<SpanData> spanItems = spanExporter.getFinishedSpanItems(1);
         assertEquals(spanItems.size(), 1);
-        assertEquals(spanItems.get(0).getKind(), SERVER);
-        assertEquals(spanItems.get(0).getName(), url.getPath() + "span/{name}");
-        assertEquals(spanItems.get(0).getAttributes().get(HTTP_STATUS_CODE).intValue(), HTTP_OK);
-        assertEquals(spanItems.get(0).getAttributes().get(HTTP_METHOD), HttpMethod.GET);
-        assertEquals(spanItems.get(0).getAttributes().get(HTTP_TARGET), url.getPath() + "span/1?id=1");
+        SpanData span = spanItems.get(0);
+        assertServerSpan(span, "span/1?id=1");
+        Assert.assertFalse(span.getName().contains("=1"), "Span name should not contain query when using @QueryParam");
+        Assert.assertFalse(span.getAttributes().get(HTTP_ROUTE).contains("=1"),
+                "Route should not contain query when using @QueryParam");
     }
 
     @Path("/")
