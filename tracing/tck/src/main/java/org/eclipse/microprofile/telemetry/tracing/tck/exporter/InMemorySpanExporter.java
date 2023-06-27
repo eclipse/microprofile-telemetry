@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 import org.awaitility.Awaitility;
 import org.testng.Assert;
 
+import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.sdk.common.CompletableResultCode;
 import io.opentelemetry.sdk.trace.data.SpanData;
 import io.opentelemetry.sdk.trace.export.SpanExporter;
@@ -81,5 +82,10 @@ public class InMemorySpanExporter implements SpanExporter {
         finishedSpanItems.clear();
         isStopped = true;
         return CompletableResultCode.ofSuccess();
+    }
+
+    public SpanData getFirst(SpanKind spanKind) {
+        return finishedSpanItems.stream().filter(span -> span.getKind() == spanKind).findFirst()
+                .orElseThrow(() -> new IllegalStateException("No span found with kind " + spanKind));
     }
 }

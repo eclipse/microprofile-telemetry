@@ -58,5 +58,6 @@ class TracerTest extends Arquillian {
         public Tracer getTracer() {
             return tracer;
         }
+
     }
 }
