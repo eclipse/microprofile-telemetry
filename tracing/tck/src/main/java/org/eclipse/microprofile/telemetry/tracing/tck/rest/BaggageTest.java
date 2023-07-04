@@ -30,6 +30,7 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.arquillian.testng.Arquillian;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
+import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.testng.Assert;
@@ -55,7 +56,8 @@ class BaggageTest extends Arquillian {
                 .addAsServiceProvider(ConfigurableSpanExporterProvider.class, InMemorySpanExporterProvider.class)
                 .addAsLibrary(TestLibraries.AWAITILITY_LIB)
                 .addAsResource(new StringAsset("otel.sdk.disabled=false\notel.traces.exporter=in-memory"),
-                        "META-INF/microprofile-config.properties");
+                        "META-INF/microprofile-config.properties")
+                .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
     }
 
     @ArquillianResource

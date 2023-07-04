@@ -23,6 +23,7 @@ package org.eclipse.microprofile.telemetry.tracing.tck.cdi;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.testng.Arquillian;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
+import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.testng.Assert;
@@ -39,7 +40,8 @@ class TracerTest extends Arquillian {
         return ShrinkWrap.create(WebArchive.class)
                 .addClasses(TracerBean.class)
                 .addAsResource(new StringAsset("otel.sdk.disabled=false"),
-                        "META-INF/microprofile-config.properties");
+                        "META-INF/microprofile-config.properties")
+                .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
     }
 
     @Inject
