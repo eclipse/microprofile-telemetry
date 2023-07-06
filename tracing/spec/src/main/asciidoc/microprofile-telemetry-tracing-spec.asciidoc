@@ -18,7 +18,7 @@
 //
 
 = MicroProfile Telemetry Tracing
-:authors: MicroProfile Telemetry Team (Roberto Cortez, Emily Jiang, Bruno Baptista, Jan Westerkamp, Felix Wong, Yasmin Aumeeruddy)
+:authors: MicroProfile Telemetry Team (Roberto Cortez, Emily Jiang, Bruno Baptista, Jan Westerkamp, Felix Wong, Yasmin Aumeeruddy, Patrik Duditš)
 :email: 
 :version-label!:
 :sectanchors:
@@ -227,13 +227,160 @@ To obtain the `Tracer` with the OpenTelemetry API, the consumer must use the exa
 Failure to do so, may result in a different `Tracer` and incorrect handling of the OpenTelemetry data.
 
 === Configuration
-OpenTelemetry must be configured by MicroProfile Config following the configuration properties detailed in:
+OpenTelemetry must be configured by MicroProfile Config following the semantics of configuration properties detailed in https://github.com/open-telemetry/opentelemetry-java/tree/v{otel-java-version}/sdk-extensions/autoconfigure[OpenTelemetry SDK Autoconfigure {otel-java-version}].
 
-* https://github.com/open-telemetry/opentelemetry-java/tree/v{otel-java-version}/sdk-extensions/autoconfigure[OpenTelemetry SDK Autoconfigure] (excluding properties related to Metrics and Logging)
-* https://opentelemetry.io/docs/instrumentation/java/manual/[Manual Instrumentation]
+At minimum the following MicroProfile Config properties MUST be supported:
 
-An implementation may opt to not support a subset of configuration properties related to a specific configuration.
-For instance, `otel.traces.exporter` is required but if the implementation does not support `jaeger` as a valid exporter, then all configuration properties referring to `otel.tracer.jaeger.*` are not required.
+// Table with property name, default value and description
+[options="header"]
+|===
+|Property Name |Description
+
+// sub-section, colspan=3
+2+h| Global Configuration
+
+|`otel.sdk.disabled`
+| Set to `false` to enable OpenTelemetry.
+
+Default value: `true`
+2+h| Exporters configuration
+
+|`otel.traces.exporter`
+| List of exporters to be used for tracing, separated by commas. `none` means no autoconfigured exporter.
+  Values other than `none` and `otlp` might link:#sec:service-loader-support[require additional libraries]
+
+Default value: `otlp`
+
+| `otel.propagators`
+| The propagators to be used. Values other than `none`, `tracecontext` and `baggage` might link:#sec:service-loader-support[require additional libraries]
+
+Default value: `tracecontext, baggage`
+
+2+h| Resource attributes
+
+| `otel.resource.attributes`
+| Specify resource attributes in the following format: `key1=val1, key2=val2, key3=val3`
+
+| `otel.service.name`
+| Specify logical service name. Takes precedence over `service.name` defined with `otel.resource.attributes`
+
+Default value: application name (if applicable)
+
+2+h| Batch Span Processor
+
+| `otel.bsp.schedule.delay`
+| The interval, in milliseconds, between two consecutive exports.
+
+Default value: `5000`
+
+| `otel.bsp.max.queue.size`
+| The maximum queue size.
+
+Default value: `2048`
+
+| `otel.bsp.max.export.batch.size`
+| The maximum batch size.
+
+Default value: `512`
+
+| `otel.bsp.export.timeout`
+| The maximum allowed time, in milliseconds, to export data.
+
+Default value: `30000`
+
+2+h| Sampler
+
+| `otel.traces.sampler`
+a| The sampler to use for tracing. Supported values are:
+
+* `always_on`
+* `always_off`
+* `traceidratio`
+* `parentbased_always_on`
+* `parentbased_always_off`
+* `parentbased_traceidratio`
+
+Support for other samplers might be added with link:#sec:service-loader-support[additional libraries]
+
+Default value: `parentbased_always_on`
+
+| `otel.traces.sampler.arg`
+| An argument to the configured tracer if supported, for example a ratio. Consult OpenTelemetry documentation for details.
+
+2+h| OTLP Exporter
+
+| `otel.exporter.otlp.protocol`
+| The transport protocol to use on OTLP trace, metric, and log requests. Options include grpc and http/protobuf.
+
+Default value: `grpc`
+
+| `otel.exporter.otlp.traces.protocol`
+| The transport protocol to use on OTLP trace requests. Options include grpc and http/protobuf.
+
+Default value: `grpc`
+
+
+| `otel.exporter.otlp.endpoint`
+| The OTLP traces, metrics, and logs endpoint to connect to. Must be a URL with a scheme of either http or https based on the use of TLS. If protocol is http/protobuf the version and signal will be appended to the path (e.g. v1/traces, v1/metrics, or v1/logs)
+
+Default value: `http://localhost:4317` when protocol is `grpc`, `http://localhost:4318/v1/\{signal}` when protocol is `http/protobuf`
+
+| `otel.exporter.otlp.traces.endpoint`
+| The OTLP traces endpoint to connect to. Must be a URL with a scheme of either http or https based on the use of TLS.
+
+Default value: `http://localhost:4317` when protocol is `grpc`, and `http://localhost:4318/v1/traces` when protocol is `http/protobuf`
+
+| `otel.exporter.otlp.certificate`
+| The path to the file containing trusted certificates to use when verifying an OTLP trace, metric, or log server's TLS credentials. The file should contain one or more X.509 certificates in PEM format. By default the host platform's trusted root certificates are used.
+
+| `otel.exporter.otlp.traces.certificate`
+| The path to the file containing trusted certificates to use when verifying an OTLP trace server's TLS credentials. The file should contain one or more X.509 certificates in PEM format. By default the host platform's trusted root certificates are used.
+
+| `otel.exporter.otlp.client.key`
+| The path to the file containing private client key to use when verifying an OTLP trace, metric, or log client's TLS credentials. The file should contain one private key PKCS8 PEM format. By default no client key is used.
+
+| `otel.exporter.otlp.traces.client.key`
+| The path to the file containing private client key to use when verifying an OTLP trace client's TLS credentials. The file should contain one private key PKCS8 PEM format. By default no client key file is used.
+
+| `otel.exporter.otlp.client.certificate`
+| The path to the file containing trusted certificates to use when verifying an OTLP trace, metric, or log client's TLS credentials. The file should contain one or more X.509 certificates in PEM format. By default no chain file is used.
+
+| `otel.exporter.otlp.traces.client.certificate`
+| The path to the file containing trusted certificates to use when verifying an OTLP trace server's TLS credentials. The file should contain one or more X.509 certificates in PEM format. By default no chain file is used.
+
+| `otel.exporter.otlp.headers`
+| Key-value pairs separated by commas to pass as request headers on OTLP trace, metric, and log requests.
+
+| `otel.exporter.otlp.traces.headers`
+| Key-value pairs separated by commas to pass as request headers on OTLP trace requests.
+
+| `otel.exporter.otlp.compression`
+| The compression type to use on OTLP trace, metric, and log requests. Options include gzip. By default no compression will be used.
+
+| `otel.exporter.otlp.traces.compression`
+| The compression type to use on OTLP trace requests. Options include gzip. By default no compression will be used.
+
+| `otel.exporter.otlp.timeout`
+| The maximum waiting time, in milliseconds, allowed to send each OTLP trace, metric, and log batch.
+
+Default value: `10000`
+
+| `otel.exporter.otlp.traces.timeout`
+| The maximum waiting time, in milliseconds, allowed to send each OTLP trace batch.
+
+Default value: `10000`
+|===
+
+If Environment Config Source is enabled for MicroProfile Config, then the enviornment variables as described by the OpenTelemetry SDK Autoconfigure are also supported.
+
+[[sec:service-loader-support]]
+==== Service Loader Support
+
+In order to resolve components listed in `otel.propagators`, `otel.traces.exporter`  and `otel.traces.sampler` the implementation will load available services of type https://javadoc.io/doc/io.opentelemetry/opentelemetry-sdk-extension-autoconfigure-spi/{otel-java-version}/io/opentelemetry/sdk/autoconfigure/spi/ConfigurablePropagatorProvider.html[`ConfigurablePropagatorProvider`],
+https://javadoc.io/doc/io.opentelemetry/opentelemetry-sdk-extension-autoconfigure-spi/{otel-java-version}/io/opentelemetry/sdk/autoconfigure/spi/traces/ConfigurableSpanExporterProvider.html[`ConfigurableSpanExporterProvider`] or https://javadoc.io/doc/io.opentelemetry/opentelemetry-sdk-extension-autoconfigure-spi/{otel-java-version}/io/opentelemetry/sdk/autoconfigure/spi/traces/ConfigurableSamplerProvider.html[`ConfigurablePropagatorProvider`] respectively by means of Service Loader mechanism.
+Components with matching name are then get instantiated and configured.
+This allows the application to define its own exporters and propagators.
+
 
 [[sec:semantic-conventions]]
 === Semantic Conventions
