@@ -371,16 +371,37 @@ Default value: `10000`
 Default value: `10000`
 |===
 
-If Environment Config Source is enabled for MicroProfile Config, then the enviornment variables as described by the OpenTelemetry SDK Autoconfigure are also supported.
+If Environment Config Source is enabled for MicroProfile Config, then the environment variables as described by the OpenTelemetry SDK Autoconfigure are also supported.
 
 [[sec:service-loader-support]]
 ==== Service Loader Support
 
-In order to resolve components listed in `otel.propagators`, `otel.traces.exporter`  and `otel.traces.sampler` the implementation will load available services of type https://javadoc.io/doc/io.opentelemetry/opentelemetry-sdk-extension-autoconfigure-spi/{otel-java-version}/io/opentelemetry/sdk/autoconfigure/spi/ConfigurablePropagatorProvider.html[`ConfigurablePropagatorProvider`],
-https://javadoc.io/doc/io.opentelemetry/opentelemetry-sdk-extension-autoconfigure-spi/{otel-java-version}/io/opentelemetry/sdk/autoconfigure/spi/traces/ConfigurableSpanExporterProvider.html[`ConfigurableSpanExporterProvider`] or https://javadoc.io/doc/io.opentelemetry/opentelemetry-sdk-extension-autoconfigure-spi/{otel-java-version}/io/opentelemetry/sdk/autoconfigure/spi/traces/ConfigurableSamplerProvider.html[`ConfigurablePropagatorProvider`] respectively by means of Service Loader mechanism.
-Components with matching name are then get instantiated and configured.
-This allows the application to define its own exporters and propagators.
+Implementation will load additional configuration related components by means of service loader.
+This allows the application to define its own metadata and trace handling behavior.
+The following components are supported
 
+[options=header]
+|===
+| Component interface | Purpose
+
+| https://javadoc.io/doc/io.opentelemetry/opentelemetry-sdk-extension-autoconfigure-spi/{otel-java-version}/io/opentelemetry/sdk/autoconfigure/spi/ConfigurablePropagatorProvider.html[`ConfigurablePropagatorProvider`]
+| Provides implementation for a name referred in `otel.propagators`
+
+| https://javadoc.io/doc/io.opentelemetry/opentelemetry-sdk-extension-autoconfigure-spi/{otel-java-version}/io/opentelemetry/sdk/autoconfigure/spi/traces/ConfigurableSpanExporterProvider.html[`ConfigurableSpanExporterProvider`]
+| Provides implementation for a name referred in `otel.traces.exporter`
+
+| https://javadoc.io/doc/io.opentelemetry/opentelemetry-sdk-extension-autoconfigure-spi/{otel-java-version}/io/opentelemetry/sdk/autoconfigure/spi/traces/ConfigurableSamplerProvider.html[`ConfigurableSamplerProvider`]
+| Provides implementation for a name referred in `otel.traces.sampler`
+
+| https://javadoc.io/doc/io.opentelemetry/opentelemetry-sdk-extension-autoconfigure-spi/{otel-java-version}/io/opentelemetry/sdk/autoconfigure/spi/AutoConfigurationCustomizerProvider.html[`AutoConfigurationCustomizerProvider`]
+| Customizes configuration properties before they are applied to the SDK
+
+| https://javadoc.io/doc/io.opentelemetry/opentelemetry-sdk-extension-autoconfigure-spi/{otel-java-version}/io/opentelemetry/sdk/autoconfigure/spi/ResourceProvider.html[`ResourceProvider`]
+| Defines resource attributes describing the application
+|===
+
+Behavior when multiple implementations are found for a given component name is undefined.
+Behavior when customizer changes other properties than those listed in the spec is also undefined.
 
 [[sec:semantic-conventions]]
 === Semantic Conventions
