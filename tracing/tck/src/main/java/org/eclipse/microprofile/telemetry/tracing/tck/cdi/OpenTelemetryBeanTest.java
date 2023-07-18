@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2022 Contributors to the Eclipse Foundation
+ * Copyright (c) 2016-2023 Contributors to the Eclipse Foundation
  *
  *  See the NOTICE file(s) distributed with this work for additional
  *  information regarding copyright ownership.
@@ -29,37 +29,37 @@ import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import io.opentelemetry.api.OpenTelemetry;
+import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.Tracer;
-import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-class TracerTest extends Arquillian {
+class OpenTelemetryBeanTest extends Arquillian {
+
+    private static final String SPAN_NAME = "MySpanName";
+    private static final String INVALID_SPAN_ID = "0000000000000000";
 
     @Deployment
     public static WebArchive createDeployment() {
         return ShrinkWrap.create(WebArchive.class)
-                .addClasses(TracerBean.class)
                 .addAsResource(new StringAsset("otel.sdk.disabled=false"),
                         "META-INF/microprofile-config.properties")
                 .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
     }
 
     @Inject
-    TracerBean tracerBean;
+    OpenTelemetry openTelemetry;
 
     @Test
-    void tracer() {
-        Assert.assertNotNull(tracerBean.getTracer());
+    void testOpenTelemetryBean() {
+        Assert.assertNotNull(openTelemetry);
     }
 
-    @ApplicationScoped
-    public static class TracerBean {
-        @Inject
-        Tracer tracer;
-
-        public Tracer getTracer() {
-            return tracer;
-        }
-
+    @Test
+    void testSpanAndTracer() {
+        Tracer tracer = openTelemetry.getTracer("instrumentation-test", "1.0.0");
+        Assert.assertNotNull(tracer);
+        Span span = tracer.spanBuilder(SPAN_NAME).startSpan();
+        Assert.assertNotEquals(span.getSpanContext().getSpanId(), INVALID_SPAN_ID);
     }
 }

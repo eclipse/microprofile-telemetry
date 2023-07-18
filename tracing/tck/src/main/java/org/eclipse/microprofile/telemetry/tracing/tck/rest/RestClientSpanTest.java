@@ -50,6 +50,7 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.arquillian.testng.Arquillian;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
+import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.testng.Assert;
@@ -62,6 +63,7 @@ import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.api.trace.StatusCode;
 import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.context.Context;
+import io.opentelemetry.instrumentation.annotations.SpanAttribute;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import io.opentelemetry.sdk.autoconfigure.spi.traces.ConfigurableSpanExporterProvider;
 import io.opentelemetry.sdk.trace.data.SpanData;
@@ -87,7 +89,8 @@ class RestClientSpanTest extends Arquillian {
                 .addAsLibrary(TestLibraries.AWAITILITY_LIB)
                 .addAsServiceProvider(ConfigurableSpanExporterProvider.class, InMemorySpanExporterProvider.class)
                 .addAsResource(new StringAsset("otel.sdk.disabled=false\notel.traces.exporter=in-memory"),
-                        "META-INF/microprofile-config.properties");
+                        "META-INF/microprofile-config.properties")
+                .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
     }
 
     @ArquillianResource
@@ -198,6 +201,30 @@ class RestClientSpanTest extends Arquillian {
 
         assertEquals(client.getTraceId(), server.getTraceId());
         assertEquals(server.getParentSpanId(), client.getSpanId());
+    }
+
+    @Test
+    void spanChildWithParameter() {
+        Response response = client.spanChildWithParameter("testParameterValue");
+        assertResponseStatus(response, OK);
+
+        spanExporter.assertSpanCount(3);
+
+        SpanData internal = spanExporter.getFirst(SpanKind.INTERNAL);
+        assertEquals(internal.getKind(), SpanKind.INTERNAL);
+        assertEquals(internal.getName(), "SpanBean.spanChildWithParameter");
+        assertEquals(internal.getAttributes().get(AttributeKey.stringKey("testParameter")), "testParameterValue");
+
+        SpanData server = spanExporter.getFirst(SpanKind.SERVER);
+        assertServerSpan(server, "span/childParameterWithParameter/testParameterValue");
+
+        SpanData client = spanExporter.getFirst(SpanKind.CLIENT);
+        assertClientSpan(client, "span/childParameterWithParameter/testParameterValue");
+
+        assertEquals(internal.getTraceId(), client.getTraceId());
+        assertEquals(server.getTraceId(), client.getTraceId());
+        assertEquals(server.getSpanId(), internal.getParentSpanId());
+        assertEquals(client.getSpanId(), server.getParentSpanId());
     }
 
     @Test
@@ -361,6 +388,13 @@ class RestClientSpanTest extends Arquillian {
         }
 
         @GET
+        @Path("/span/childParameterWithParameter/{name}")
+        public Response spanChildWithParameter(@PathParam(value = "name") String name) {
+            spanBean.spanChildWithParameter(name);
+            return Response.ok().build();
+        }
+
+        @GET
         @Path("/span/current")
         public Response spanCurrent() {
             span.setAttribute("tck.current.key", "tck.current.value");
@@ -394,6 +428,11 @@ class RestClientSpanTest extends Arquillian {
         void spanChild() {
 
         }
+
+        @WithSpan
+        void spanChildWithParameter(@SpanAttribute("testParameter") String testParameter) {
+
+        }
     }
 
     @RegisterRestClient(configKey = "client")
@@ -414,6 +453,10 @@ class RestClientSpanTest extends Arquillian {
         @GET
         @Path("/span/child")
         Response spanChild();
+
+        @GET
+        @Path("/span/childParameterWithParameter/{name}")
+        Response spanChildWithParameter(@PathParam(value = "name") String name);
 
         @GET
         @Path("/span/current")

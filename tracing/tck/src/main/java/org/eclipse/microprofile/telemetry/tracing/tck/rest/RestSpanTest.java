@@ -48,6 +48,7 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.arquillian.testng.Arquillian;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
+import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
@@ -83,7 +84,8 @@ class RestSpanTest extends Arquillian {
                 .addClasses(InMemorySpanExporter.class, InMemorySpanExporterProvider.class, BasicHttpClient.class)
                 .addAsLibrary(TestLibraries.AWAITILITY_LIB)
                 .addAsServiceProvider(ConfigurableSpanExporterProvider.class, InMemorySpanExporterProvider.class)
-                .addAsResource(config, "META-INF/microprofile-config.properties");
+                .addAsResource(config, "META-INF/microprofile-config.properties")
+                .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
     }
 
     @ArquillianResource
