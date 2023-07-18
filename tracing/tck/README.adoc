@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2022 Contributors to the Eclipse Foundation
+// Copyright (c) 2022-2023 Contributors to the Eclipse Foundation
 //
 // See the NOTICE file(s) distributed with this work for additional
 // information regarding copyright ownership.
@@ -50,21 +50,39 @@ To enable the tests in your project you need to add the following dependency to 
 ----
 
 == Declaring the Tests to run
-You also need to specify which tests you want to run, e.g. create a file `tck-suite.xml` in your project which contains the following content:
+There are optional tests for the `B3` and `Jaeger` progagation formats. These tests are present in the `optional-tests` group but a MicroProfile-Telemetry implementation is not required to pass these tests in order to be considered a valid implementation. If you wish to disable them, you can exclude the group e.g. create a file `tck-suite.xml` in your project which contains the following content:
 
 [source, xml]
 ----
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
-<suite name="microprofile-opentracing-TCK" verbose="2" configfailurepolicy="continue" >
-
-    <test name="microprofile-telemetry 1.0 TCK">
+<suite name="microprofile-telemetry-tracing-TCK" verbose="2" configfailurepolicy="continue" >
+    <test name="telemetry-tracing-tests" verbose="10">
+        <groups>
+            <run>
+                <!-- Exclude B3 and Jaeger propagation tests-->
+                <exclude name="optional-tests"/>
+            </run>
+        </groups>
         <packages>
-            <package name="org.eclipse.microprofile.telemetry.tracing.tck.*">
-            </package>
+            <package name="org.eclipse.microprofile.telemetry.tracing.tck.*" />
         </packages>
     </test>
+</suite>
+----
 
+If you want to run the optional tests, you can specify all tests in the `tck-suite.xml`. E.g. 
+
+[source, xml]
+----
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+
+<suite name="microprofile-telemetry-tracing-TCK" verbose="2" configfailurepolicy="continue" >
+    <test name="telemetry-tracing-tests" verbose="10">
+        <packages>
+            <package name="org.eclipse.microprofile.telemetry.tracing.tck.*" />
+        </packages>
+    </test>
 </suite>
 ----
 
