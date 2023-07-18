@@ -60,16 +60,16 @@ https://opentelemetry.io[OpenTelemetry] is a set of APIs, SDKs, tooling and inte
 
 This specification defines the behaviors that allow MicroProfile applications to easily participate in an environment where distributed tracing is enabled via https://opentelemetry.io[OpenTelemetry] (a merger between https://opentracing.io[OpenTracing] and https://opencensus.io[OpenCensus]).
 
-The OpenTelemetry specification describes the cross-language requirements and expectations for all OpenTelemetry implementations. This specification is based on the https://github.com/open-telemetry/opentelemetry-java/tree/v{otel-java-version}[Java implementation v{otel-java-version}] of OpenTelemetry. An implementation of this MicroProfile Telemetry can use a later patch release of the Java implemenation.
+The OpenTelemetry specification describes the cross-language requirements and expectations for all OpenTelemetry implementations. This specification is based on the https://github.com/open-telemetry/opentelemetry-java/tree/v{otel-java-version}[Java implementation v{otel-java-version}] of OpenTelemetry. An implementation of this MicroProfile Telemetry may consume a later patch release of the Java implemenation as long as the required TCKs pass successfully.
 
 Refer to the OpenTelemetry specification repo to understand some essential terms.
+
 * https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/overview.md[OpenTelemetry Overview]
 * https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/trace/api.md[Tracing API]
 * https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/baggage/api.md[Baggage API]
 * https://github.com/open-telemetry/opentelemetry-specification/tree/main/specification/context[Context API]
 * https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/resource/sdk.md[Resource SDK]
 
-This specification pulls in the 
 [IMPORTANT]
 ====
 The Metrics and Logging integrations of https://opentelemetry.io[OpenTelemetry] are out of scope of this specification.
