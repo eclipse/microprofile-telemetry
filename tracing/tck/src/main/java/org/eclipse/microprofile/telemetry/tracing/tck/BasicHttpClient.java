@@ -74,4 +74,30 @@ public class BasicHttpClient {
         }
     }
 
+    /**
+     * Makes a GET request to a path and returns the response code
+     *
+     * @param path
+     *            the path to request, relative to the baseUrl
+     * @return the response code
+     */
+    public String getResponseMessage(String path) {
+        if (path.startsWith("/")) {
+            path = path.substring(1);
+        }
+        try {
+            URL spanUrl = baseUri.resolve(path).toURL();
+            HttpURLConnection connection = (HttpURLConnection) spanUrl.openConnection();
+            try {
+                return connection.getResponseMessage();
+            } catch (Exception e) {
+                throw new RuntimeException("Exception retriving " + spanUrl, e);
+            } finally {
+                connection.disconnect();
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Exception retriving path " + path, e);
+        }
+    }
+
 }

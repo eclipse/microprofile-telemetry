@@ -20,6 +20,7 @@
 
 package org.eclipse.microprofile.telemetry.tracing.tck.jaxrs;
 
+import static org.eclipse.microprofile.telemetry.tracing.tck.jaxrs.JaxRsServerAsyncTestEndpoint.BAGGAGE_VALUE_ATTR;
 import static org.testng.Assert.assertEquals;
 
 import java.util.List;
@@ -59,7 +60,8 @@ class JaxRsServerAsyncTest extends Arquillian {
                 .add("otel.traces.exporter", "in-memory");
 
         return ShrinkWrap.create(WebArchive.class)
-                .addClasses(InMemorySpanExporter.class, InMemorySpanExporterProvider.class, HttpServletRequest.class)
+                .addClasses(InMemorySpanExporter.class, InMemorySpanExporterProvider.class, HttpServletRequest.class,
+                        JaxRsServerAsyncTestEndpointClient.class, JaxRsServerAsyncTestEndpoint.class)
                 .addAsLibrary(TestLibraries.AWAITILITY_LIB)
                 .addAsServiceProvider(ConfigurableSpanExporterProvider.class, InMemorySpanExporterProvider.class)
                 .addAsResource(config, "META-INF/microprofile-config.properties")
@@ -107,33 +109,28 @@ class JaxRsServerAsyncTest extends Arquillian {
                     .build(JaxRsServerAsyncTestEndpointClient.class);
             String response = requestFunction.apply(client);
             Assert.assertEquals("OK", response);
-        } ;
+        }
 
-        List<SpanData> spanData = spanExporter.getFinishedSpanItems(4);// , span.getSpanContext().getTraceId());
+        List<SpanData> spanData = spanExporter.getFinishedSpanItems(3);
 
         // Assert correct parent-child links
         // Shows that propagation occurred
-        // TestSpans.assertLinearParentage(spanData);
-
-        SpanData testSpan = spanExporter.getFirst(SpanKind.INTERNAL);
+        SpanData subtaskSpan = spanExporter.getFirst(SpanKind.INTERNAL);
         SpanData clientSpan = spanExporter.getFirst(SpanKind.CLIENT);
         SpanData serverSpan = spanExporter.getFirst(SpanKind.SERVER);
-        // SpanData subtaskSpan = spanData.get(3);
 
-        // Assert baggage propagated on server span
-        /*
-         * Assert.assertTrue(serverSpan.isSpan() .withKind(SpanKind.SERVER) .withAttribute(BAGGAGE_VALUE_ATTR,
-         * TEST_VALUE));
-         */
+        assertEquals(serverSpan.getSpanId(), subtaskSpan.getParentSpanId());
+        assertEquals(clientSpan.getSpanId(), serverSpan.getParentSpanId());
+
+        // Assert that the expected headers were used
+        Assert.assertTrue(serverSpan.getAttributes().get(BAGGAGE_VALUE_ATTR).contains(TEST_VALUE));
+
         // Assert baggage propagated on subtask span
-        /*
-         * Assert.assertTrue(subtaskSpan.isSpan() .withKind(SpanKind.INTERNAL) .withAttribute(BAGGAGE_VALUE_ATTR,
-         * TEST_VALUE));
-         */
+        Assert.assertTrue(subtaskSpan.getAttributes().get(BAGGAGE_VALUE_ATTR).contains(TEST_VALUE));
 
         // Assert that the server span finished after the subtask span
         // Even though the resource method returned quickly, the span should not end until the response is actually
         // returned
-        // Assert.assertTrue(serverSpan.getEndEpochNanos().greaterThan(subtaskSpan.getEndEpochNanos()));
+        Assert.assertTrue(serverSpan.getEndEpochNanos() > subtaskSpan.getEndEpochNanos());
     }
 }
