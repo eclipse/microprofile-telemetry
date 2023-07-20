@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2022 Contributors to the Eclipse Foundation
+ * Copyright (c) 2016-2023 Contributors to the Eclipse Foundation
  *
  *  See the NOTICE file(s) distributed with this work for additional
  *  information regarding copyright ownership.
@@ -18,9 +18,7 @@
  *
  */
 
-package org.eclipse.microprofile.telemetry.tracing.tck.jaxrs;
-
-import static org.testng.Assert.assertEquals;
+package org.eclipse.microprofile.telemetry.tracing.tck.async;
 
 import java.net.URL;
 
@@ -35,12 +33,14 @@ import org.jboss.arquillian.testng.Arquillian;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import io.opentelemetry.sdk.autoconfigure.spi.traces.ConfigurableSpanExporterProvider;
+import jakarta.inject.Inject;
 
-public class JaxRsClientAsyncTest extends Arquillian {
+public class MpRestClientAsyncTest extends Arquillian {
 
     @Deployment
     public static WebArchive createDeployment() {
@@ -51,56 +51,44 @@ public class JaxRsClientAsyncTest extends Arquillian {
                 .add("otel.traces.exporter", "in-memory");
 
         return ShrinkWrap.create(WebArchive.class)
-                .addClasses(InMemorySpanExporter.class, InMemorySpanExporterProvider.class, BasicHttpClient.class)
+                .addClasses(InMemorySpanExporter.class, InMemorySpanExporterProvider.class, BasicHttpClient.class,
+                        MpRestClientAsyncTestEndpoint.class)
                 .addAsLibrary(TestLibraries.AWAITILITY_LIB)
                 .addAsServiceProvider(ConfigurableSpanExporterProvider.class, InMemorySpanExporterProvider.class)
                 .addAsResource(config, "META-INF/microprofile-config.properties")
                 .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
     }
 
+    private BasicHttpClient basicClient;
+
     @ArquillianResource
     URL url;
 
-    private BasicHttpClient basicClient;
-
     public static final String TEST_PASSED = "Test Passed";
+
+    @Inject
+    private InMemorySpanExporter spanExporter;
 
     @BeforeMethod
     void setUp() {
         // Only want to run on server
-        basicClient = new BasicHttpClient(url);
+        if (spanExporter != null) {
+            spanExporter.reset();
+            basicClient = new BasicHttpClient(url);
+        }
     }
 
     @Test
-    public void testIntegrationWithJaxRsClient() throws Exception {
-        String traceId = basicClient.getResponseMessage("/endpoints/jaxrsclient");
-
-        assertEquals(TEST_PASSED, basicClient.getResponseMessage("/endpoints/readspans/" + traceId));
+    public void testIntegrationWithMpRestClient() throws Exception {
+        String traceId = basicClient.getResponseMessage("/MpRestClientAsyncTestEndpoint/mpclient");
+        Assert.assertEquals(TEST_PASSED,
+                basicClient.getResponseMessage("/MpRestClientAsyncTestEndpoint/readspans/" + traceId));
     }
 
     @Test
-    public void testIntegrationWithJaxRsClientAsync() throws Exception {
-        String traceId = basicClient.getResponseMessage("/endpoints/jaxrsclientasync");
-
-        assertEquals(TEST_PASSED, basicClient.getResponseMessage("/endpoints/readspans/" + traceId));
+    public void testIntegrationWithMpRestClientAsync() throws Exception {
+        String traceId = basicClient.getResponseMessage("/MpRestClientAsyncTestEndpoint/mpclientasync");
+        Assert.assertEquals(TEST_PASSED,
+                basicClient.getResponseMessage("/MpRestClientAsyncTestEndpoint/readspans/" + traceId));
     }
-    /*
-     * @Test public void testIntegrationWithMpClient() throws Exception { HttpRequest pokeMp = new HttpRequest(server,
-     * "/" + APP_NAME + "/endpoints/mpclient"); String traceId = readTraceId(pokeMp);
-     *
-     * HttpRequest readspans = new HttpRequest(server, "/" + APP_NAME + "/endpoints/readspans/" + traceId);
-     * assertEquals(TEST_PASSED, readspans.run(String.class)); }
-     *
-     * @Test public void testIntegrationWithMpClientAsync() throws Exception { HttpRequest pokeMp = new
-     * HttpRequest(server, "/" + APP_NAME + "/endpoints/mpclientasync"); String traceId = readTraceId(pokeMp);
-     *
-     * HttpRequest readspans = new HttpRequest(server, "/" + APP_NAME + "/endpoints/readspans/" + traceId);
-     * assertEquals(TEST_PASSED, readspans.run(String.class)); }
-     *
-     * private static final Pattern TRACE_ID_PATTERN = Pattern.compile("[0-9a-f]{32}");
-     *
-     * private String readTraceId(HttpRequest httpRequest) throws Exception { String response =
-     * httpRequest.run(String.class); if (!TRACE_ID_PATTERN.matcher(response).matches()) {
-     * Assert.fail("Request failed, response: " + response); } return response; }
-     */
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2022 Contributors to the Eclipse Foundation
+ * Copyright (c) 2016-2023 Contributors to the Eclipse Foundation
  *
  *  See the NOTICE file(s) distributed with this work for additional
  *  information regarding copyright ownership.
@@ -17,7 +17,7 @@
  * limitations under the License.
  *
  */
-package org.eclipse.microprofile.telemetry.tracing.tck.jaxrs;
+package org.eclipse.microprofile.telemetry.tracing.tck.async;
 
 import java.net.URI;
 import java.net.URISyntaxException;

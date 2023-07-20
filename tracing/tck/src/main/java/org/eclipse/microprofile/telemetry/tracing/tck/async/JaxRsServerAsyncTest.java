@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2022 Contributors to the Eclipse Foundation
+ * Copyright (c) 2016-2023 Contributors to the Eclipse Foundation
  *
  *  See the NOTICE file(s) distributed with this work for additional
  *  information regarding copyright ownership.
@@ -18,9 +18,9 @@
  *
  */
 
-package org.eclipse.microprofile.telemetry.tracing.tck.jaxrs;
+package org.eclipse.microprofile.telemetry.tracing.tck.async;
 
-import static org.eclipse.microprofile.telemetry.tracing.tck.jaxrs.JaxRsServerAsyncTestEndpoint.BAGGAGE_VALUE_ATTR;
+import static org.eclipse.microprofile.telemetry.tracing.tck.async.JaxRsServerAsyncTestEndpoint.BAGGAGE_VALUE_ATTR;
 import static org.testng.Assert.assertEquals;
 
 import java.util.List;
