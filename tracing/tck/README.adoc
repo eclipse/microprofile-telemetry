@@ -50,7 +50,16 @@ To enable the tests in your project you need to add the following dependency to 
 ----
 
 == Declaring the Tests to run
-There are optional tests for the `B3` and `Jaeger` progagation formats. These tests are present in the `optional-tests` group but a MicroProfile-Telemetry implementation is not required to pass these tests in order to be considered a valid implementation. If you wish to disable them, you can exclude the group e.g. create a file `tck-suite.xml` in your project which contains the following content:
+There are multiple groups of optional tests. Thses include: 
+
+* `B3` and `Jaeger` progagation formats. 
+
+These tests are present in the `optional-tests` group but a MicroProfile-Telemetry implementation is not required to pass these tests in order to be considered a valid implementation.
+
+* Use of JAX-RS server async programming models.
+
+These tests depend on `Jakarta Concurrency` JaxRs`ManagedExecutorService`
+If you wish to disable them, you can exclude the group e.g. create a file `tck-suite.xml` in your project which contains the following content:
 
 [source, xml]
 ----
@@ -62,6 +71,8 @@ There are optional tests for the `B3` and `Jaeger` progagation formats. These te
             <run>
                 <!-- Exclude B3 and Jaeger propagation tests-->
                 <exclude name="optional-tests"/>
+                <!-- Exclude JaxRS server async tests-->
+                <exclude name="optional-jaxrs-tests"/>
             </run>
         </groups>
         <packages>

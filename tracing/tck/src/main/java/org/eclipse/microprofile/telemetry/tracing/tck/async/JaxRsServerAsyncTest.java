@@ -87,12 +87,12 @@ class JaxRsServerAsyncTest extends Arquillian {
         }
     }
 
-    @Test
+    @Test(groups = "optional-jaxrs-tests")
     public void testJaxRsServerAsyncCompletionStage() {
         doAsyncTest(JaxRsServerAsyncTestEndpointClient::getCompletionStage);
     }
 
-    @Test
+    @Test(groups = "optional-jaxrs-tests")
     public void testJaxRsServerAsyncSuspend() {
         doAsyncTest(JaxRsServerAsyncTestEndpointClient::getSuspend);
     }

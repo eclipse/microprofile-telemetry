@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2023 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022-2023 Contributors to the Eclipse Foundation
  *
  *  See the NOTICE file(s) distributed with this work for additional
  *  information regarding copyright ownership.
@@ -89,8 +89,7 @@ public class InMemorySpanExporter implements SpanExporter {
                 .orElseThrow(() -> new IllegalStateException("No span found with kind " + spanKind));
     }
 
-    public SpanData getNext(SpanKind spanKind) {
-        return finishedSpanItems.stream().filter(span -> span.getKind() == spanKind).skip(1).findFirst()
-                .orElseThrow(() -> new IllegalStateException("No span found with kind " + spanKind));
+    public List<SpanData> getSpansWithKind(SpanKind spanKind) {
+        return finishedSpanItems.stream().filter(span -> span.getKind() == spanKind).collect(Collectors.toList());
     }
 }

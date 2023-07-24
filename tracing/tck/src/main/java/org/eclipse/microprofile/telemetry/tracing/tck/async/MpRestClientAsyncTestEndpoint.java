@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2023 Contributors to the Eclipse Foundation
+ * Copyright (c) 2023 Contributors to the Eclipse Foundation
  *
  *  See the NOTICE file(s) distributed with this work for additional
  *  information regarding copyright ownership.
@@ -19,18 +19,7 @@
  */
 package org.eclipse.microprofile.telemetry.tracing.tck.async;
 
-import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.HTTP_METHOD;
-import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.HTTP_SCHEME;
-import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.HTTP_STATUS_CODE;
-import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.HTTP_URL;
-import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.NET_HOST_NAME;
-import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.NET_HOST_PORT;
-import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.NET_PEER_NAME;
-import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.NET_PEER_PORT;
-import static java.net.HttpURLConnection.HTTP_OK;
-
 import java.net.URI;
-import java.util.List;
 import java.util.concurrent.CompletionStage;
 
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
@@ -40,18 +29,14 @@ import org.testng.Assert;
 
 import io.opentelemetry.api.baggage.Baggage;
 import io.opentelemetry.api.trace.Span;
-import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.context.Scope;
-import io.opentelemetry.sdk.trace.data.SpanData;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.inject.Inject;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.GET;
-import jakarta.ws.rs.HttpMethod;
 import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.core.Application;
@@ -88,7 +73,7 @@ public class MpRestClientAsyncTestEndpoint extends Application {
 
     @GET
     @Path("/mpclient")
-    public Response getMPRestClient(@Context UriInfo uriInfo) {
+    public Response requestMpClient(@Context UriInfo uriInfo) {
         Assert.assertNotNull(Span.current());
 
         try (Scope s = Baggage.builder().put("foo", "bar").build().makeCurrent()) {
@@ -108,7 +93,7 @@ public class MpRestClientAsyncTestEndpoint extends Application {
                     .baseUri(baseUri)
                     .build(MpClientTwo.class);
 
-            String result = mpClientTwo.getMpClient();
+            String result = mpClientTwo.requestMpClient();
             Assert.assertEquals(TEST_PASSED, result);
         }
         return Response.ok(Span.current().getSpanContext().getTraceId()).build();
@@ -116,7 +101,7 @@ public class MpRestClientAsyncTestEndpoint extends Application {
 
     @GET
     @Path("/mpclientasync")
-    public Response getMPRestClientAsync(@Context UriInfo uriInfo) {
+    public Response requestMpClientAsync(@Context UriInfo uriInfo) {
         Assert.assertNotNull(Span.current());
 
         try (Scope s = Baggage.builder().put("foo", "bar").build().makeCurrent()) {
@@ -136,57 +121,15 @@ public class MpRestClientAsyncTestEndpoint extends Application {
                     .baseUri(baseUri)
                     .build(MpClientTwoAsync.class);
 
-            String result = mpClientTwo.getMpClient().toCompletableFuture().join();
+            String result = mpClientTwo.requestMpClient().toCompletableFuture().join();
             Assert.assertEquals(TEST_PASSED, result);
         }
         return Response.ok(Span.current().getSpanContext().getTraceId()).build();
     }
 
     @GET
-    @Path("/readspans/{traceId}")
-    public Response readSpans(@Context UriInfo uriInfo, @PathParam("traceId") String traceId) {
-
-        System.out.println("Reading spans");
-        List<SpanData> spanData = spanExporter.getFinishedSpanItems(3);
-
-        SpanData firstURL = spanExporter.getFirst(SpanKind.SERVER);
-        SpanData httpGet = spanExporter.getFirst(SpanKind.CLIENT);
-        SpanData secondURL = spanExporter.getNext(SpanKind.SERVER);
-
-        // Assert correct parent-child links
-        // Shows that propagation occurred
-        Assert.assertEquals(httpGet.getSpanId(), firstURL.getParentSpanId());
-        Assert.assertEquals(secondURL.getSpanId(), httpGet.getParentSpanId());
-
-        Assert.assertEquals(firstURL.getTraceId(), traceId);
-        Assert.assertEquals(httpGet.getTraceId(), traceId);
-        Assert.assertEquals(secondURL.getTraceId(), traceId);
-
-        Assert.assertEquals(HTTP_OK, firstURL.getAttributes().get(HTTP_STATUS_CODE).intValue());
-        Assert.assertEquals(HttpMethod.GET, firstURL.getAttributes().get(HTTP_METHOD));
-        Assert.assertEquals("http", firstURL.getAttributes().get(HTTP_SCHEME));
-
-        // There are many different URLs that will end up here. But all should contain "MpRestClientAsyncTestEndpoint"
-        Assert.assertTrue(httpGet.getAttributes().get(HTTP_URL).contains("MpRestClientAsyncTestEndpoint"));
-
-        // The request used to call /readspans should have the same hostname and port as the test request
-        URI requestUri = uriInfo.getRequestUri();
-        Assert.assertEquals(requestUri.getHost(), firstURL.getAttributes().get(NET_HOST_NAME));
-        Assert.assertEquals(Long.valueOf(requestUri.getPort()), firstURL.getAttributes().get(NET_HOST_PORT));
-
-        Assert.assertEquals("HTTP GET", httpGet.getName());
-        Assert.assertEquals(HTTP_OK, httpGet.getAttributes().get(HTTP_STATUS_CODE).intValue());
-        Assert.assertEquals(HttpMethod.GET, httpGet.getAttributes().get(HTTP_METHOD));
-        Assert.assertEquals(requestUri.getHost(), httpGet.getAttributes().get(NET_PEER_NAME));
-        Assert.assertEquals(Long.valueOf(requestUri.getPort()), httpGet.getAttributes().get(NET_PEER_PORT));
-        Assert.assertTrue(httpGet.getAttributes().get(HTTP_URL).contains("MpRestClientAsyncTestEndpoint"));
-
-        return Response.ok(TEST_PASSED).build();
-    }
-
-    @GET
-    @Path("getMpClient")
-    public Response getMpClient() {
+    @Path("requestMpClient")
+    public Response requestMpClient() {
         Assert.assertNotNull(Span.current());
         Baggage baggage = Baggage.current();
 
@@ -199,8 +142,8 @@ public class MpRestClientAsyncTestEndpoint extends Application {
     public interface MpClientTwo {
 
         @GET
-        @Path("getMpClient")
-        public String getMpClient();
+        @Path("requestMpClient")
+        public String requestMpClient();
 
     }
 
@@ -208,8 +151,8 @@ public class MpRestClientAsyncTestEndpoint extends Application {
     public interface MpClientTwoAsync {
 
         @GET
-        @Path("getMpClient")
-        public CompletionStage<String> getMpClient();
+        @Path("requestMpClient")
+        public CompletionStage<String> requestMpClient();
 
     }
 }
