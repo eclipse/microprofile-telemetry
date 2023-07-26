@@ -32,7 +32,6 @@ import io.opentelemetry.context.Scope;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.inject.Inject;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -52,9 +51,6 @@ public class JaxRsClientAsyncTestEndpoint extends Application {
 
     @Inject
     private InMemorySpanExporter spanExporter;
-
-    @Inject
-    private HttpServletRequest request;
 
     private Client client;
 

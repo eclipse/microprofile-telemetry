@@ -19,8 +19,6 @@
  */
 package org.eclipse.microprofile.telemetry.tracing.tck.async;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutorService;
@@ -34,7 +32,6 @@ import io.opentelemetry.context.Scope;
 import jakarta.annotation.Resource;
 import jakarta.enterprise.concurrent.ManagedExecutorService;
 import jakarta.inject.Inject;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -137,18 +134,6 @@ public class JaxRsServerAsyncTestEndpoint extends Application {
             throw new RuntimeException(e);
         } finally {
             span.end();
-        }
-    }
-
-    public static URI getBaseUri(HttpServletRequest request) {
-        try {
-            URI originalUri = URI.create(request.getRequestURL().toString());
-            URI targetUri =
-                    new URI(originalUri.getScheme(), originalUri.getAuthority(), request.getContextPath(), null, null);
-            System.out.println("Using URI: " + targetUri);
-            return targetUri;
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
         }
     }
 }

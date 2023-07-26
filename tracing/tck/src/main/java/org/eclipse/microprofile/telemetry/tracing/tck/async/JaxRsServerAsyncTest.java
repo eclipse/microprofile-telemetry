@@ -23,6 +23,8 @@ package org.eclipse.microprofile.telemetry.tracing.tck.async;
 import static org.eclipse.microprofile.telemetry.tracing.tck.async.JaxRsServerAsyncTestEndpoint.BAGGAGE_VALUE_ATTR;
 import static org.testng.Assert.assertEquals;
 
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.List;
 import java.util.function.Function;
 
@@ -32,6 +34,7 @@ import org.eclipse.microprofile.telemetry.tracing.tck.TestLibraries;
 import org.eclipse.microprofile.telemetry.tracing.tck.exporter.InMemorySpanExporter;
 import org.eclipse.microprofile.telemetry.tracing.tck.exporter.InMemorySpanExporterProvider;
 import org.jboss.arquillian.container.test.api.Deployment;
+import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.arquillian.testng.Arquillian;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
@@ -76,8 +79,8 @@ class JaxRsServerAsyncTest extends Arquillian {
     @Inject
     private InMemorySpanExporter spanExporter;
 
-    @Inject
-    private HttpServletRequest request;
+    @ArquillianResource
+    URL url;
 
     @BeforeMethod
     void setUp() {
@@ -104,11 +107,16 @@ class JaxRsServerAsyncTest extends Arquillian {
 
         try (Scope s = baggage.makeCurrent()) {
             // Make the request to the test endpoint
-            JaxRsServerAsyncTestEndpointClient client = RestClientBuilder.newBuilder()
-                    .baseUri(JaxRsServerAsyncTestEndpoint.getBaseUri(request))
-                    .build(JaxRsServerAsyncTestEndpointClient.class);
-            String response = requestFunction.apply(client);
-            Assert.assertEquals("OK", response);
+            try {
+                JaxRsServerAsyncTestEndpointClient client = RestClientBuilder.newBuilder()
+                        .baseUri(url.toURI())
+                        .build(JaxRsServerAsyncTestEndpointClient.class);
+
+                String response = requestFunction.apply(client);
+                Assert.assertEquals("OK", response);
+            } catch (URISyntaxException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         List<SpanData> spanData = spanExporter.getFinishedSpanItems(3);
