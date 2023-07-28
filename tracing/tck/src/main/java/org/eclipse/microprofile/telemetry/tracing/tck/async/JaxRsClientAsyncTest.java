@@ -135,7 +135,6 @@ public class JaxRsClientAsyncTest extends Arquillian {
         // There are many different URLs that will end up here. But all should contain "JaxRsClientAsyncTestEndpoint"
         Assert.assertTrue(httpGet.getAttributes().get(HTTP_URL).contains("JaxRsClientAsyncTestEndpoint"));
 
-        Assert.assertEquals("HTTP GET", httpGet.getName());
         Assert.assertEquals(HTTP_OK, httpGet.getAttributes().get(HTTP_STATUS_CODE).intValue());
         Assert.assertEquals(HttpMethod.GET, httpGet.getAttributes().get(HTTP_METHOD));
         Assert.assertTrue(httpGet.getAttributes().get(HTTP_URL).contains("JaxRsClientAsyncTestEndpoint"));

@@ -23,7 +23,6 @@ import java.net.URI;
 import java.util.concurrent.CompletionStage;
 
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
-import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 import org.eclipse.microprofile.telemetry.tracing.tck.exporter.InMemorySpanExporter;
 import org.testng.Assert;
 
@@ -55,21 +54,6 @@ public class MpRestClientAsyncTestEndpoint extends Application {
 
     @Inject
     private HttpServletRequest request;
-
-    private Client client;
-
-    @PostConstruct
-    private void openClient() {
-        client = ClientBuilder.newClient();
-    }
-
-    @PreDestroy
-    private void closeClient() {
-        if (client != null) {
-            client.close();
-            client = null;
-        }
-    }
 
     @GET
     @Path("/mpclient")
@@ -138,7 +122,6 @@ public class MpRestClientAsyncTestEndpoint extends Application {
         return Response.ok(TEST_PASSED).build();
     }
 
-    @RegisterRestClient
     public interface MpClientTwo {
 
         @GET
@@ -147,7 +130,6 @@ public class MpRestClientAsyncTestEndpoint extends Application {
 
     }
 
-    @RegisterRestClient
     public interface MpClientTwoAsync {
 
         @GET

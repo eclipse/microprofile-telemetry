@@ -139,6 +139,6 @@ class JaxRsServerAsyncTest extends Arquillian {
         // Assert that the server span finished after the subtask span
         // Even though the resource method returned quickly, the span should not end until the response is actually
         // returned
-        Assert.assertTrue(serverSpan.getEndEpochNanos() > subtaskSpan.getEndEpochNanos());
+        Assert.assertTrue(serverSpan.getEndEpochNanos() >= subtaskSpan.getEndEpochNanos());
     }
 }

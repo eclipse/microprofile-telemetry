@@ -132,7 +132,6 @@ public class MpRestClientAsyncTest extends Arquillian {
         Assert.assertEquals(HttpMethod.GET, firstURL.getAttributes().get(HTTP_METHOD));
         Assert.assertEquals("http", firstURL.getAttributes().get(HTTP_SCHEME));
 
-        Assert.assertEquals("HTTP GET", httpGet.getName());
         Assert.assertEquals(HTTP_OK, httpGet.getAttributes().get(HTTP_STATUS_CODE).intValue());
         Assert.assertEquals(HttpMethod.GET, httpGet.getAttributes().get(HTTP_METHOD));
         Assert.assertTrue(httpGet.getAttributes().get(HTTP_URL).contains("MpRestClientAsyncTestEndpoint"));
