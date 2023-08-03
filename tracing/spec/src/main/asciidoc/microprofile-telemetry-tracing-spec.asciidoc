@@ -425,7 +425,7 @@ By default, MicroProfile Telemetry Tracing is deactivated.
 
 In order to enable any of the tracing aspects, the configuration `otel.sdk.disabled=false` must be specified in any of the configuration sources available via MicroProfile Config.
 
-// TODO The hard coded otel-spec-version need to be replaced in future spec releases!
+
 [IMPORTANT]
 ====
 This is a deviation from the OpenTelemetry Specification that specifies this configuration property officially, where https://opentelemetry.io[OpenTelemetry] is activated by default!
