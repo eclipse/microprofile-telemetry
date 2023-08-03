@@ -407,7 +407,7 @@ Behavior when customizer changes other properties than those listed in the spec 
 
 [[sec:semantic-conventions]]
 === Semantic Conventions
-The https://github.com/open-telemetry/opentelemetry-java/tree/release/v{otel-java-version}/semconv/src/main/java/io/opentelemetry/semconv[Trace Semantic Conventions] for Spans and Attributes must be followed by any compatible implementation.
+The https://github.com/open-telemetry/opentelemetry-java/tree/v{otel-java-version}/semconv/src/main/java/io/opentelemetry/semconv[Trace Semantic Conventions] for Spans and Attributes must be followed by any compatible implementation.
 
 All attributes marked as `required` must be present in the context of the Span where they are defined.
 Any other attribute is optional.
