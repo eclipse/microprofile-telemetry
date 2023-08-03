@@ -233,7 +233,7 @@ Classes from the following API packages MUST be supported by implementations of 
 
 ### Tracing APIs
 
-- https://www.javadoc.io/static/io.opentelemetry/opentelemetry-api/{otel-java-version}/io/opentelemetry/api/package-summary.html[io.opentelemetry.api](except `GlobalOpenTelemetry`)
+- https://www.javadoc.io/static/io.opentelemetry/opentelemetry-api/{otel-java-version}/io/opentelemetry/api/package-summary.html[io.opentelemetry.api] (except `GlobalOpenTelemetry`)
 - https://www.javadoc.io/static/io.opentelemetry/opentelemetry-api/{otel-java-version}/io/opentelemetry/api/trace/package-summary.html[io.opentelemetry.api.trace]
 - https://www.javadoc.io/static/io.opentelemetry/opentelemetry-api/{otel-java-version}/io/opentelemetry/api/common/package-summary.html[io.opentelemetry.api.common]
 
