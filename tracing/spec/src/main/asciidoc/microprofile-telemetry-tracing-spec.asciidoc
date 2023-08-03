@@ -64,11 +64,11 @@ The OpenTelemetry specification describes the cross-language requirements and ex
 
 Refer to the OpenTelemetry specification repo to understand some essential terms.
 
-* https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/overview.md[OpenTelemetry Overview]
+* https://opentelemetry.io/docs/specs/otel/overview/[OpenTelemetry Overview]
 * https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/trace/api.md[Tracing API]
-* https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/baggage/api.md[Baggage API]
-* https://github.com/open-telemetry/opentelemetry-specification/tree/main/specification/context[Context API]
-* https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/resource/sdk.md[Resource SDK]
+* https://opentelemetry.io/docs/specs/otel/baggage/api/[Baggage API]
+* https://opentelemetry.io/docs/specs/otel/context/[Context API]
+* https://opentelemetry.io/docs/specs/otel/resource/sdk/[Resource SDK]
 
 [IMPORTANT]
 ====
