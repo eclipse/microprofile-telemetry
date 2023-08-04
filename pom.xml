@@ -31,10 +31,7 @@
 
     <properties>
         <inceptionYear>2022</inceptionYear>
-        <opentelemetry.spec.main.version>1.19</opentelemetry.spec.main.version>
-        <opentelemetry.spec.version>1.19.0</opentelemetry.spec.version>
-        <opentelemetry.java.main.version>1.26</opentelemetry.java.main.version>
-        <opentelemetry.java.version>1.26.0</opentelemetry.java.version>
+        <opentelemetry.java.version>1.28.0</opentelemetry.java.version>
         <version.microprofile.tck.bom>3.0</version.microprofile.tck.bom>
     </properties>
 
@@ -84,10 +81,7 @@
                     <artifactId>asciidoctor-maven-plugin</artifactId>
                     <configuration>
                         <attributes>
-                            <otel-spec-version>${opentelemetry.spec.version}</otel-spec-version>
-                            <otel-spec-main-version>${opentelemetry.spec.main.version}</otel-spec-main-version>
                             <otel-java-version>${opentelemetry.java.version}</otel-java-version>
-                            <otel-java-main-version>${opentelemetry.java.spec.main.version}</otel-java-main-version>
                         </attributes>
                     </configuration>
                  </plugin>
