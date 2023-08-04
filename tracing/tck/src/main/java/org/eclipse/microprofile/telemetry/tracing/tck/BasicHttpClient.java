@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022-2023 Contributors to the Eclipse Foundation
  *
  *  See the NOTICE file(s) distributed with this work for additional
  *  information regarding copyright ownership.
@@ -19,6 +19,8 @@
  */
 package org.eclipse.microprofile.telemetry.tracing.tck;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -65,12 +67,44 @@ public class BasicHttpClient {
             try {
                 return connection.getResponseCode();
             } catch (Exception e) {
-                throw new RuntimeException("Exception retriving " + spanUrl, e);
+                throw new RuntimeException("Exception retrieving " + spanUrl, e);
             } finally {
                 connection.disconnect();
             }
         } catch (Exception e) {
-            throw new RuntimeException("Exception retriving path " + path, e);
+            throw new RuntimeException("Exception retrieving path " + path, e);
+        }
+    }
+
+    /**
+     * Makes a GET request to a path and returns the response code
+     *
+     * @param path
+     *            the path to request, relative to the baseUrl
+     * @return the response message
+     */
+    public String getResponseMessage(String path) {
+        if (path.startsWith("/")) {
+            path = path.substring(1);
+        }
+        try {
+            URL spanUrl = baseUri.resolve(path).toURL();
+            HttpURLConnection connection = (HttpURLConnection) spanUrl.openConnection();
+            try (BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+                String inputLine;
+                StringBuilder response = new StringBuilder();
+
+                while ((inputLine = in.readLine()) != null) {
+                    response.append(inputLine);
+                }
+                return response.toString();
+            } catch (Exception e) {
+                throw new RuntimeException("Exception retrieving " + spanUrl, e);
+            } finally {
+                connection.disconnect();
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Exception retrieving path " + path, e);
         }
     }
 
