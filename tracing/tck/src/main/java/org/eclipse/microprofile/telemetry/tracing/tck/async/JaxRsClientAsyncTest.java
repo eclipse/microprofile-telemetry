@@ -25,6 +25,7 @@ import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.HTTP_
 import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.HTTP_STATUS_CODE;
 import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.HTTP_TARGET;
 import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.HTTP_URL;
+import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 import static java.net.HttpURLConnection.HTTP_OK;
 
 import java.net.URL;
@@ -77,6 +78,7 @@ public class JaxRsClientAsyncTest extends Arquillian {
     URL url;
 
     public static final String TEST_PASSED = "Test Passed";
+    public static final String QUERY_VALUE = "bar";
 
     @Inject
     private InMemorySpanExporter spanExporter;
@@ -92,14 +94,61 @@ public class JaxRsClientAsyncTest extends Arquillian {
 
     @Test
     public void testIntegrationWithJaxRsClient() throws Exception {
-        basicClient.get("/JaxRsClientAsyncTestEndpoint/jaxrsclient");
+        basicClient.get("/JaxRsClientAsyncTestEndpoint/jaxrsclient?baggageValue=" + QUERY_VALUE);
         readSpans();
     }
 
     @Test
     public void testIntegrationWithJaxRsClientAsync() throws Exception {
-        basicClient.get("/JaxRsClientAsyncTestEndpoint/jaxrsclientasync");
+        basicClient.get("/JaxRsClientAsyncTestEndpoint/jaxrsclientasync?baggageValue=" + QUERY_VALUE);
         readSpans();
+    }
+
+    @Test
+    public void testIntegrationWithJaxRsClientError() throws Exception {
+        basicClient.get("/JaxRsClientAsyncTestEndpoint/jaxrsclienterror");
+        readErrorSpans();
+    }
+
+    public void readErrorSpans() {
+
+        List<SpanData> spanData = spanExporter.getFinishedSpanItems(3);
+
+        List<SpanData> serverSpans = spanExporter.getSpansWithKind(SpanKind.SERVER);
+
+        SpanData firstURL = null;
+        SpanData secondURL = null;
+        for (SpanData span : serverSpans) {
+            if (span.getAttributes().get(HTTP_TARGET).contains("JaxRsClientAsyncTestEndpoint/jaxrsclient")) {
+                firstURL = span;
+            } else {
+                secondURL = span;
+            }
+        }
+
+        Assert.assertNotNull(firstURL);
+        Assert.assertNotNull(secondURL);
+
+        SpanData httpGet = spanExporter.getFirst(SpanKind.CLIENT);
+
+        // Assert correct parent-child links
+        // Shows that propagation occurred
+        Assert.assertEquals(httpGet.getSpanId(), secondURL.getParentSpanId());
+        Assert.assertEquals(firstURL.getSpanId(), httpGet.getParentSpanId());
+
+        Assert.assertEquals(HttpMethod.GET, firstURL.getAttributes().get(HTTP_METHOD));
+        Assert.assertEquals("http", firstURL.getAttributes().get(HTTP_SCHEME));
+
+        // Assert error is in spans from method getError() called by JAX Clients
+        Assert.assertEquals(HTTP_INTERNAL_ERROR, firstURL.getAttributes().get(HTTP_STATUS_CODE).intValue());
+        Assert.assertEquals(HTTP_INTERNAL_ERROR, secondURL.getAttributes().get(HTTP_STATUS_CODE).intValue());
+        Assert.assertEquals(HTTP_INTERNAL_ERROR, httpGet.getAttributes().get(HTTP_STATUS_CODE).intValue());
+
+        // There are many different URLs that will end up here. But all should contain "JaxRsClientAsyncTestEndpoint"
+        Assert.assertTrue(httpGet.getAttributes().get(HTTP_URL).contains("JaxRsClientAsyncTestEndpoint"));
+
+        Assert.assertEquals(HttpMethod.GET, httpGet.getAttributes().get(HTTP_METHOD));
+        Assert.assertTrue(httpGet.getAttributes().get(HTTP_URL).contains("JaxRsClientAsyncTestEndpoint"));
     }
 
     public void readSpans() {
@@ -131,6 +180,7 @@ public class JaxRsClientAsyncTest extends Arquillian {
         Assert.assertEquals(HTTP_OK, firstURL.getAttributes().get(HTTP_STATUS_CODE).intValue());
         Assert.assertEquals(HttpMethod.GET, firstURL.getAttributes().get(HTTP_METHOD));
         Assert.assertEquals("http", firstURL.getAttributes().get(HTTP_SCHEME));
+        Assert.assertTrue(firstURL.getAttributes().get(HTTP_TARGET).contains(QUERY_VALUE));
 
         // There are many different URLs that will end up here. But all should contain "JaxRsClientAsyncTestEndpoint"
         Assert.assertTrue(httpGet.getAttributes().get(HTTP_URL).contains("JaxRsClientAsyncTestEndpoint"));

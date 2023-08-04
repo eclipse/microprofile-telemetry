@@ -35,9 +35,11 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.container.AsyncResponse;
 import jakarta.ws.rs.container.Suspended;
 import jakarta.ws.rs.core.Application;
+import jakarta.ws.rs.core.Response;
 
 /**
  * This endpoint is used to test MP Telemetry integration with async JAX-RS resource methods.
@@ -76,7 +78,7 @@ public class JaxRsServerAsyncTestEndpoint extends Application {
 
     @GET
     @Path("completionstage")
-    public CompletionStage<String> getCompletionStage() {
+    public CompletionStage<String> getCompletionStage(@QueryParam(value = "baggageValue") String queryValue) {
         Span span = Span.current();
 
         // Retrieve the test baggage value (if present) and store in the span
@@ -94,8 +96,30 @@ public class JaxRsServerAsyncTestEndpoint extends Application {
     }
 
     @GET
+    @Path("completionstageerror")
+    public CompletionStage<Response> getCompletionStageError(@QueryParam(value = "baggageValue") String queryValue) {
+        Span span = Span.current();
+
+        // Retrieve the test baggage value (if present) and store in the span
+        String baggageValue = Baggage.current().getEntryValue(BAGGAGE_KEY);
+        if (baggageValue != null) {
+            span.setAttribute(BAGGAGE_VALUE_ATTR, baggageValue);
+        }
+
+        // Call a subtask, propagating the context
+        ExecutorService contextExecutor = Context.taskWrapping(managedExecutor);
+        CompletableFuture<Response> result = CompletableFuture.supplyAsync(this::subtaskError, contextExecutor)
+                .exceptionally(exception -> {
+                    System.err.println("exception: " + exception);
+                    return Response.ok().build();
+                });
+        // Return the async result
+        return result;
+    }
+
+    @GET
     @Path("suspend")
-    public void getSuspend(@Suspended AsyncResponse async) {
+    public void getSuspend(@Suspended AsyncResponse async, @QueryParam(value = "baggageValue") String queryValue) {
         Span span = Span.current();
 
         // Retrieve the test baggage value (if present) and store in the span
@@ -116,6 +140,29 @@ public class JaxRsServerAsyncTestEndpoint extends Application {
         });
     }
 
+    @GET
+    @Path("suspenderror")
+    public void getSuspendError(@Suspended AsyncResponse async, @QueryParam(value = "baggageValue") String queryValue) {
+        Span span = Span.current();
+
+        // Retrieve the test baggage value (if present) and store in the span
+        String baggageValue = Baggage.current().getEntryValue(BAGGAGE_KEY);
+        if (baggageValue != null) {
+            span.setAttribute(BAGGAGE_VALUE_ATTR, baggageValue);
+        }
+
+        // Call a subtask, propagating the context
+        ExecutorService contextExecutor = Context.taskWrapping(managedExecutor);
+        contextExecutor.execute(() -> {
+            // Ensure we call resume, either with the result or a thrown exception
+            try {
+                async.resume(subtaskError());
+            } catch (Throwable t) {
+                async.resume(t);
+            }
+        });
+    }
+
     private String subtask() {
         Span span = tracer.spanBuilder("subtask").startSpan();
         try (Scope scope = span.makeCurrent()) {
@@ -129,6 +176,27 @@ public class JaxRsServerAsyncTestEndpoint extends Application {
             }
 
             return "OK";
+
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } finally {
+            span.end();
+        }
+    }
+
+    private Response subtaskError() {
+        Span span = tracer.spanBuilder("subtask").startSpan();
+        try (Scope scope = span.makeCurrent()) {
+            // Sleep a while to ensure that this is running after get() has returned
+            Thread.sleep(3000);
+
+            // Retrieve the test baggage value (if present) and store in the span
+            String baggageValue = Baggage.current().getEntryValue(BAGGAGE_KEY);
+            if (baggageValue != null) {
+                span.setAttribute(BAGGAGE_VALUE_ATTR, baggageValue);
+            }
+
+            return Response.serverError().build();
 
         } catch (InterruptedException e) {
             throw new RuntimeException(e);

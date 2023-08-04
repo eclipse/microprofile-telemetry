@@ -66,9 +66,7 @@ public class ExporterSpiTest extends Arquillian {
         AttributeKey<String> FOO_KEY = AttributeKey.stringKey("foo");
         Span span = tracer.spanBuilder("test span").setAttribute(FOO_KEY, "bar").startSpan();
         span.end();
-        System.out.println("Hello" + span);
         List<SpanData> spanItems = exporter.getFinishedSpanItems(1);
-        System.out.println("Hello" + spanItems);
         assertEquals(spanItems.size(), 1);
         SpanData spanData = spanItems.get(0);
         assertTrue(spanData.getName().contains("test span"));

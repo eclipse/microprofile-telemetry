@@ -104,6 +104,33 @@ public class MpRestClientAsyncTestEndpoint extends Application {
     }
 
     @GET
+    @Path("/mpclientasyncerror")
+    public Response requestMpClientAsyncError(@Context UriInfo uriInfo) {
+        Assert.assertNotNull(Span.current());
+
+        try (Scope s = Baggage.builder().put("foo", "bar").build().makeCurrent()) {
+            Baggage baggage = Baggage.current();
+            Assert.assertEquals("bar", baggage.getEntryValue("foo"));
+
+            String baseUrl = uriInfo.getAbsolutePath().toString().replace("/mpclientasyncerror", "");
+            URI baseUri = null;
+            try {
+                baseUri = new URI(baseUrl);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
+            Assert.assertNotNull(Span.current());
+            MpClientTwoAsyncError mpClientTwoError = RestClientBuilder.newBuilder()
+                    .baseUri(baseUri)
+                    .build(MpClientTwoAsyncError.class);
+
+            String result = mpClientTwoError.requestMpClientError().toCompletableFuture().join();
+        }
+        return Response.ok(Span.current().getSpanContext().getTraceId()).build();
+    }
+
+    @GET
     @Path("requestMpClient")
     public Response requestMpClient() {
         Assert.assertNotNull(Span.current());
@@ -112,6 +139,17 @@ public class MpRestClientAsyncTestEndpoint extends Application {
         Assert.assertEquals("bar", baggage.getEntryValue("foo"));
 
         return Response.ok(TEST_PASSED).build();
+    }
+
+    @GET
+    @Path("requestMpClientError")
+    public Response requestMpClientError() {
+        Assert.assertNotNull(Span.current());
+        Baggage baggage = Baggage.current();
+
+        Assert.assertEquals("bar", baggage.getEntryValue("foo"));
+
+        return Response.serverError().build();
     }
 
     public interface MpClientTwo {
@@ -127,6 +165,14 @@ public class MpRestClientAsyncTestEndpoint extends Application {
         @GET
         @Path("requestMpClient")
         public CompletionStage<String> requestMpClient();
+
+    }
+
+    public interface MpClientTwoAsyncError {
+
+        @GET
+        @Path("requestMpClientError")
+        public CompletionStage<String> requestMpClientError();
 
     }
 }

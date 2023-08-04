@@ -25,6 +25,7 @@ import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.HTTP_
 import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.HTTP_STATUS_CODE;
 import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.HTTP_TARGET;
 import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.HTTP_URL;
+import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 import static java.net.HttpURLConnection.HTTP_OK;
 
 import java.net.URL;
@@ -97,6 +98,12 @@ public class MpRestClientAsyncTest extends Arquillian {
     }
 
     @Test
+    public void testIntegrationWithMpRestClientAsyncError() throws Exception {
+        basicClient.get("/MpRestClientAsyncTestEndpoint/mpclientasyncerror");
+        readSpansError();
+    }
+
+    @Test
     public void testIntegrationWithMpRestClientAsync() throws Exception {
         basicClient.get("/MpRestClientAsyncTestEndpoint/mpclientasync");
         readSpans();
@@ -133,6 +140,41 @@ public class MpRestClientAsyncTest extends Arquillian {
         Assert.assertEquals("http", firstURL.getAttributes().get(HTTP_SCHEME));
 
         Assert.assertEquals(HTTP_OK, httpGet.getAttributes().get(HTTP_STATUS_CODE).intValue());
+        Assert.assertEquals(HttpMethod.GET, httpGet.getAttributes().get(HTTP_METHOD));
+        Assert.assertTrue(httpGet.getAttributes().get(HTTP_URL).contains("MpRestClientAsyncTestEndpoint"));
+    }
+
+    public void readSpansError() {
+
+        List<SpanData> spanData = spanExporter.getFinishedSpanItems(3);
+
+        List<SpanData> serverSpans = spanExporter.getSpansWithKind(SpanKind.SERVER);
+
+        SpanData firstURL = null;
+        SpanData secondURL = null;
+        SpanData httpGet = spanExporter.getFirst(SpanKind.CLIENT);
+
+        for (SpanData span : serverSpans) {
+            if (span.getAttributes().get(HTTP_TARGET).contains("MpRestClientAsyncTestEndpoint/mpclient")) {
+                firstURL = span;
+            } else {
+                secondURL = span;
+            }
+        }
+        Assert.assertNotNull(firstURL);
+        Assert.assertNotNull(secondURL);
+
+        // Assert correct parent-child links
+        // Shows that propagation occurred
+
+        Assert.assertEquals(httpGet.getSpanId(), secondURL.getParentSpanId());
+        Assert.assertEquals(firstURL.getSpanId(), httpGet.getParentSpanId());
+
+        Assert.assertEquals(HTTP_INTERNAL_ERROR, firstURL.getAttributes().get(HTTP_STATUS_CODE).intValue());
+        Assert.assertEquals(HttpMethod.GET, firstURL.getAttributes().get(HTTP_METHOD));
+        Assert.assertEquals("http", firstURL.getAttributes().get(HTTP_SCHEME));
+
+        Assert.assertEquals(HTTP_INTERNAL_ERROR, httpGet.getAttributes().get(HTTP_STATUS_CODE).intValue());
         Assert.assertEquals(HttpMethod.GET, httpGet.getAttributes().get(HTTP_METHOD));
         Assert.assertTrue(httpGet.getAttributes().get(HTTP_URL).contains("MpRestClientAsyncTestEndpoint"));
     }

@@ -19,6 +19,7 @@
  */
 package org.eclipse.microprofile.telemetry.tracing.tck.async;
 
+import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 import java.util.concurrent.Future;
@@ -35,6 +36,7 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.core.Application;
@@ -69,18 +71,21 @@ public class JaxRsClientAsyncTestEndpoint extends Application {
 
     @GET
     @Path("/jaxrsclient")
-    public Response getJax(@Context UriInfo uriInfo) {
+    public Response getJax(@Context UriInfo uriInfo, @QueryParam(value = "baggageValue") String baggageValue) {
         Assert.assertNotNull(Span.current());
 
-        try (Scope s = Baggage.builder().put("foo", "bar").build().makeCurrent()) {
+        try (Scope s = Baggage.builder().put("foo", baggageValue).build().makeCurrent()) {
             Baggage baggage = Baggage.current();
-            Assert.assertEquals("bar", baggage.getEntryValue("foo"));
+            Assert.assertEquals(baggageValue, baggage.getEntryValue("foo"));
 
             String url = new String(uriInfo.getAbsolutePath().toString());
-            url = url.replace("jaxrsclient", "jaxrstwo"); // The jaxrsclient will use the URL as given so it needs
-                                                          // the final part to be provided.
+            url = url.replace("jaxrsclient", "jaxrstwo"); // The jaxrsclient will use
+                                                          // the URL as given so it
+                                                          // needs
+            // the final part to be provided.
 
             String result = client.target(url)
+                    .queryParam("baggageValue", baggageValue)
                     .request(MediaType.TEXT_PLAIN)
                     .get(String.class);
             Assert.assertEquals(TEST_PASSED, result);
@@ -92,19 +97,22 @@ public class JaxRsClientAsyncTestEndpoint extends Application {
 
     @GET
     @Path("/jaxrsclientasync")
-    public Response getJaxAsync(@Context UriInfo uriInfo) {
+    public Response getJaxAsync(@Context UriInfo uriInfo, @QueryParam(value = "baggageValue") String baggageValue) {
         Assert.assertNotNull(Span.current());
 
-        try (Scope s = Baggage.builder().put("foo", "bar").build().makeCurrent()) {
+        try (Scope s = Baggage.builder().put("foo", baggageValue).build().makeCurrent()) {
             Baggage baggage = Baggage.current();
-            Assert.assertEquals("bar", baggage.getEntryValue("foo"));
+            Assert.assertEquals(baggageValue, baggage.getEntryValue("foo"));
 
             String url = new String(uriInfo.getAbsolutePath().toString());
-            url = url.replace("jaxrsclientasync", "jaxrstwo"); // The jaxrsclient will use the URL as given so it needs
-                                                               // the final part to be provided.
+            url = url.replace("jaxrsclientasync", "jaxrstwo"); // The jaxrsclient will
+                                                               // use the URL as given
+                                                               // so it needs
+            // the final part to be provided.
 
             Client client = ClientBuilder.newClient();
             Future<String> result = client.target(url)
+                    .queryParam("baggageValue", baggageValue)
                     .request(MediaType.TEXT_PLAIN)
                     .async()
                     .get(String.class);
@@ -120,16 +128,53 @@ public class JaxRsClientAsyncTestEndpoint extends Application {
         return Response.ok(Span.current().getSpanContext().getTraceId()).build();
     }
 
+    @GET
+    @Path("/jaxrsclienterror")
+    public Response getJaxError(@Context UriInfo uriInfo, @QueryParam(value = "baggageValue") String baggageValue) {
+        Assert.assertNotNull(Span.current());
+
+        try (Scope s = Baggage.builder().put("foo", baggageValue).build().makeCurrent()) {
+            Baggage baggage = Baggage.current();
+            Assert.assertEquals(baggageValue, baggage.getEntryValue("foo"));
+
+            String url = new String(uriInfo.getAbsolutePath().toString());
+            url = url.replace("jaxrsclienterror", "error"); // The jaxrsclient will
+                                                            // use the URL as given
+                                                            // so it needs
+            // the final part to be provided.
+
+            Client client = ClientBuilder.newClient();
+            Future<String> result = client.target(url)
+                    .request(MediaType.TEXT_PLAIN)
+                    .async()
+                    .get(String.class);
+            try {
+                Assert.assertEquals(result.get(10, SECONDS), HTTP_INTERNAL_ERROR);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            } finally {
+                client.close();
+            }
+        }
+        return Response.ok(Span.current().getSpanContext().getTraceId()).build();
+    }
+
     // A method to be called by JAX Clients
     // This method triggers span creation and span propagation is automatic.
     @GET
     @Path("/jaxrstwo")
-    public Response getJaxRsTwo() {
+    public Response getJaxRsTwo(@QueryParam(value = "baggageValue") String baggageValue) {
         Assert.assertNotNull(Span.current());
         Baggage baggage = Baggage.current();
         // Assert that Baggage is propagated from Jax Server to Jax Client
-        Assert.assertEquals("bar", baggage.getEntryValue("foo"));
+        Assert.assertEquals(baggageValue, baggage.getEntryValue("foo"));
         return Response.ok(TEST_PASSED).build();
+    }
+
+    @GET
+    @Path("/error")
+    public Response getError() {
+        return Response.serverError().build();
     }
 
 }
