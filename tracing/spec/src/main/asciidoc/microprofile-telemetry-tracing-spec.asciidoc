@@ -231,7 +231,7 @@ Failure to do so, may result in a different `Tracer` and incorrect handling of t
 
 Classes from the following API packages MUST be supported by implementations of this specification, though this specification does not prevent additional API classes from being supported. Implementations are allowed to pull in a more recent patch version of the API classes.
 
-### Tracing APIs
+==== Tracing APIs
 
 - https://www.javadoc.io/static/io.opentelemetry/opentelemetry-api/{otel-java-version}/io/opentelemetry/api/package-summary.html[io.opentelemetry.api] (except `GlobalOpenTelemetry`)
 - https://www.javadoc.io/static/io.opentelemetry/opentelemetry-api/{otel-java-version}/io/opentelemetry/api/trace/package-summary.html[io.opentelemetry.api.trace]
@@ -242,21 +242,21 @@ Classes from the following API packages MUST be supported by implementations of 
 `io.opentelemetry.api` does depend on https://www.javadoc.io/static/io.opentelemetry/opentelemetry-api/{otel-java-version}/io/opentelemetry/api/metrics/package-summary.html[io.opentelemetry.api.metrics] and https://www.javadoc.io/static/io.opentelemetry/opentelemetry-api/{otel-java-version}/io/opentelemetry/api/logs/package-summary.html[io.opentelemetry.api.logs], though this specification only supports the parts that relate to Tracing.
 ====
 
-### Baggage APIs
+==== Baggage APIs
 
 - https://www.javadoc.io/static/io.opentelemetry/opentelemetry-api/{otel-java-version}/io/opentelemetry/api/baggage/package-summary.html[io.opentelemetry.api.baggage]
 - https://www.javadoc.io/static/io.opentelemetry/opentelemetry-api/{otel-java-version}/io/opentelemetry/api/baggage/propagation/package-summary.html[io.opentelemetry.api.baggage.propagation]
 
-### Context API
+==== Context API
 
 - https://www.javadoc.io/static/io.opentelemetry/opentelemetry-context/{otel-java-version}/io/opentelemetry/context/package-summary.html[io.opentelemetry.context]
 - https://www.javadoc.io/static/io.opentelemetry/opentelemetry-context/{otel-java-version}/io/opentelemetry/context/propagation/package-summary.html[io.opentelemetry.context.propagation]
 
-### Resource SDK
+==== Resource SDK
 
 - https://www.javadoc.io/static/io.opentelemetry/opentelemetry-sdk-common/{otel-java-version}/io/opentelemetry/sdk/resources/package-summary.html[io.opentelemetry.sdk.resources]
 
-### Autoconfigure SPI
+==== Autoconfigure SPI
 
 This is the programmatic interface that allows users to register extensions when using the SDK Autoconfigure Extension (which we use for configuration). 
 
