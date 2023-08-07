@@ -271,7 +271,7 @@ The above packages have dependencies on the following packages which must be sup
   - https://www.javadoc.io/static/io.opentelemetry/opentelemetry-sdk-trace/{otel-java-version}/io/opentelemetry/sdk/trace/samplers/package-summary.html[io.opentelemetry.sdk.trace.samplers]
   - https://www.javadoc.io/static/io.opentelemetry/opentelemetry-sdk-common/{otel-java-version}/io/opentelemetry/sdk/common/package-summary.html[io.opentelemetry.sdk.common]
 
-==== `WithSpan` annotation
+==== `WithSpan` Annotations
 
 - https://www.javadoc.io/doc/io.opentelemetry.instrumentation/opentelemetry-instrumentation-annotations/latest/io/opentelemetry/instrumentation/annotations/package-summary.html[io.opentelemetry.instrumentation.annotations] (`WithSpan` and `SpanAttribute` only)
 
