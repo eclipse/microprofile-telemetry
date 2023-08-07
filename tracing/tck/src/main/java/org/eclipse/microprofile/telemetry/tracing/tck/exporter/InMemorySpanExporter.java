@@ -22,6 +22,7 @@ package org.eclipse.microprofile.telemetry.tracing.tck.exporter;
 
 import static java.util.Comparator.comparingLong;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static java.util.function.Predicate.not;
 
 import java.util.Collection;
 import java.util.List;
@@ -35,6 +36,7 @@ import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.sdk.common.CompletableResultCode;
 import io.opentelemetry.sdk.trace.data.SpanData;
 import io.opentelemetry.sdk.trace.export.SpanExporter;
+import io.opentelemetry.semconv.trace.attributes.SemanticAttributes;
 import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
@@ -68,8 +70,25 @@ public class InMemorySpanExporter implements SpanExporter {
         if (isStopped) {
             return CompletableResultCode.ofFailure();
         }
-        finishedSpanItems.addAll(spans);
+        spans.stream()
+                .filter(not(InMemorySpanExporter::isArquillianSpan))
+                .forEach(finishedSpanItems::add);
         return CompletableResultCode.ofSuccess();
+    }
+
+    private static boolean isArquillianSpan(SpanData span) {
+        String path = span.getAttributes().get(SemanticAttributes.HTTP_ROUTE);
+        if (path == null) {
+            path = span.getAttributes().get(SemanticAttributes.HTTP_TARGET);
+        }
+        if (path != null
+                && (path.contains("/ArquillianServletRunner")
+                        || path.contains("/ArquillianRESTRunnerEE9")
+                        || path.contains("/ArquillianServletRunnerEE9"))) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @Override
