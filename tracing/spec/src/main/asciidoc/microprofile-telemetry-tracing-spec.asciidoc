@@ -493,3 +493,4 @@ Consume the OpenTelemetry Java release link:https://github.com/open-telemetry/op
 - TCK: Implement tests in a way that is not timestamp dependent (link:https://github.com/eclipse/microprofile-telemetry/issues/44[44])
 - TCK: TCK RestClientSpanTest Span Name Doesn't Follow Semantic Conv (link:https://github.com/eclipse/microprofile-telemetry/issues/86[86])
 - TCK: Adding missing TCKs (link:https://github.com/eclipse/microprofile-telemetry/issues/89[89])
+- TCK: TCK cannot be run using the Arquillian REST protocol (link:https://github.com/eclipse/microprofile-telemetry/issues/72[72])
