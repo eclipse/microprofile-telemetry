@@ -60,12 +60,12 @@ class TestApplication extends Arquillian {
         Assert.assertEquals(response.getStatus(), HttpURLConnection.HTTP_OK);
     }
 
-    @ApplicationPath("/rest")
+    @ApplicationPath("/")
     public static class RestApplication extends Application {
 
     }
 
-    @Path("/")
+    @Path("/rest")
     public static class TestEndpoint {
         @Inject
         HelloBean helloBean;

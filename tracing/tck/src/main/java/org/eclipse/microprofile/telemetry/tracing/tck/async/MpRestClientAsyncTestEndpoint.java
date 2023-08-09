@@ -29,15 +29,10 @@ import org.testng.Assert;
 import io.opentelemetry.api.baggage.Baggage;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.context.Scope;
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
 import jakarta.inject.Inject;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
-import jakarta.ws.rs.client.Client;
-import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.core.Application;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.Response;
@@ -51,9 +46,6 @@ public class MpRestClientAsyncTestEndpoint extends Application {
 
     @Inject
     private InMemorySpanExporter spanExporter;
-
-    @Inject
-    private HttpServletRequest request;
 
     @GET
     @Path("/mpclient")
