@@ -228,6 +228,65 @@ Implementations MAY support:
 To obtain the `Tracer` with the OpenTelemetry API, the consumer must use the exact same instrumentation name and version used by the implementation.
 Failure to do so, may result in a different `Tracer` and incorrect handling of the OpenTelemetry data.
 
+
+=== Supported OpenTelemetry API Classes
+
+Classes from the following API packages MUST be supported by implementations of this specification, though this specification does not prevent additional API classes from being supported. Implementations are allowed to pull in a more recent patch version of the API classes.
+
+==== Tracing APIs
+
+- https://www.javadoc.io/static/io.opentelemetry/opentelemetry-api/{otel-java-version}/io/opentelemetry/api/package-summary.html[io.opentelemetry.api] (except `GlobalOpenTelemetry`)
+- https://www.javadoc.io/static/io.opentelemetry/opentelemetry-api/{otel-java-version}/io/opentelemetry/api/trace/package-summary.html[io.opentelemetry.api.trace]
+- https://www.javadoc.io/static/io.opentelemetry/opentelemetry-api/{otel-java-version}/io/opentelemetry/api/common/package-summary.html[io.opentelemetry.api.common]
+
+[NOTE]
+====
+`io.opentelemetry.api` does depend on https://www.javadoc.io/static/io.opentelemetry/opentelemetry-api/{otel-java-version}/io/opentelemetry/api/metrics/package-summary.html[io.opentelemetry.api.metrics] and https://www.javadoc.io/static/io.opentelemetry/opentelemetry-api/{otel-java-version}/io/opentelemetry/api/logs/package-summary.html[io.opentelemetry.api.logs], though this specification only supports the parts that relate to Tracing.
+====
+
+==== Baggage APIs
+
+- https://www.javadoc.io/static/io.opentelemetry/opentelemetry-api/{otel-java-version}/io/opentelemetry/api/baggage/package-summary.html[io.opentelemetry.api.baggage]
+- https://www.javadoc.io/static/io.opentelemetry/opentelemetry-api/{otel-java-version}/io/opentelemetry/api/baggage/propagation/package-summary.html[io.opentelemetry.api.baggage.propagation]
+
+==== Context API
+
+- https://www.javadoc.io/static/io.opentelemetry/opentelemetry-context/{otel-java-version}/io/opentelemetry/context/package-summary.html[io.opentelemetry.context]
+- https://www.javadoc.io/static/io.opentelemetry/opentelemetry-context/{otel-java-version}/io/opentelemetry/context/propagation/package-summary.html[io.opentelemetry.context.propagation]
+
+==== Resource SDK
+
+- https://www.javadoc.io/static/io.opentelemetry/opentelemetry-sdk-common/{otel-java-version}/io/opentelemetry/sdk/resources/package-summary.html[io.opentelemetry.sdk.resources]
+
+==== Autoconfigure SPI
+
+This is the programmatic interface that allows users to register extensions when using the SDK Autoconfigure Extension (which we use for configuration). 
+
+- https://www.javadoc.io/static/io.opentelemetry/opentelemetry-sdk-extension-autoconfigure-spi/{otel-java-version}/io/opentelemetry/sdk/autoconfigure/spi/package-summary.html[io.opentelemetry.sdk.autoconfigure.spi]
+- https://www.javadoc.io/static/io.opentelemetry/opentelemetry-sdk-extension-autoconfigure-spi/{otel-java-version}/io/opentelemetry/sdk/autoconfigure/spi/traces/package-summary.html[io.opentelemetry.sdk.autoconfigure.spi.traces]
+
+The above packages have dependencies on the following packages which must be supported to the extent that they are required by the Autoconfigure SPI classes:
+
+  - https://www.javadoc.io/static/io.opentelemetry/opentelemetry-sdk-trace/{otel-java-version}/io/opentelemetry/sdk/trace/package-summary.html[io.opentelemetry.sdk.trace]
+  - https://www.javadoc.io/static/io.opentelemetry/opentelemetry-sdk-trace/{otel-java-version}/io/opentelemetry/sdk/trace/data/package-summary.html[io.opentelemetry.sdk.trace.data]
+  - https://www.javadoc.io/static/io.opentelemetry/opentelemetry-sdk-trace/{otel-java-version}/io/opentelemetry/sdk/trace/export/package-summary.html[io.opentelemetry.sdk.trace.export]
+  - https://www.javadoc.io/static/io.opentelemetry/opentelemetry-sdk-trace/{otel-java-version}/io/opentelemetry/sdk/trace/samplers/package-summary.html[io.opentelemetry.sdk.trace.samplers]
+  - https://www.javadoc.io/static/io.opentelemetry/opentelemetry-sdk-common/{otel-java-version}/io/opentelemetry/sdk/common/package-summary.html[io.opentelemetry.sdk.common]
+
+==== Annotations
+
+- https://www.javadoc.io/doc/io.opentelemetry.instrumentation/opentelemetry-instrumentation-annotations/latest/io/opentelemetry/instrumentation/annotations/package-summary.html[io.opentelemetry.instrumentation.annotations] (`WithSpan` and `SpanAttribute` only)
+
+==== Semantic Conventions
+
+[NOTE]
+====
+These packages are not stable and may be subject to breaking changes in future releases.
+====
+
+- https://www.javadoc.io/static/io.opentelemetry/opentelemetry-semconv/{otel-java-version}-alpha/io/opentelemetry/semconv/trace/attributes/package-summary.html[io.opentelemetry.semconv.trace.attributes]
+- https://www.javadoc.io/static/io.opentelemetry/opentelemetry-semconv/{otel-java-version}-alpha/io/opentelemetry/semconv/resource/attributes/package-summary.html[io.opentelemetry.semconv.resource.attributes]
+
 === Configuration
 OpenTelemetry must be configured by MicroProfile Config following the semantics of configuration properties detailed in https://github.com/open-telemetry/opentelemetry-java/tree/v{otel-java-version}/sdk-extensions/autoconfigure[OpenTelemetry SDK Autoconfigure {otel-java-version}].
 
