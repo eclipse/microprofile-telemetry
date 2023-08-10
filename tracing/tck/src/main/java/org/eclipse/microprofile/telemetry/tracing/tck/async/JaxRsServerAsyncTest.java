@@ -25,7 +25,6 @@ import static org.testng.Assert.assertEquals;
 
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.List;
 import java.util.function.Function;
 
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
@@ -45,12 +44,10 @@ import org.testng.annotations.Test;
 
 import io.opentelemetry.api.baggage.Baggage;
 import io.opentelemetry.api.trace.SpanKind;
-import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.context.Scope;
 import io.opentelemetry.sdk.autoconfigure.spi.traces.ConfigurableSpanExporterProvider;
 import io.opentelemetry.sdk.trace.data.SpanData;
 import jakarta.inject.Inject;
-import jakarta.servlet.http.HttpServletRequest;
 
 class JaxRsServerAsyncTest extends Arquillian {
 
@@ -63,7 +60,7 @@ class JaxRsServerAsyncTest extends Arquillian {
                 .add("otel.traces.exporter", "in-memory");
 
         return ShrinkWrap.create(WebArchive.class)
-                .addClasses(InMemorySpanExporter.class, InMemorySpanExporterProvider.class, HttpServletRequest.class,
+                .addClasses(InMemorySpanExporter.class, InMemorySpanExporterProvider.class,
                         JaxRsServerAsyncTestEndpointClient.class, JaxRsServerAsyncTestEndpoint.class)
                 .addAsLibrary(TestLibraries.AWAITILITY_LIB)
                 .addAsServiceProvider(ConfigurableSpanExporterProvider.class, InMemorySpanExporterProvider.class)
@@ -72,9 +69,6 @@ class JaxRsServerAsyncTest extends Arquillian {
     }
 
     private static final String TEST_VALUE = "test.value";
-
-    @Inject
-    private Tracer tracer;
 
     @Inject
     private InMemorySpanExporter spanExporter;
@@ -118,8 +112,6 @@ class JaxRsServerAsyncTest extends Arquillian {
                 throw new RuntimeException(e);
             }
         }
-
-        List<SpanData> spanData = spanExporter.getFinishedSpanItems(3);
 
         // Assert correct parent-child links
         // Shows that propagation occurred
