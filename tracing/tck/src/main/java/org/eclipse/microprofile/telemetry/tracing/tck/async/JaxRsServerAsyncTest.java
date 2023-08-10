@@ -25,6 +25,7 @@ import static org.testng.Assert.assertEquals;
 
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.List;
 import java.util.function.Function;
 
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
@@ -112,6 +113,8 @@ class JaxRsServerAsyncTest extends Arquillian {
                 throw new RuntimeException(e);
             }
         }
+
+        List<SpanData> spanData = spanExporter.getFinishedSpanItems(3);
 
         // Assert correct parent-child links
         // Shows that propagation occurred
