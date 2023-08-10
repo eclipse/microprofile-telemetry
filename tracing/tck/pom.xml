@@ -30,7 +30,7 @@
             <dependency>
                 <groupId>org.eclipse.microprofile</groupId>
                 <artifactId>microprofile-tck-bom</artifactId>
-                <version>3.0</version>
+                <version>3.2</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -47,8 +47,12 @@
             <artifactId>microprofile-rest-client-api</artifactId>
         </dependency>     
         <dependency>
-            <groupId>jakarta.platform</groupId>
-            <artifactId>jakarta.jakartaee-core-api</artifactId>
+                <groupId>jakarta.enterprise</groupId>
+                <artifactId>jakarta.enterprise.cdi-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.ws.rs</groupId>
+            <artifactId>jakarta.ws.rs-api</artifactId>
         </dependency>
         <dependency>
             <groupId>io.opentelemetry</groupId>
