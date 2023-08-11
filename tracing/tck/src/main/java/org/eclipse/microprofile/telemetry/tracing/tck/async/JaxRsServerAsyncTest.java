@@ -124,7 +124,7 @@ class JaxRsServerAsyncTest extends Arquillian {
                         .baseUri(url.toURI())
                         .build(JaxRsServerAsyncTestEndpointClient.class);
                 String response = requestFunction.apply(client);
-                Assert.assertEquals("OK", response);
+                Assert.assertEquals(response, "OK");
             } catch (URISyntaxException e) {
                 throw new RuntimeException(e);
             }
@@ -171,7 +171,7 @@ class JaxRsServerAsyncTest extends Arquillian {
                     requestFunction.apply(client);
                     fail("Client did not throw an exception");
                 } catch (WebApplicationException e) {
-                    assertEquals(HttpURLConnection.HTTP_BAD_REQUEST, e.getResponse().getStatus());
+                    assertEquals(e.getResponse().getStatus(), HttpURLConnection.HTTP_BAD_REQUEST);
                     readErrorSpans();
                 }
             } catch (URISyntaxException e) {
@@ -193,8 +193,8 @@ class JaxRsServerAsyncTest extends Arquillian {
         assertEquals(clientSpan.getSpanId(), serverSpan.getParentSpanId());
 
         // Assert the status code for the client and server spans
-        assertEquals(HTTP_BAD_REQUEST, serverSpan.getAttributes().get(HTTP_STATUS_CODE).intValue());
-        assertEquals(HTTP_BAD_REQUEST, clientSpan.getAttributes().get(HTTP_STATUS_CODE).intValue());
+        assertEquals(serverSpan.getAttributes().get(HTTP_STATUS_CODE).intValue(), HTTP_BAD_REQUEST);
+        assertEquals(clientSpan.getAttributes().get(HTTP_STATUS_CODE).intValue(), HTTP_BAD_REQUEST);
 
         // Assert that the expected headers were used
         Assert.assertTrue(serverSpan.getAttributes().get(BAGGAGE_VALUE_ATTR).contains(TEST_VALUE));

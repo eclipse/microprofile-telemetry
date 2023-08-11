@@ -80,7 +80,7 @@ public class JaxRsClientAsyncTestEndpoint extends Application {
 
         try (Scope s = Baggage.builder().put("foo", baggageValue).build().makeCurrent()) {
             Baggage baggage = Baggage.current();
-            Assert.assertEquals(baggageValue, baggage.getEntryValue("foo"));
+            Assert.assertEquals(baggage.getEntryValue("foo"), baggageValue);
 
             String url = new String(uriInfo.getAbsolutePath().toString());
             // Use our own URL to work out the URL of the other test endpoint
@@ -90,7 +90,7 @@ public class JaxRsClientAsyncTestEndpoint extends Application {
                     .queryParam("baggageValue", baggageValue)
                     .request(MediaType.TEXT_PLAIN)
                     .get(String.class);
-            Assert.assertEquals(TEST_PASSED, result);
+            Assert.assertEquals(result, TEST_PASSED);
         } finally {
             client.close();
         }
@@ -104,7 +104,7 @@ public class JaxRsClientAsyncTestEndpoint extends Application {
 
         try (Scope s = Baggage.builder().put("foo", baggageValue).build().makeCurrent()) {
             Baggage baggage = Baggage.current();
-            Assert.assertEquals(baggageValue, baggage.getEntryValue("foo"));
+            Assert.assertEquals(baggage.getEntryValue("foo"), baggageValue);
 
             String url = new String(uriInfo.getAbsolutePath().toString());
             // Use our own URL to work out the URL of the other test endpoint
@@ -118,7 +118,7 @@ public class JaxRsClientAsyncTestEndpoint extends Application {
                     .get(String.class);
             try {
                 String resultValue = result.get(10, SECONDS);
-                Assert.assertEquals(TEST_PASSED, resultValue);
+                Assert.assertEquals(resultValue, TEST_PASSED);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             } finally {
@@ -135,7 +135,7 @@ public class JaxRsClientAsyncTestEndpoint extends Application {
 
         try (Scope s = Baggage.builder().put("foo", baggageValue).build().makeCurrent()) {
             Baggage baggage = Baggage.current();
-            Assert.assertEquals(baggageValue, baggage.getEntryValue("foo"));
+            Assert.assertEquals(baggage.getEntryValue("foo"), baggageValue);
 
             String url = new String(uriInfo.getAbsolutePath().toString());
             // Use our own URL to work out the URL of the other test endpoint
@@ -152,7 +152,7 @@ public class JaxRsClientAsyncTestEndpoint extends Application {
             } catch (ExecutionException e) {
                 // Expected because server returned BAD_REQUEST
                 WebApplicationException webEx = (WebApplicationException) e.getCause();
-                assertEquals(HTTP_BAD_REQUEST, webEx.getResponse().getStatus());
+                assertEquals(webEx.getResponse().getStatus(), HTTP_BAD_REQUEST);
             } catch (Exception e) {
                 // Wrap and throw unexpected exceptions
                 throw new RuntimeException(e);
@@ -171,7 +171,7 @@ public class JaxRsClientAsyncTestEndpoint extends Application {
         Assert.assertNotNull(Span.current());
         Baggage baggage = Baggage.current();
         // Assert that Baggage is propagated from Jax Server to Jax Client
-        Assert.assertEquals(baggageValue, baggage.getEntryValue("foo"));
+        Assert.assertEquals(baggage.getEntryValue("foo"), baggageValue);
         return Response.ok(TEST_PASSED).build();
     }
 

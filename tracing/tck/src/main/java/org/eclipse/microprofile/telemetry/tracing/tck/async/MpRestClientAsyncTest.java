@@ -134,12 +134,12 @@ public class MpRestClientAsyncTest extends Arquillian {
         Assert.assertEquals(httpGet.getSpanId(), secondURL.getParentSpanId());
         Assert.assertEquals(firstURL.getSpanId(), httpGet.getParentSpanId());
 
-        Assert.assertEquals(HTTP_OK, firstURL.getAttributes().get(HTTP_STATUS_CODE).intValue());
-        Assert.assertEquals(HttpMethod.GET, firstURL.getAttributes().get(HTTP_METHOD));
-        Assert.assertEquals("http", firstURL.getAttributes().get(HTTP_SCHEME));
+        Assert.assertEquals(firstURL.getAttributes().get(HTTP_STATUS_CODE).intValue(), HTTP_OK);
+        Assert.assertEquals(firstURL.getAttributes().get(HTTP_METHOD), HttpMethod.GET);
+        Assert.assertEquals(firstURL.getAttributes().get(HTTP_SCHEME), "http");
 
-        Assert.assertEquals(HTTP_OK, httpGet.getAttributes().get(HTTP_STATUS_CODE).intValue());
-        Assert.assertEquals(HttpMethod.GET, httpGet.getAttributes().get(HTTP_METHOD));
+        Assert.assertEquals(httpGet.getAttributes().get(HTTP_STATUS_CODE).intValue(), HTTP_OK);
+        Assert.assertEquals(httpGet.getAttributes().get(HTTP_METHOD), HttpMethod.GET);
         Assert.assertTrue(httpGet.getAttributes().get(HTTP_URL).contains("MpRestClientAsyncTestEndpoint"));
     }
 
@@ -169,18 +169,18 @@ public class MpRestClientAsyncTest extends Arquillian {
         Assert.assertEquals(firstURL.getSpanId(), httpGet.getParentSpanId());
 
         // requestMpClientError() returns a BAD_REQUEST status
-        Assert.assertEquals(HTTP_BAD_REQUEST, secondURL.getAttributes().get(HTTP_STATUS_CODE).intValue());
-        Assert.assertEquals(HttpMethod.GET, secondURL.getAttributes().get(HTTP_METHOD));
-        Assert.assertEquals("http", secondURL.getAttributes().get(HTTP_SCHEME));
-        
+        Assert.assertEquals(secondURL.getAttributes().get(HTTP_STATUS_CODE).intValue(), HTTP_BAD_REQUEST);
+        Assert.assertEquals(secondURL.getAttributes().get(HTTP_METHOD), HttpMethod.GET);
+        Assert.assertEquals(secondURL.getAttributes().get(HTTP_SCHEME), "http");
+
         // which is received by the client
-        Assert.assertEquals(HTTP_BAD_REQUEST, httpGet.getAttributes().get(HTTP_STATUS_CODE).intValue());
-        Assert.assertEquals(HttpMethod.GET, httpGet.getAttributes().get(HTTP_METHOD));
+        Assert.assertEquals(httpGet.getAttributes().get(HTTP_STATUS_CODE).intValue(), HTTP_BAD_REQUEST);
+        Assert.assertEquals(httpGet.getAttributes().get(HTTP_METHOD), HttpMethod.GET);
         Assert.assertTrue(httpGet.getAttributes().get(HTTP_URL).contains("MpRestClientAsyncTestEndpoint"));
-        
+
         // Exception is handled in the receiving code so the status code here should be OK
-        Assert.assertEquals(HTTP_OK, firstURL.getAttributes().get(HTTP_STATUS_CODE).intValue());
-        Assert.assertEquals(HttpMethod.GET, firstURL.getAttributes().get(HTTP_METHOD));
-        Assert.assertEquals("http", firstURL.getAttributes().get(HTTP_SCHEME));
+        Assert.assertEquals(firstURL.getAttributes().get(HTTP_STATUS_CODE).intValue(), HTTP_OK);
+        Assert.assertEquals(firstURL.getAttributes().get(HTTP_METHOD), HttpMethod.GET);
+        Assert.assertEquals(firstURL.getAttributes().get(HTTP_SCHEME), "http");
     }
 }
