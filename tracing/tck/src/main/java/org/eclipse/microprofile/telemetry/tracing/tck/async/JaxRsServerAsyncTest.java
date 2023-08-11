@@ -20,9 +20,14 @@
 
 package org.eclipse.microprofile.telemetry.tracing.tck.async;
 
+import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.HTTP_STATUS_CODE;
+import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.HTTP_TARGET;
+import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static org.eclipse.microprofile.telemetry.tracing.tck.async.JaxRsServerAsyncTestEndpoint.BAGGAGE_VALUE_ATTR;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.fail;
 
+import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
@@ -49,6 +54,7 @@ import io.opentelemetry.context.Scope;
 import io.opentelemetry.sdk.autoconfigure.spi.traces.ConfigurableSpanExporterProvider;
 import io.opentelemetry.sdk.trace.data.SpanData;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.WebApplicationException;
 
 class JaxRsServerAsyncTest extends Arquillian {
 
@@ -70,6 +76,7 @@ class JaxRsServerAsyncTest extends Arquillian {
     }
 
     private static final String TEST_VALUE = "test.value";
+    public static final String QUERY_VALUE = "bar";
 
     @Inject
     private InMemorySpanExporter spanExporter;
@@ -87,12 +94,22 @@ class JaxRsServerAsyncTest extends Arquillian {
 
     @Test(groups = "optional-jaxrs-tests")
     public void testJaxRsServerAsyncCompletionStage() {
-        doAsyncTest(JaxRsServerAsyncTestEndpointClient::getCompletionStage);
+        doAsyncTest((client) -> client.getCompletionStage(QUERY_VALUE));
+    }
+
+    @Test(groups = "optional-jaxrs-tests")
+    public void testJaxRsServerAsyncCompletionStageError() {
+        doErrorAsyncTest((client) -> client.getCompletionStageError(QUERY_VALUE));
     }
 
     @Test(groups = "optional-jaxrs-tests")
     public void testJaxRsServerAsyncSuspend() {
-        doAsyncTest(JaxRsServerAsyncTestEndpointClient::getSuspend);
+        doAsyncTest((client) -> client.getSuspend(QUERY_VALUE));
+    }
+
+    @Test(groups = "optional-jaxrs-tests")
+    public void testJaxRsServerAsyncSuspendError() {
+        doErrorAsyncTest((client) -> client.getSuspendError(QUERY_VALUE));
     }
 
     private void doAsyncTest(Function<JaxRsServerAsyncTestEndpointClient, String> requestFunction) {
@@ -106,9 +123,8 @@ class JaxRsServerAsyncTest extends Arquillian {
                 JaxRsServerAsyncTestEndpointClient client = RestClientBuilder.newBuilder()
                         .baseUri(url.toURI())
                         .build(JaxRsServerAsyncTestEndpointClient.class);
-
                 String response = requestFunction.apply(client);
-                Assert.assertEquals("OK", response);
+                Assert.assertEquals(response, "OK");
             } catch (URISyntaxException e) {
                 throw new RuntimeException(e);
             }
@@ -130,6 +146,64 @@ class JaxRsServerAsyncTest extends Arquillian {
 
         // Assert baggage propagated on subtask span
         Assert.assertTrue(subtaskSpan.getAttributes().get(BAGGAGE_VALUE_ATTR).contains(TEST_VALUE));
+
+        // Assert that query parameter was passed correctly
+        Assert.assertTrue(serverSpan.getAttributes().get(HTTP_TARGET).contains(QUERY_VALUE));
+
+        // Assert that the server span finished after the subtask span
+        // Even though the resource method returned quickly, the span should not end until the response is actually
+        // returned
+        Assert.assertTrue(serverSpan.getEndEpochNanos() >= subtaskSpan.getEndEpochNanos());
+    }
+
+    private void doErrorAsyncTest(Function<JaxRsServerAsyncTestEndpointClient, String> requestFunction) {
+        Baggage baggage = Baggage.builder()
+                .put(JaxRsServerAsyncTestEndpoint.BAGGAGE_KEY, TEST_VALUE)
+                .build();
+
+        try (Scope s = baggage.makeCurrent()) {
+            // Make the request to the test endpoint
+            try {
+                JaxRsServerAsyncTestEndpointClient client = RestClientBuilder.newBuilder()
+                        .baseUri(url.toURI())
+                        .build(JaxRsServerAsyncTestEndpointClient.class);
+                try {
+                    requestFunction.apply(client);
+                    fail("Client did not throw an exception");
+                } catch (WebApplicationException e) {
+                    assertEquals(e.getResponse().getStatus(), HttpURLConnection.HTTP_BAD_REQUEST);
+                    readErrorSpans();
+                }
+            } catch (URISyntaxException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    private void readErrorSpans() {
+        List<SpanData> spanData = spanExporter.getFinishedSpanItems(3);
+
+        SpanData subtaskSpan = spanExporter.getFirst(SpanKind.INTERNAL);
+        SpanData clientSpan = spanExporter.getFirst(SpanKind.CLIENT);
+        SpanData serverSpan = spanExporter.getFirst(SpanKind.SERVER);
+
+        // Assert correct parent-child links
+        // Shows that propagation occurred
+        assertEquals(serverSpan.getSpanId(), subtaskSpan.getParentSpanId());
+        assertEquals(clientSpan.getSpanId(), serverSpan.getParentSpanId());
+
+        // Assert the status code for the client and server spans
+        assertEquals(serverSpan.getAttributes().get(HTTP_STATUS_CODE).intValue(), HTTP_BAD_REQUEST);
+        assertEquals(clientSpan.getAttributes().get(HTTP_STATUS_CODE).intValue(), HTTP_BAD_REQUEST);
+
+        // Assert that the expected headers were used
+        Assert.assertTrue(serverSpan.getAttributes().get(BAGGAGE_VALUE_ATTR).contains(TEST_VALUE));
+
+        // Assert baggage propagated on subtask span
+        Assert.assertTrue(subtaskSpan.getAttributes().get(BAGGAGE_VALUE_ATTR).contains(TEST_VALUE));
+
+        // Assert that query parameter was passed correctly
+        Assert.assertTrue(serverSpan.getAttributes().get(HTTP_TARGET).contains(QUERY_VALUE));
 
         // Assert that the server span finished after the subtask span
         // Even though the resource method returned quickly, the span should not end until the response is actually

@@ -22,6 +22,7 @@ package org.eclipse.microprofile.telemetry.tracing.tck.async;
 
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.QueryParam;
 
 /**
  * Client interface for {@link JaxRsServerAsyncTestEndpoint}
@@ -31,10 +32,17 @@ public interface JaxRsServerAsyncTestEndpointClient {
 
     @GET
     @Path("completionstage")
-    public String getCompletionStage();
+    public String getCompletionStage(@QueryParam(value = "baggageValue") String baggageValue);
+
+    @GET
+    @Path("completionstageerror")
+    public String getCompletionStageError(@QueryParam(value = "baggageValue") String baggageValue);
 
     @GET
     @Path("suspend")
-    public String getSuspend();
+    public String getSuspend(@QueryParam(value = "baggageValue") String baggageValue);
 
+    @GET
+    @Path("suspenderror")
+    public String getSuspendError(@QueryParam(value = "baggageValue") String baggageValue);
 }

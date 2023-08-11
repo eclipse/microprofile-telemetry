@@ -19,6 +19,9 @@
  */
 package org.eclipse.microprofile.telemetry.tracing.tck.async;
 
+import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
+import static org.testng.Assert.assertEquals;
+
 import java.net.URI;
 import java.util.concurrent.CompletionStage;
 
@@ -33,6 +36,8 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Application;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.Response;
@@ -43,6 +48,7 @@ import jakarta.ws.rs.core.UriInfo;
 public class MpRestClientAsyncTestEndpoint extends Application {
 
     public static final String TEST_PASSED = "Test Passed";
+    public static final String TEST_VALUE = "TEST_VALUE";
 
     @Inject
     private InMemorySpanExporter spanExporter;
@@ -69,7 +75,7 @@ public class MpRestClientAsyncTestEndpoint extends Application {
                     .baseUri(baseUri)
                     .build(MpClientTwo.class);
 
-            String result = mpClientTwo.requestMpClient();
+            String result = mpClientTwo.requestMpClient(TEST_VALUE);
             Assert.assertEquals(TEST_PASSED, result);
         }
         return Response.ok(Span.current().getSpanContext().getTraceId()).build();
@@ -97,16 +103,69 @@ public class MpRestClientAsyncTestEndpoint extends Application {
                     .baseUri(baseUri)
                     .build(MpClientTwoAsync.class);
 
-            String result = mpClientTwo.requestMpClient().toCompletableFuture().join();
+            String result = mpClientTwo.requestMpClient(TEST_VALUE).toCompletableFuture().join();
             Assert.assertEquals(TEST_PASSED, result);
         }
         return Response.ok(Span.current().getSpanContext().getTraceId()).build();
     }
 
     @GET
-    @Path("requestMpClient")
-    public Response requestMpClient() {
+    @Path("/mpclientasyncerror")
+    public Response requestMpClientAsyncError(@Context UriInfo uriInfo) {
         Assert.assertNotNull(Span.current());
+
+        try (Scope s = Baggage.builder().put("foo", "bar").build().makeCurrent()) {
+            Baggage baggage = Baggage.current();
+            Assert.assertEquals("bar", baggage.getEntryValue("foo"));
+
+            String baseUrl = uriInfo.getAbsolutePath().toString().replace("/mpclientasyncerror", "");
+            URI baseUri = null;
+            try {
+                baseUri = new URI(baseUrl);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
+            Assert.assertNotNull(Span.current());
+            MpClientTwoAsyncError mpClientTwoError = RestClientBuilder.newBuilder()
+                    .baseUri(baseUri)
+                    .build(MpClientTwoAsyncError.class);
+
+            String result = mpClientTwoError.requestMpClientError(TEST_VALUE)
+                    .exceptionally(e -> "Exception:" + extractResponseStatus(e))
+                    .toCompletableFuture()
+                    .join();
+
+            assertEquals("Exception:400", result);
+        }
+        return Response.ok(Span.current().getSpanContext().getTraceId()).build();
+    }
+
+    /**
+     * Search the cause chain of an exception to find a WebApplicationException and extract the status code
+     *
+     * @param originalException
+     *            the exception
+     * @return the status code
+     */
+    private static int extractResponseStatus(Throwable originalException) {
+        Throwable t = originalException;
+        // Look up the cause chain to find a WebApplicationException and extract the response
+        while (t != null && !(t instanceof WebApplicationException)) {
+            t = t.getCause();
+        }
+        if (t == null) {
+            throw new RuntimeException("Non WebApplicationException thrown", originalException);
+        }
+        WebApplicationException webEx = (WebApplicationException) t;
+        return webEx.getResponse().getStatus();
+    }
+
+    @GET
+    @Path("requestMpClient")
+    public Response requestMpClient(@QueryParam("value") String value) {
+        Assert.assertNotNull(Span.current());
+        Assert.assertEquals(TEST_VALUE, value);
         Baggage baggage = Baggage.current();
 
         Assert.assertEquals("bar", baggage.getEntryValue("foo"));
@@ -114,11 +173,23 @@ public class MpRestClientAsyncTestEndpoint extends Application {
         return Response.ok(TEST_PASSED).build();
     }
 
+    @GET
+    @Path("requestMpClientError")
+    public Response requestMpClientError(@QueryParam("value") String value) {
+        Assert.assertNotNull(Span.current());
+        Assert.assertEquals(TEST_VALUE, value);
+        Baggage baggage = Baggage.current();
+
+        Assert.assertEquals("bar", baggage.getEntryValue("foo"));
+
+        return Response.status(HTTP_BAD_REQUEST).build();
+    }
+
     public interface MpClientTwo {
 
         @GET
         @Path("requestMpClient")
-        public String requestMpClient();
+        public String requestMpClient(@QueryParam("value") String value);
 
     }
 
@@ -126,7 +197,15 @@ public class MpRestClientAsyncTestEndpoint extends Application {
 
         @GET
         @Path("requestMpClient")
-        public CompletionStage<String> requestMpClient();
+        public CompletionStage<String> requestMpClient(@QueryParam("value") String value);
+
+    }
+
+    public interface MpClientTwoAsyncError {
+
+        @GET
+        @Path("requestMpClientError")
+        public CompletionStage<String> requestMpClientError(@QueryParam("value") String value);
 
     }
 }
