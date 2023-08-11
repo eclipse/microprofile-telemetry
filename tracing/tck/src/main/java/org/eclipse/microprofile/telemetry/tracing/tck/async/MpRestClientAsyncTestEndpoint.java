@@ -22,7 +22,6 @@ package org.eclipse.microprofile.telemetry.tracing.tck.async;
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static org.testng.Assert.assertEquals;
 
-import java.net.HttpURLConnection;
 import java.net.URI;
 import java.util.concurrent.CompletionStage;
 
@@ -37,6 +36,7 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Application;
 import jakarta.ws.rs.core.Context;
@@ -48,6 +48,7 @@ import jakarta.ws.rs.core.UriInfo;
 public class MpRestClientAsyncTestEndpoint extends Application {
 
     public static final String TEST_PASSED = "Test Passed";
+    public static final String TEST_VALUE = "TEST_VALUE";
 
     @Inject
     private InMemorySpanExporter spanExporter;
@@ -74,7 +75,7 @@ public class MpRestClientAsyncTestEndpoint extends Application {
                     .baseUri(baseUri)
                     .build(MpClientTwo.class);
 
-            String result = mpClientTwo.requestMpClient();
+            String result = mpClientTwo.requestMpClient(TEST_VALUE);
             Assert.assertEquals(TEST_PASSED, result);
         }
         return Response.ok(Span.current().getSpanContext().getTraceId()).build();
@@ -102,7 +103,7 @@ public class MpRestClientAsyncTestEndpoint extends Application {
                     .baseUri(baseUri)
                     .build(MpClientTwoAsync.class);
 
-            String result = mpClientTwo.requestMpClient().toCompletableFuture().join();
+            String result = mpClientTwo.requestMpClient(TEST_VALUE).toCompletableFuture().join();
             Assert.assertEquals(TEST_PASSED, result);
         }
         return Response.ok(Span.current().getSpanContext().getTraceId()).build();
@@ -130,7 +131,7 @@ public class MpRestClientAsyncTestEndpoint extends Application {
                     .baseUri(baseUri)
                     .build(MpClientTwoAsyncError.class);
 
-            String result = mpClientTwoError.requestMpClientError()
+            String result = mpClientTwoError.requestMpClientError(TEST_VALUE)
                     .exceptionally(e -> "Exception:" + extractResponseStatus(e))
                     .toCompletableFuture()
                     .join();
@@ -162,8 +163,9 @@ public class MpRestClientAsyncTestEndpoint extends Application {
 
     @GET
     @Path("requestMpClient")
-    public Response requestMpClient() {
+    public Response requestMpClient(@QueryParam("value") String value) {
         Assert.assertNotNull(Span.current());
+        Assert.assertEquals(TEST_VALUE, value);
         Baggage baggage = Baggage.current();
 
         Assert.assertEquals("bar", baggage.getEntryValue("foo"));
@@ -173,8 +175,9 @@ public class MpRestClientAsyncTestEndpoint extends Application {
 
     @GET
     @Path("requestMpClientError")
-    public Response requestMpClientError() {
+    public Response requestMpClientError(@QueryParam("value") String value) {
         Assert.assertNotNull(Span.current());
+        Assert.assertEquals(TEST_VALUE, value);
         Baggage baggage = Baggage.current();
 
         Assert.assertEquals("bar", baggage.getEntryValue("foo"));
@@ -186,7 +189,7 @@ public class MpRestClientAsyncTestEndpoint extends Application {
 
         @GET
         @Path("requestMpClient")
-        public String requestMpClient();
+        public String requestMpClient(@QueryParam("value") String value);
 
     }
 
@@ -194,7 +197,7 @@ public class MpRestClientAsyncTestEndpoint extends Application {
 
         @GET
         @Path("requestMpClient")
-        public CompletionStage<String> requestMpClient();
+        public CompletionStage<String> requestMpClient(@QueryParam("value") String value);
 
     }
 
@@ -202,7 +205,7 @@ public class MpRestClientAsyncTestEndpoint extends Application {
 
         @GET
         @Path("requestMpClientError")
-        public CompletionStage<String> requestMpClientError();
+        public CompletionStage<String> requestMpClientError(@QueryParam("value") String value);
 
     }
 }
