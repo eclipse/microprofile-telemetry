@@ -19,6 +19,10 @@
  */
 package org.eclipse.microprofile.telemetry.tracing.tck.async;
 
+import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
+import static org.testng.Assert.assertEquals;
+
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.util.concurrent.CompletionStage;
 
@@ -33,6 +37,7 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Application;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.Response;
@@ -125,9 +130,34 @@ public class MpRestClientAsyncTestEndpoint extends Application {
                     .baseUri(baseUri)
                     .build(MpClientTwoAsyncError.class);
 
-            String result = mpClientTwoError.requestMpClientError().toCompletableFuture().join();
+            String result = mpClientTwoError.requestMpClientError()
+                    .exceptionally(e -> "Exception:" + extractResponseStatus(e))
+                    .toCompletableFuture()
+                    .join();
+
+            assertEquals("Exception:400", result);
         }
         return Response.ok(Span.current().getSpanContext().getTraceId()).build();
+    }
+
+    /**
+     * Search the cause chain of an exception to find a WebApplicationException and extract the status code
+     *
+     * @param originalException
+     *            the exception
+     * @return the status code
+     */
+    private static int extractResponseStatus(Throwable originalException) {
+        Throwable t = originalException;
+        // Look up the cause chain to find a WebApplicationException and extract the response
+        while (t != null && !(t instanceof WebApplicationException)) {
+            t = t.getCause();
+        }
+        if (t == null) {
+            throw new RuntimeException("Non WebApplicationException thrown", originalException);
+        }
+        WebApplicationException webEx = (WebApplicationException) t;
+        return webEx.getResponse().getStatus();
     }
 
     @GET
@@ -149,7 +179,7 @@ public class MpRestClientAsyncTestEndpoint extends Application {
 
         Assert.assertEquals("bar", baggage.getEntryValue("foo"));
 
-        return Response.serverError().build();
+        return Response.status(HTTP_BAD_REQUEST).build();
     }
 
     public interface MpClientTwo {

@@ -19,9 +19,12 @@
  */
 package org.eclipse.microprofile.telemetry.tracing.tck.async;
 
-import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
+import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.fail;
 
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import org.eclipse.microprofile.telemetry.tracing.tck.exporter.InMemorySpanExporter;
@@ -37,6 +40,7 @@ import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.core.Application;
@@ -79,10 +83,8 @@ public class JaxRsClientAsyncTestEndpoint extends Application {
             Assert.assertEquals(baggageValue, baggage.getEntryValue("foo"));
 
             String url = new String(uriInfo.getAbsolutePath().toString());
-            url = url.replace("jaxrsclient", "jaxrstwo"); // The jaxrsclient will use
-                                                          // the URL as given so it
-                                                          // needs
-            // the final part to be provided.
+            // Use our own URL to work out the URL of the other test endpoint
+            url = url.replace("jaxrsclient", "jaxrstwo");
 
             String result = client.target(url)
                     .queryParam("baggageValue", baggageValue)
@@ -105,10 +107,8 @@ public class JaxRsClientAsyncTestEndpoint extends Application {
             Assert.assertEquals(baggageValue, baggage.getEntryValue("foo"));
 
             String url = new String(uriInfo.getAbsolutePath().toString());
-            url = url.replace("jaxrsclientasync", "jaxrstwo"); // The jaxrsclient will
-                                                               // use the URL as given
-                                                               // so it needs
-            // the final part to be provided.
+            // Use our own URL to work out the URL of the other test endpoint
+            url = url.replace("jaxrsclientasync", "jaxrstwo");
 
             Client client = ClientBuilder.newClient();
             Future<String> result = client.target(url)
@@ -138,10 +138,8 @@ public class JaxRsClientAsyncTestEndpoint extends Application {
             Assert.assertEquals(baggageValue, baggage.getEntryValue("foo"));
 
             String url = new String(uriInfo.getAbsolutePath().toString());
-            url = url.replace("jaxrsclienterror", "error"); // The jaxrsclient will
-                                                            // use the URL as given
-                                                            // so it needs
-            // the final part to be provided.
+            // Use our own URL to work out the URL of the other test endpoint
+            url = url.replace("jaxrsclienterror", "error");
 
             Client client = ClientBuilder.newClient();
             Future<String> result = client.target(url)
@@ -149,8 +147,14 @@ public class JaxRsClientAsyncTestEndpoint extends Application {
                     .async()
                     .get(String.class);
             try {
-                Assert.assertEquals(result.get(10, SECONDS), HTTP_INTERNAL_ERROR);
+                result.get(10, SECONDS);
+                fail("Client didn't throw an exception");
+            } catch (ExecutionException e) {
+                // Expected because server returned BAD_REQUEST
+                WebApplicationException webEx = (WebApplicationException) e.getCause();
+                assertEquals(HTTP_BAD_REQUEST, webEx.getResponse().getStatus());
             } catch (Exception e) {
+                // Wrap and throw unexpected exceptions
                 throw new RuntimeException(e);
             } finally {
                 client.close();
@@ -174,7 +178,7 @@ public class JaxRsClientAsyncTestEndpoint extends Application {
     @GET
     @Path("/error")
     public Response getError() {
-        return Response.serverError().build();
+        return Response.status(HTTP_BAD_REQUEST).build();
     }
 
 }

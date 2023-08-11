@@ -22,10 +22,12 @@ package org.eclipse.microprofile.telemetry.tracing.tck.async;
 
 import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.HTTP_STATUS_CODE;
 import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.HTTP_TARGET;
-import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
+import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static org.eclipse.microprofile.telemetry.tracing.tck.async.JaxRsServerAsyncTestEndpoint.BAGGAGE_VALUE_ATTR;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.fail;
 
+import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
@@ -52,6 +54,7 @@ import io.opentelemetry.context.Scope;
 import io.opentelemetry.sdk.autoconfigure.spi.traces.ConfigurableSpanExporterProvider;
 import io.opentelemetry.sdk.trace.data.SpanData;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.WebApplicationException;
 
 class JaxRsServerAsyncTest extends Arquillian {
 
@@ -94,7 +97,7 @@ class JaxRsServerAsyncTest extends Arquillian {
         doAsyncTest((client) -> client.getCompletionStage(QUERY_VALUE));
     }
 
-    @Test(groups = "optional-jaxrs-tests") // , expectedExceptions = {jakarta.ws.rs.WebApplicationException.class})
+    @Test(groups = "optional-jaxrs-tests")
     public void testJaxRsServerAsyncCompletionStageError() {
         doErrorAsyncTest((client) -> client.getCompletionStageError(QUERY_VALUE));
     }
@@ -104,7 +107,7 @@ class JaxRsServerAsyncTest extends Arquillian {
         doAsyncTest((client) -> client.getSuspend(QUERY_VALUE));
     }
 
-    @Test(groups = "optional-jaxrs-tests") // , expectedExceptions = {jakarta.ws.rs.WebApplicationException.class})
+    @Test(groups = "optional-jaxrs-tests")
     public void testJaxRsServerAsyncSuspendError() {
         doErrorAsyncTest((client) -> client.getSuspendError(QUERY_VALUE));
     }
@@ -166,7 +169,9 @@ class JaxRsServerAsyncTest extends Arquillian {
                         .build(JaxRsServerAsyncTestEndpointClient.class);
                 try {
                     requestFunction.apply(client);
+                    fail("Client did not throw an exception");
                 } catch (WebApplicationException e) {
+                    assertEquals(HttpURLConnection.HTTP_BAD_REQUEST, e.getResponse().getStatus());
                     readErrorSpans();
                 }
             } catch (URISyntaxException e) {
@@ -187,8 +192,9 @@ class JaxRsServerAsyncTest extends Arquillian {
         assertEquals(serverSpan.getSpanId(), subtaskSpan.getParentSpanId());
         assertEquals(clientSpan.getSpanId(), serverSpan.getParentSpanId());
 
-        // Assert error is in span from method subtaskError()
-        assertEquals(HTTP_INTERNAL_ERROR, clientSpan.getAttributes().get(HTTP_STATUS_CODE).intValue());
+        // Assert the status code for the client and server spans
+        assertEquals(HTTP_BAD_REQUEST, serverSpan.getAttributes().get(HTTP_STATUS_CODE).intValue());
+        assertEquals(HTTP_BAD_REQUEST, clientSpan.getAttributes().get(HTTP_STATUS_CODE).intValue());
 
         // Assert that the expected headers were used
         Assert.assertTrue(serverSpan.getAttributes().get(BAGGAGE_VALUE_ATTR).contains(TEST_VALUE));

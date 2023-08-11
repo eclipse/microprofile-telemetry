@@ -40,6 +40,7 @@ import jakarta.ws.rs.container.AsyncResponse;
 import jakarta.ws.rs.container.Suspended;
 import jakarta.ws.rs.core.Application;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response.Status;
 
 /**
  * This endpoint is used to test MP Telemetry integration with async JAX-RS resource methods.
@@ -108,11 +109,7 @@ public class JaxRsServerAsyncTestEndpoint extends Application {
 
         // Call a subtask, propagating the context
         ExecutorService contextExecutor = Context.taskWrapping(managedExecutor);
-        CompletableFuture<Response> result = CompletableFuture.supplyAsync(this::subtaskError, contextExecutor)
-                .exceptionally(exception -> {
-                    System.err.println("exception: " + exception);
-                    return Response.ok().build();
-                });
+        CompletableFuture<Response> result = CompletableFuture.supplyAsync(this::subtaskError, contextExecutor);;
         // Return the async result
         return result;
     }
@@ -196,7 +193,9 @@ public class JaxRsServerAsyncTestEndpoint extends Application {
                 span.setAttribute(BAGGAGE_VALUE_ATTR, baggageValue);
             }
 
-            return Response.serverError().build();
+            // Return bad request error code so we can differentiate between an
+            // unexpected exception which would cause an internal server error
+            return Response.status(Status.BAD_REQUEST).build();
 
         } catch (InterruptedException e) {
             throw new RuntimeException(e);

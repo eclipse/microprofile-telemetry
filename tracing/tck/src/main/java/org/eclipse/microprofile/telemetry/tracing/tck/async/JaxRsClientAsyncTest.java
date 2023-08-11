@@ -25,7 +25,7 @@ import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.HTTP_
 import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.HTTP_STATUS_CODE;
 import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.HTTP_TARGET;
 import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.HTTP_URL;
-import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
+import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static java.net.HttpURLConnection.HTTP_OK;
 
 import java.net.URL;
@@ -50,7 +50,6 @@ import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.sdk.autoconfigure.spi.traces.ConfigurableSpanExporterProvider;
 import io.opentelemetry.sdk.trace.data.SpanData;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.GET;
 import jakarta.ws.rs.HttpMethod;
 
 public class JaxRsClientAsyncTest extends Arquillian {
@@ -139,10 +138,12 @@ public class JaxRsClientAsyncTest extends Arquillian {
         Assert.assertEquals(HttpMethod.GET, firstURL.getAttributes().get(HTTP_METHOD));
         Assert.assertEquals("http", firstURL.getAttributes().get(HTTP_SCHEME));
 
-        // Assert error is in spans from method getError() called by JAX Clients
-        Assert.assertEquals(HTTP_INTERNAL_ERROR, firstURL.getAttributes().get(HTTP_STATUS_CODE).intValue());
-        Assert.assertEquals(HTTP_INTERNAL_ERROR, secondURL.getAttributes().get(HTTP_STATUS_CODE).intValue());
-        Assert.assertEquals(HTTP_INTERNAL_ERROR, httpGet.getAttributes().get(HTTP_STATUS_CODE).intValue());
+        // getError returns an internal server error...
+        Assert.assertEquals(HTTP_BAD_REQUEST, secondURL.getAttributes().get(HTTP_STATUS_CODE).intValue());
+        // Which gets received by the client
+        Assert.assertEquals(HTTP_BAD_REQUEST, httpGet.getAttributes().get(HTTP_STATUS_CODE).intValue());
+        // The exception from the client is inspected and handled so this method should return OK
+        Assert.assertEquals(HTTP_OK, firstURL.getAttributes().get(HTTP_STATUS_CODE).intValue());
 
         // There are many different URLs that will end up here. But all should contain "JaxRsClientAsyncTestEndpoint"
         Assert.assertTrue(httpGet.getAttributes().get(HTTP_URL).contains("JaxRsClientAsyncTestEndpoint"));
