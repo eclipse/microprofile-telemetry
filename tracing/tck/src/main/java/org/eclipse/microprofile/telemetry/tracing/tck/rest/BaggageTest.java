@@ -48,7 +48,7 @@ import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Application;
 import jakarta.ws.rs.core.Response;
 
-class BaggageTest extends Arquillian {
+public class BaggageTest extends Arquillian {
     @Deployment
     public static WebArchive createDeployment() {
         return ShrinkWrap.create(WebArchive.class)
@@ -61,10 +61,10 @@ class BaggageTest extends Arquillian {
     }
 
     @ArquillianResource
-    URL url;
+    private URL url;
 
     @Inject
-    InMemorySpanExporter spanExporter;
+    private InMemorySpanExporter spanExporter;
 
     @BeforeMethod
     void setUp() {
@@ -86,7 +86,7 @@ class BaggageTest extends Arquillian {
     @Path("/baggage")
     public static class BaggageResource {
         @Inject
-        Baggage baggage;
+        private Baggage baggage;
 
         @GET
         public Response baggage() {

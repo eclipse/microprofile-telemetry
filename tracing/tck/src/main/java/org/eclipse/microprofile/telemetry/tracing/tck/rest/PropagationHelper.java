@@ -37,7 +37,7 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 
-class PropagationHelper {
+public class PropagationHelper {
 
     public static final String BAGGAGE_VALUE = "test.baggage.value";
     public static final String BAGGAGE_METADATA = "test.baggage.metadata";
@@ -50,6 +50,10 @@ class PropagationHelper {
             "b3",
             "X-B3-TraceId", "X-B3-SpanId", "X-B3-ParentSpanId", "X-B3-Sampled",
             "uber-trace-id");
+
+    // No instances
+    private PropagationHelper() {
+    };
 
     @Path("/")
     public static class SpanResource {

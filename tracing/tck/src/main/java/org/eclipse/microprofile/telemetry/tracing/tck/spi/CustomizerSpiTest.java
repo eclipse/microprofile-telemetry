@@ -74,10 +74,10 @@ public class CustomizerSpiTest extends Arquillian {
 
         // Check that the other customizers added were called
         // Note: propagator listed twice since by default there are two propagators (W3C trace and W3C baggage)
-        assertTrue(TestCustomizer.loggedEvents.contains("propagator"));
-        assertTrue(TestCustomizer.loggedEvents.contains("properties"));
-        assertTrue(TestCustomizer.loggedEvents.contains("sampler"));
-        assertTrue(TestCustomizer.loggedEvents.contains("exporter"));
-        assertTrue(TestCustomizer.loggedEvents.contains("tracer"));
+        assertTrue(TestCustomizer.LOGGED_EVENTS.contains("propagator"));
+        assertTrue(TestCustomizer.LOGGED_EVENTS.contains("properties"));
+        assertTrue(TestCustomizer.LOGGED_EVENTS.contains("sampler"));
+        assertTrue(TestCustomizer.LOGGED_EVENTS.contains("exporter"));
+        assertTrue(TestCustomizer.LOGGED_EVENTS.contains("tracer"));
     }
 }

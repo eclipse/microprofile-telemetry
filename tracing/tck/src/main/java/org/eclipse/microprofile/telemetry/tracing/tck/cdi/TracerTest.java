@@ -33,7 +33,7 @@ import io.opentelemetry.api.trace.Tracer;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-class TracerTest extends Arquillian {
+public class TracerTest extends Arquillian {
 
     @Deployment
     public static WebArchive createDeployment() {
@@ -45,7 +45,7 @@ class TracerTest extends Arquillian {
     }
 
     @Inject
-    TracerBean tracerBean;
+    private TracerBean tracerBean;
 
     @Test
     void tracer() {
@@ -55,7 +55,7 @@ class TracerTest extends Arquillian {
     @ApplicationScoped
     public static class TracerBean {
         @Inject
-        Tracer tracer;
+        private Tracer tracer;
 
         public Tracer getTracer() {
             return tracer;

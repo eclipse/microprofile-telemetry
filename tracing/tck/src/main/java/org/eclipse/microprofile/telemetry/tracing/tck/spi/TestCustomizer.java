@@ -38,7 +38,7 @@ public class TestCustomizer implements AutoConfigurationCustomizerProvider {
     public static final AttributeKey<String> TEST_KEY = AttributeKey.stringKey("test-key");
     public static final String TEST_VALUE = "test-value";
 
-    public static final List<String> loggedEvents = new ArrayList<>();
+    public static final List<String> LOGGED_EVENTS = new ArrayList<>();
 
     /** {@inheritDoc} */
     @Override
@@ -57,27 +57,27 @@ public class TestCustomizer implements AutoConfigurationCustomizerProvider {
     }
 
     private TextMapPropagator customizePropagator(TextMapPropagator propagator, ConfigProperties config) {
-        loggedEvents.add("propagator");
+        LOGGED_EVENTS.add("propagator");
         return propagator;
     }
 
     private Map<String, String> customizeProperties(ConfigProperties config) {
-        loggedEvents.add("properties");
+        LOGGED_EVENTS.add("properties");
         return Collections.emptyMap();
     }
 
     private Sampler customizeSampler(Sampler sampler, ConfigProperties config) {
-        loggedEvents.add("sampler");
+        LOGGED_EVENTS.add("sampler");
         return sampler;
     }
 
     private SpanExporter customizeExporter(SpanExporter exporter, ConfigProperties config) {
-        loggedEvents.add("exporter");
+        LOGGED_EVENTS.add("exporter");
         return exporter;
     }
 
     private SdkTracerProviderBuilder customizeTracer(SdkTracerProviderBuilder tracerBuilder, ConfigProperties config) {
-        loggedEvents.add("tracer");
+        LOGGED_EVENTS.add("tracer");
         return tracerBuilder;
     }
 

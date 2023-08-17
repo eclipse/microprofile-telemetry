@@ -79,16 +79,14 @@ public class PropagatorSpiTest extends Arquillian {
 
     }
 
-    SpanResourceClient client;
-
     @ArquillianResource
-    URL url;
+    private URL url;
 
     @Inject
-    InMemorySpanExporter exporter;
+    private InMemorySpanExporter exporter;
 
     @Inject
-    Baggage baggage;
+    private Baggage baggage;
 
     @BeforeMethod
     void setUp() {
@@ -113,13 +111,13 @@ public class PropagatorSpiTest extends Arquillian {
 
         SpanData client = exporter.getFirst(SpanKind.CLIENT);
         // Check that trace context propagation worked by checking that the parent was set correctly
-        Assert.assertEquals(server.getParentSpanId(), client.getSpanId());;
+        Assert.assertEquals(server.getParentSpanId(), client.getSpanId());
     }
 
     @Path("/baggage")
     public static class BaggageResource {
         @Inject
-        Baggage baggage;
+        private Baggage baggage;
 
         @Inject
         private Span span;

@@ -30,7 +30,6 @@ import static org.testng.Assert.fail;
 import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.List;
 import java.util.function.Function;
 
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
@@ -56,7 +55,7 @@ import io.opentelemetry.sdk.trace.data.SpanData;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.WebApplicationException;
 
-class JaxRsServerAsyncTest extends Arquillian {
+public class JaxRsServerAsyncTest extends Arquillian {
 
     @Deployment
     public static WebArchive createDeployment() {
@@ -82,7 +81,7 @@ class JaxRsServerAsyncTest extends Arquillian {
     private InMemorySpanExporter spanExporter;
 
     @ArquillianResource
-    URL url;
+    private URL url;
 
     @BeforeMethod
     void setUp() {
@@ -130,7 +129,7 @@ class JaxRsServerAsyncTest extends Arquillian {
             }
         }
 
-        List<SpanData> spanData = spanExporter.getFinishedSpanItems(3);
+        spanExporter.assertSpanCount(3);
 
         // Assert correct parent-child links
         // Shows that propagation occurred
@@ -181,7 +180,7 @@ class JaxRsServerAsyncTest extends Arquillian {
     }
 
     private void readErrorSpans() {
-        List<SpanData> spanData = spanExporter.getFinishedSpanItems(3);
+        spanExporter.assertSpanCount(3);
 
         SpanData subtaskSpan = spanExporter.getFirst(SpanKind.INTERNAL);
         SpanData clientSpan = spanExporter.getFirst(SpanKind.CLIENT);
