@@ -25,6 +25,7 @@ import org.eclipse.microprofile.telemetry.tracing.tck.ConfigAsset;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.testng.Arquillian;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
+import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -40,6 +41,7 @@ public class BaggageBeanTest extends Arquillian {
         ConfigAsset config = new ConfigAsset().add(SDK_DISABLED, "false");
 
         return ShrinkWrap.create(WebArchive.class)
+                .addAsResource(EmptyAsset.INSTANCE, "META-INF/beans.xml")
                 .addAsResource(config, "META-INF/microprofile-config.properties");
     }
 
