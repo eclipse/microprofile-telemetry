@@ -19,6 +19,8 @@
  */
 package org.eclipse.microprofile.telemetry.tracing.tck.async;
 
+import java.util.Collections;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutorService;
@@ -76,6 +78,11 @@ public class JaxRsServerAsyncTestEndpoint extends Application {
 
     @Inject
     private Tracer tracer;
+
+    @Override
+    public Set<Class<?>> getClasses() {
+        return Collections.singleton(JaxRsServerAsyncTestEndpoint.class);
+    }
 
     @GET
     @Path("completionstage")
