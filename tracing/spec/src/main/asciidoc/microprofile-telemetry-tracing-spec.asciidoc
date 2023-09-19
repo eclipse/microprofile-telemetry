@@ -567,7 +567,7 @@ A full list of changes delivered in the 1.1 release can be found at link:https:/
 None.
 
 ==== API/SPI Changes
-Consume the OpenTelemetry Java release link:https://github.com/open-telemetry/opentelemetry-java/releases/tag/v1.28.0[v1.28.0]. The full comparison with the link:https://github.com/open-telemetry/opentelemetry-java/releases/tag/v1.19.0[v1.19.0] supported by MicroProfile Telemetry 1.0 can be found link:https://github.com/open-telemetry/opentelemetry-java/compare/v1.19.0...v1.28.0[here].
+Consume the OpenTelemetry Java release link:https://github.com/open-telemetry/opentelemetry-java/releases/tag/v1.29.0[v1.29.0]. The full comparison with the link:https://github.com/open-telemetry/opentelemetry-java/releases/tag/v1.19.0[v1.19.0] supported by MicroProfile Telemetry 1.0 can be found link:https://github.com/open-telemetry/opentelemetry-java/compare/v1.19.0...v1.29.0[here].
 
 ==== Other Changes
 
