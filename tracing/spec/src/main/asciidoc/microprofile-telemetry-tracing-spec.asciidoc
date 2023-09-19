@@ -57,7 +57,8 @@ https://opentelemetry.io[OpenTelemetry] is a set of APIs, SDKs, tooling and inte
 
 This specification defines the behaviors that allow MicroProfile applications to easily participate in an environment where distributed tracing is enabled via https://opentelemetry.io[OpenTelemetry] (a merger between https://opentracing.io[OpenTracing] and https://opencensus.io[OpenCensus]).
 
-The OpenTelemetry specification describes the cross-language requirements and expectations for all OpenTelemetry implementations. This specification is based on the https://github.com/open-telemetry/opentelemetry-java/tree/v{otel-java-version}[Java implementation v{otel-java-version}] of OpenTelemetry. An implementation of this MicroProfile Telemetry may consume a later patch release of the Java implementation as long as the required TCKs pass successfully.
+The OpenTelemetry specification describes the cross-language requirements and expectations for all OpenTelemetry implementations.
+This specification is based on the https://github.com/open-telemetry/opentelemetry-java/tree/v{otel-java-version}[Java implementation v{otel-java-version}] of OpenTelemetry. An implementation of this MicroProfile Telemetry MAY consume a later patch release of the Java implementation as long as the required TCKs pass successfully.
 
 Refer to the OpenTelemetry specification repo to understand some essential terms.
 
@@ -83,7 +84,7 @@ This specification supports the following three types of instrumentation:
 === Automatic Instrumentation
 Jakarta RESTful Web Services (server and client) and MicroProfile REST Clients are automatically enlisted to participate in distributed tracing without code modification as specified in the Tracing API.
 
-These should follow the rules specified in the <<sec:semantic-conventions>> section.
+These SHOULD follow the rules specified in the <<sec:semantic-conventions>> section.
 
 [[sec:manual-instrumentation]]
 === Manual Instrumentation
@@ -93,7 +94,7 @@ Explicit manual instrumentation can be added into a MicroProfile application in 
 Annotating a method in any Jakarta CDI aware beans with the `io.opentelemetry.instrumentation.annotations.WithSpan` annotation.
 This will create a new Span and establish any required relationships with the current Trace context.
 
-Method parameters can be annotated with the `io.opentelemetry.instrumentation.annotations.SpanAttribute` annotation to indicate which method parameters should be part of the Trace.
+Method parameters can be annotated with the `io.opentelemetry.instrumentation.annotations.SpanAttribute` annotation to indicate which method parameters SHOULD be part of the Trace.
 
 Example:
 [source,java]
@@ -199,22 +200,22 @@ public class SpanResource {
 Implementations are free to support the OpenTelemetry Agent Instrumentation.
 This provides the ability to gather telemetry data without code modifications by attaching a Java Agent JAR to the running JVM.
 
-If an implementation of MicroProfile Telemetry Tracing provides such support, it must conform to the instructions detailed in the https://github.com/open-telemetry/opentelemetry-java-instrumentation/tree/v{otel-java-version}[OpenTelemetry Java Instrumentation] project, including:
+If an implementation of MicroProfile Telemetry Tracing provides such support, it MUST conform to the instructions detailed in the https://github.com/open-telemetry/opentelemetry-java-instrumentation/tree/v{otel-java-version}[OpenTelemetry Java Instrumentation] project, including:
 
 * https://opentelemetry.io/docs/instrumentation/java/automatic/agent-config/[Agent Configuration]
 * https://opentelemetry.io/docs/instrumentation/java/automatic/agent-config/#suppressing-specific-auto-instrumentation[Suppressing Instrumentation]
 
-Both Agent and MicroProfile Telemetry Tracing Instrumentation (if any), must coexist with each other.
+Both Agent and MicroProfile Telemetry Tracing Instrumentation (if any), MUST coexist with each other.
 
 === Access to the OpenTelemetry Tracing API
-An implementation of MicroProfile Telemetry Tracing must provide the following CDI beans for supporting contextual instance injection:
+An implementation of MicroProfile Telemetry Tracing MUST provide the following CDI beans for supporting contextual instance injection:
 
 * `io.opentelemetry.api.OpenTelemetry`
 * `io.opentelemetry.api.trace.Tracer`
 * `io.opentelemetry.api.trace.Span`
 * `io.opentelemetry.api.baggage.Baggage`
 
-Calling the OpenTelemetry API directly must work in the same way and yield the same results:
+Calling the OpenTelemetry API directly MUST work in the same way and yield the same results:
 
 * `io.opentelemetry.api.trace.Span.current()`
 * `io.opentelemetry.api.baggage.Baggage.current()`
@@ -223,8 +224,8 @@ Implementations MAY support:
 
 * `io.opentelemetry.api.GlobalOpenTelemetry.get()`
 
-To obtain the `Tracer` with the OpenTelemetry API, the consumer must use the exact same instrumentation name and version used by the implementation.
-Failure to do so, may result in a different `Tracer` and incorrect handling of the OpenTelemetry data.
+To obtain the `Tracer` with the OpenTelemetry API, the consumer MUST use the exact same instrumentation name and version used by the implementation.
+Failure to do so, MAY result in a different `Tracer` and incorrect handling of the OpenTelemetry data.
 
 
 === Supported OpenTelemetry API Classes
@@ -262,7 +263,7 @@ This is the programmatic interface that allows users to register extensions when
 * https://www.javadoc.io/static/io.opentelemetry/opentelemetry-sdk-extension-autoconfigure-spi/{otel-java-version}/io/opentelemetry/sdk/autoconfigure/spi/package-summary.html[io.opentelemetry.sdk.autoconfigure.spi]
 * https://www.javadoc.io/static/io.opentelemetry/opentelemetry-sdk-extension-autoconfigure-spi/{otel-java-version}/io/opentelemetry/sdk/autoconfigure/spi/traces/package-summary.html[io.opentelemetry.sdk.autoconfigure.spi.traces]
 
-The above packages have dependencies on the following packages which must be supported to the extent that they are required by the Autoconfigure SPI classes:
+The above packages have dependencies on the following packages which MUST be supported to the extent that they are required by the Autoconfigure SPI classes:
 
 * https://www.javadoc.io/static/io.opentelemetry/opentelemetry-sdk-trace/{otel-java-version}/io/opentelemetry/sdk/trace/package-summary.html[io.opentelemetry.sdk.trace]
 * https://www.javadoc.io/static/io.opentelemetry/opentelemetry-sdk-trace/{otel-java-version}/io/opentelemetry/sdk/trace/data/package-summary.html[io.opentelemetry.sdk.trace.data]
@@ -278,14 +279,14 @@ The above packages have dependencies on the following packages which must be sup
 
 [NOTE]
 ====
-These packages are not stable and may be subject to breaking changes in future releases.
+These packages are not stable and MAY be subject to breaking changes in future releases.
 ====
 
 * https://www.javadoc.io/static/io.opentelemetry/opentelemetry-semconv/{otel-java-version}-alpha/io/opentelemetry/semconv/trace/attributes/package-summary.html[io.opentelemetry.semconv.trace.attributes]
 * https://www.javadoc.io/static/io.opentelemetry/opentelemetry-semconv/{otel-java-version}-alpha/io/opentelemetry/semconv/resource/attributes/package-summary.html[io.opentelemetry.semconv.resource.attributes]
 
 === Configuration
-OpenTelemetry must be configured by MicroProfile Config following the semantics of configuration properties detailed in https://github.com/open-telemetry/opentelemetry-java/tree/v{otel-java-version}/sdk-extensions/autoconfigure[OpenTelemetry SDK Autoconfigure {otel-java-version}].
+OpenTelemetry MUST be configured by MicroProfile Config following the semantics of configuration properties detailed in https://github.com/open-telemetry/opentelemetry-java/tree/v{otel-java-version}/sdk-extensions/autoconfigure[OpenTelemetry SDK Autoconfigure {otel-java-version}].
 
 At minimum the following MicroProfile Config properties MUST be supported:
 
@@ -387,45 +388,45 @@ Default value: `grpc`
 
 | `otel.exporter.otlp.endpoint`
 | The OTLP traces, metrics, and logs endpoint to connect to.
-Must be a URL with a scheme of either http or https based on the use of TLS.
+MUST be a URL with a scheme of either http or https based on the use of TLS.
 If protocol is http/protobuf the version and signal will be appended to the path (e.g. v1/traces, v1/metrics, or v1/logs)
 
 Default value: `http://localhost:4317` when protocol is `grpc`, `http://localhost:4318/v1/\{signal}` when protocol is `http/protobuf`
 
 | `otel.exporter.otlp.traces.endpoint`
 | The OTLP traces endpoint to connect to.
-Must be a URL with a scheme of either http or https based on the use of TLS.
+MUST be a URL with a scheme of either http or https based on the use of TLS.
 
 Default value: `http://localhost:4317` when protocol is `grpc`, and `http://localhost:4318/v1/traces` when protocol is `http/protobuf`
 
 | `otel.exporter.otlp.certificate`
 | The path to the file containing trusted certificates to use when verifying an OTLP trace, metric, or log server's TLS credentials.
-The file should contain one or more X.509 certificates in PEM format.
+The file SHOULD contain one or more X.509 certificates in PEM format.
 By default the host platform's trusted root certificates are used.
 
 | `otel.exporter.otlp.traces.certificate`
 | The path to the file containing trusted certificates to use when verifying an OTLP trace server's TLS credentials.
-The file should contain one or more X.509 certificates in PEM format.
+The file SHOULD contain one or more X.509 certificates in PEM format.
 By default the host platform's trusted root certificates are used.
 
 | `otel.exporter.otlp.client.key`
 | The path to the file containing private client key to use when verifying an OTLP trace, metric, or log client's TLS credentials.
-The file should contain one private key PKCS8 PEM format.
+The file SHOULD contain one private key PKCS8 PEM format.
 By default no client key is used.
 
 | `otel.exporter.otlp.traces.client.key`
 | The path to the file containing private client key to use when verifying an OTLP trace client's TLS credentials.
-The file should contain one private key PKCS8 PEM format.
+The file SHOULD contain one private key PKCS8 PEM format.
 By default no client key file is used.
 
 | `otel.exporter.otlp.client.certificate`
 | The path to the file containing trusted certificates to use when verifying an OTLP trace, metric, or log client's TLS credentials.
-The file should contain one or more X.509 certificates in PEM format.
+The file SHOULD contain one or more X.509 certificates in PEM format.
 By default no chain file is used.
 
 | `otel.exporter.otlp.traces.client.certificate`
 | The path to the file containing trusted certificates to use when verifying an OTLP trace server's TLS credentials.
-The file should contain one or more X.509 certificates in PEM format.
+The file SHOULD contain one or more X.509 certificates in PEM format.
 By default no chain file is used.
 
 | `otel.exporter.otlp.headers`
@@ -488,9 +489,9 @@ Behavior when customizer changes other properties than those listed in the spec 
 
 [[sec:semantic-conventions]]
 === Semantic Conventions
-The https://github.com/open-telemetry/opentelemetry-java/tree/v{otel-java-version}/semconv/src/main/java/io/opentelemetry/semconv[Trace Semantic Conventions] for Spans and Attributes must be followed by any compatible implementation.
+The https://github.com/open-telemetry/opentelemetry-java/tree/v{otel-java-version}/semconv/src/main/java/io/opentelemetry/semconv[Trace Semantic Conventions] for Spans and Attributes MUST be followed by any compatible implementation.
 
-All attributes marked as `required` must be present in the context of the Span where they are defined.
+All attributes marked as `required` MUST be present in the context of the Span where they are defined.
 Any other attribute is optional.
 Implementations can also add their own attributes.
 
@@ -504,7 +505,7 @@ Implementation libraries can set the library name using the following property:
 == Tracing Enablement
 By default, MicroProfile Telemetry Tracing is deactivated.
 
-In order to enable any of the tracing aspects, the configuration `otel.sdk.disabled=false` must be specified in any of the configuration sources available via MicroProfile Config.
+In order to enable any of the tracing aspects, the configuration `otel.sdk.disabled=false` MUST be specified in any of the configuration sources available via MicroProfile Config.
 
 
 [IMPORTANT]
@@ -532,7 +533,7 @@ For these reasons, the MicroProfile Telemetry Tracing specification does not pro
 While it is certainly possible to achieve a migration path at the code level and at the specification level (at the expense of not following the main OpenTelemetry specification), it is unlikely to be able to achieve the same compatibility at the data layer.
 Regardless, implementations are still free to provide migration paths between MicroProfile OpenTracing and MicroProfile Telemetry Tracing. 
 
-If a migration path is provided, the bridge layer provided by OpenTelemetry should be used.
+If a migration path is provided, the bridge layer provided by OpenTelemetry SHOULD be used.
 This bridge layer implements OpenTracing APIs using OpenTelemetry API. The bridge layer takes OpenTelemetry Tracer and exposes as OpenTracing Tracer.
 See the example below.
 
@@ -553,7 +554,7 @@ GlobalTracer.registerIfAbsent(tracer);
 
 [[sec:microprofile-telemetry-and-microprofile-opentracing]]
 == MicroProfile Telemetry and MicroProfile OpenTracing
-If MicroProfile Telemetry and MicroProfile OpenTracing are both present in one application, it is recommended to only enable one of them, otherwise non-portable behaviour may occur.
+If MicroProfile Telemetry and MicroProfile OpenTracing are both present in one application, it is recommended to only enable one of them, otherwise non-portable behaviour MAY occur.
 
 == Release Notes
 This section documents the changes introduced by individual releases.
@@ -570,8 +571,8 @@ Consume the OpenTelemetry Java release link:https://github.com/open-telemetry/op
 
 ==== Other Changes
 
-* Consume the lastest OpenTelemetry Tracing (https://github.com/eclipse/microprofile-telemetry/issues/88[88])
-* Clarify which API classes must be available to users (https://github.com/eclipse/microprofile-telemetry/issues/91[91])
+* Consume the latest OpenTelemetry Tracing (https://github.com/eclipse/microprofile-telemetry/issues/88[88])
+* Clarify which API classes MUST be available to users (https://github.com/eclipse/microprofile-telemetry/issues/91[91])
 * Clarify the behaviour of Span and Baggage beans when the current span or baggage changes (lhttps://github.com/eclipse/microprofile-telemetry/issues/90[90])
 * TCK: Implement tests in a way that is not timestamp dependent (https://github.com/eclipse/microprofile-telemetry/issues/44[44])
 * TCK: TCK RestClientSpanTest Span Name Doesn't Follow Semantic Conv (https://github.com/eclipse/microprofile-telemetry/issues/86[86])
