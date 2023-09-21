@@ -49,9 +49,8 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 
-@ApplicationPath("/")
 @Path("JaxRsClientAsyncTestEndpoint")
-public class JaxRsClientAsyncTestEndpoint extends Application {
+public class JaxRsClientAsyncTestEndpoint {
 
     public static final String TEST_PASSED = "Test Passed";
 
@@ -181,4 +180,8 @@ public class JaxRsClientAsyncTestEndpoint extends Application {
         return Response.status(HTTP_BAD_REQUEST).build();
     }
 
+    @ApplicationPath("/")
+    public static class RestApplication extends Application {
+
+    }
 }

@@ -43,9 +43,8 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 
-@ApplicationPath("/")
 @Path("MpRestClientAsyncTestEndpoint")
-public class MpRestClientAsyncTestEndpoint extends Application {
+public class MpRestClientAsyncTestEndpoint {
 
     public static final String TEST_PASSED = "Test Passed";
     public static final String TEST_VALUE = "TEST_VALUE";
@@ -206,6 +205,11 @@ public class MpRestClientAsyncTestEndpoint extends Application {
         @GET
         @Path("requestMpClientError")
         public CompletionStage<String> requestMpClientError(@QueryParam("value") String value);
+
+    }
+
+    @ApplicationPath("/")
+    public static class RestApplication extends Application {
 
     }
 }
