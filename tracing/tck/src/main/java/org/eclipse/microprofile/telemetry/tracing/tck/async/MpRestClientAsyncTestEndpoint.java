@@ -44,7 +44,7 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 
 @Path("MpRestClientAsyncTestEndpoint")
-public class MpRestClientAsyncTestEndpoint extends Application {
+public class MpRestClientAsyncTestEndpoint {
 
     public static final String TEST_PASSED = "Test Passed";
     public static final String TEST_VALUE = "TEST_VALUE";
@@ -209,7 +209,7 @@ public class MpRestClientAsyncTestEndpoint extends Application {
     }
 
     @ApplicationPath("/")
-    public static class Application extends jakarta.ws.rs.core.Application {
+    public static class RestApplication extends Application {
 
     }
 }

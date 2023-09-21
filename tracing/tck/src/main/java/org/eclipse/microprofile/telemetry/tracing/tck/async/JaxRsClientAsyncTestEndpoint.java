@@ -181,7 +181,7 @@ public class JaxRsClientAsyncTestEndpoint {
     }
 
     @ApplicationPath("/")
-    public static class Application extends jakarta.ws.rs.core.Application {
+    public static class RestApplication extends Application {
 
     }
 }

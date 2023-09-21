@@ -66,9 +66,8 @@ import jakarta.ws.rs.core.Response.Status;
  * </ul>
  *
  */
-@ApplicationPath("/")
 @Path("JaxRsServerAsyncTestEndpoint")
-public class JaxRsServerAsyncTestEndpoint extends Application {
+public class JaxRsServerAsyncTestEndpoint {
 
     public static final String BAGGAGE_KEY = "test.baggage.key";
     public static final AttributeKey<String> BAGGAGE_VALUE_ATTR = AttributeKey.stringKey("test.baggage");
@@ -78,11 +77,6 @@ public class JaxRsServerAsyncTestEndpoint extends Application {
 
     @Inject
     private Tracer tracer;
-
-    @Override
-    public Set<Class<?>> getClasses() {
-        return Collections.singleton(JaxRsServerAsyncTestEndpoint.class);
-    }
 
     @GET
     @Path("completionstage")
@@ -208,6 +202,15 @@ public class JaxRsServerAsyncTestEndpoint extends Application {
             throw new RuntimeException(e);
         } finally {
             span.end();
+        }
+    }
+
+    @ApplicationPath("/")
+    public static class RestApplication extends Application {
+
+        @Override
+        public Set<Class<?>> getClasses() {
+            return Collections.singleton(JaxRsServerAsyncTestEndpoint.class);
         }
     }
 }
