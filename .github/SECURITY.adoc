@@ -1,0 +1,25 @@
+//
+//   For any questions about implementing security best practices, contact the
+//   Eclipse Foundation Security Team at security@eclipse-foundation.org
+//
+
+== How To Report a Vulnerability
+
+If you think you have found a vulnerability in Eclipse EE4J you can report it using one of the following ways:
+
+* Contact the mailto:security@eclipse-foundation.org[Eclipse Foundation Security Team]
+* Create a https://gitlab.eclipse.org/security/vulnerability-reports/-/issues/new?issuable_template=new_vulnerability[confidential issue]
+
+You can find more information about reporting and disclosure at the https://www.eclipse.org/security/[Eclipse Foundation Security page].
+
+== Supported Versions
+
+//
+//Which releases of the project's software are actively maintaned and receive security updates?
+//
+Supported versions are:
+Check individual repositories for latest versions.
+
+== Security Policy
+
+This project follows https://www.eclipse.org/security/policy/[Eclipse Foundation Vulnerability Reporting Policy].
