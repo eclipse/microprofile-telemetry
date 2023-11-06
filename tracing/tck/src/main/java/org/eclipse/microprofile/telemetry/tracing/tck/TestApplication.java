@@ -68,7 +68,7 @@ class TestApplication extends Arquillian {
     @Path("/rest")
     public static class TestEndpoint {
         @Inject
-        HelloBean helloBean;
+        private HelloBean helloBean;
 
         @GET
         public String hello() {

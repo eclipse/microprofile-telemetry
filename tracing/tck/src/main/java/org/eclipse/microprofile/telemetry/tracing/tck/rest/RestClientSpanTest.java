@@ -81,7 +81,7 @@ import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Application;
 import jakarta.ws.rs.core.Response;
 
-class RestClientSpanTest extends Arquillian {
+public class RestClientSpanTest extends Arquillian {
     @Deployment
     public static WebArchive createDeployment() {
         return ShrinkWrap.create(WebArchive.class)
@@ -94,11 +94,11 @@ class RestClientSpanTest extends Arquillian {
     }
 
     @ArquillianResource
-    URL url;
+    private URL url;
     @Inject
-    InMemorySpanExporter spanExporter;
+    private InMemorySpanExporter spanExporter;
 
-    SpanResourceClient client;
+    private SpanResourceClient client;
 
     @BeforeMethod
     void setUp() {
@@ -356,11 +356,11 @@ class RestClientSpanTest extends Arquillian {
     @Path("/")
     public static class SpanResource {
         @Inject
-        SpanBean spanBean;
+        private SpanBean spanBean;
         @Inject
-        Span span;
+        private Span span;
         @Inject
-        Tracer tracer;
+        private Tracer tracer;
 
         @GET
         @Path("/span")

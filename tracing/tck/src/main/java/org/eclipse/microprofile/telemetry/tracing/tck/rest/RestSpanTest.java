@@ -66,7 +66,7 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.core.Application;
 import jakarta.ws.rs.core.Response;
 
-class RestSpanTest extends Arquillian {
+public class RestSpanTest extends Arquillian {
 
     private static final String TEST_SERVICE_NAME = "org/eclipse/microprofile/telemetry/tracing/tck";
     private static final String TEST_SERVICE_VERSION = "0.1.0-TEST";
@@ -89,9 +89,9 @@ class RestSpanTest extends Arquillian {
     }
 
     @ArquillianResource
-    URL url;
+    private URL url;
     @Inject
-    InMemorySpanExporter spanExporter;
+    private InMemorySpanExporter spanExporter;
 
     private BasicHttpClient basicClient;
 

@@ -110,7 +110,7 @@ public class JaxRsServerAsyncTestEndpoint {
 
         // Call a subtask, propagating the context
         ExecutorService contextExecutor = Context.taskWrapping(managedExecutor);
-        CompletableFuture<Response> result = CompletableFuture.supplyAsync(this::subtaskError, contextExecutor);;
+        CompletableFuture<Response> result = CompletableFuture.supplyAsync(this::subtaskError, contextExecutor);
         // Return the async result
         return result;
     }

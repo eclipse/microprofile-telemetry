@@ -72,11 +72,11 @@ public class W3PropagationTest extends Arquillian {
     }
 
     @ArquillianResource
-    URL url;
+    private URL url;
     @Inject
-    InMemorySpanExporter spanExporter;
+    private InMemorySpanExporter spanExporter;
 
-    SpanResourceClient client;
+    private SpanResourceClient client;
 
     @BeforeMethod
     void setUp() {

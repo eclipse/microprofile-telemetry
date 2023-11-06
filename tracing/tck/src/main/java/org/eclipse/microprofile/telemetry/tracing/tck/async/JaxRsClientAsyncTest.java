@@ -74,7 +74,7 @@ public class JaxRsClientAsyncTest extends Arquillian {
     private BasicHttpClient basicClient;
 
     @ArquillianResource
-    URL url;
+    private URL url;
 
     public static final String TEST_PASSED = "Test Passed";
     public static final String QUERY_VALUE = "bar";
@@ -111,7 +111,7 @@ public class JaxRsClientAsyncTest extends Arquillian {
 
     public void readErrorSpans() {
 
-        List<SpanData> spanData = spanExporter.getFinishedSpanItems(3);
+        spanExporter.assertSpanCount(3);
 
         List<SpanData> serverSpans = spanExporter.getSpansWithKind(SpanKind.SERVER);
 
@@ -154,7 +154,7 @@ public class JaxRsClientAsyncTest extends Arquillian {
 
     public void readSpans() {
 
-        List<SpanData> spanData = spanExporter.getFinishedSpanItems(3);
+        spanExporter.assertSpanCount(3);
 
         List<SpanData> serverSpans = spanExporter.getSpansWithKind(SpanKind.SERVER);
 

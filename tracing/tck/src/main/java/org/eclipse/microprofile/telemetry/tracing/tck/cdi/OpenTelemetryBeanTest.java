@@ -34,7 +34,7 @@ import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.Tracer;
 import jakarta.inject.Inject;
 
-class OpenTelemetryBeanTest extends Arquillian {
+public class OpenTelemetryBeanTest extends Arquillian {
 
     private static final String SPAN_NAME = "MySpanName";
     private static final String INVALID_SPAN_ID = "0000000000000000";
@@ -48,7 +48,7 @@ class OpenTelemetryBeanTest extends Arquillian {
     }
 
     @Inject
-    OpenTelemetry openTelemetry;
+    private OpenTelemetry openTelemetry;
 
     @Test
     void testOpenTelemetryBean() {

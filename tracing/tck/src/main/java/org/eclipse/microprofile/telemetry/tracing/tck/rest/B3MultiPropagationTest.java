@@ -72,11 +72,11 @@ public class B3MultiPropagationTest extends Arquillian {
     }
 
     @ArquillianResource
-    URL url;
+    private URL url;
     @Inject
-    InMemorySpanExporter spanExporter;
+    private InMemorySpanExporter spanExporter;
 
-    SpanResourceClient client;
+    private SpanResourceClient client;
 
     @BeforeMethod
     void setUp() {
@@ -94,7 +94,7 @@ public class B3MultiPropagationTest extends Arquillian {
     }
 
     @Test(groups = "optional-tests")
-    void B3MultiPropagation() {
+    void b3MultiPropagation() {
 
         Baggage baggage = Baggage.builder()
                 .put(BAGGAGE_KEY, BAGGAGE_VALUE, BaggageEntryMetadata.create(BAGGAGE_METADATA)).build();

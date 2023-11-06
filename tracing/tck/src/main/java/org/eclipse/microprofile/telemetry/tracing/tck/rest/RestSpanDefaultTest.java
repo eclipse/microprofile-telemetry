@@ -48,7 +48,7 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.core.Application;
 import jakarta.ws.rs.core.Response;
 
-class RestSpanDefaultTest extends Arquillian {
+public class RestSpanDefaultTest extends Arquillian {
     @Deployment
     public static WebArchive createDeployment() {
         return ShrinkWrap.create(WebArchive.class)
@@ -61,9 +61,9 @@ class RestSpanDefaultTest extends Arquillian {
     }
 
     @ArquillianResource
-    URL url;
+    private URL url;
     @Inject
-    InMemorySpanExporter spanExporter;
+    private InMemorySpanExporter spanExporter;
 
     private BasicHttpClient basicClient;
 
