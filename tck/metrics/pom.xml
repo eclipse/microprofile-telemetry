@@ -17,25 +17,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.eclipse.microprofile.telemetry.tracing</groupId>
-        <artifactId>microprofile-telemetry-tracing-parent</artifactId>
+        <groupId>org.eclipse.microprofile.telemetry</groupId>
+        <artifactId>microprofile-telemetry-tck-parent</artifactId>
         <version>1.2-SNAPSHOT</version>
     </parent>
 
-    <artifactId>microprofile-telemetry-tracing-tck</artifactId>
-    <name>MicroProfile Telemetry Tracing TCK</name>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.eclipse.microprofile</groupId>
-                <artifactId>microprofile-tck-bom</artifactId>
-                <version>3.2</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
+    <artifactId>microprofile-telemetry-metrics-tck</artifactId>
+    <name>MicroProfile Telemetry Metrics TCK</name>
 
     <dependencies>
         <dependency>

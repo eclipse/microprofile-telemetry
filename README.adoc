@@ -28,12 +28,12 @@ With the merge of OpenTracing and OpenCensus, OpenTelemetry holds the future.
 OpenTelemetry consists of Tracing, Logging, Metrics and Baggage support.
 
 == Structure of this Specification
-Since OpenTelemetry has three main parts and an additional one:
+Since OpenTelemetry has three main pillars and an additional one:
 Tracing, Metrics, Logging and Baggage for additional information, i.e. to link between them.
-This specification potentially adopts all three main parts when they are stable in OpenTelemetry.
-If this is the case, they will appear as submodules in this specification. 
-For instance, you can find details related to `tracing` from the directory of `tracing`.
-This top level project specifies a particular version of OpenTelemetry to pull in so that all submodules can work together.
+
+This specification potentially adopts all three main parts when they are stable in OpenTelemetry. However, since the three parts work together and are released together by OpenTelemetry, it makes sense for this specification to produce one combined specification. TCKs are in a different situation as they varies vastly with the focus on Metrics, Tracing and Logging. Because of this, separate TCK jars will be produced for metrics, tracing and logging.
+
+This top level project specifies a particular version of OpenTelemetry to pull in so that the tracing, metrics and logging can work together.
 
 [NOTE]
 ====
