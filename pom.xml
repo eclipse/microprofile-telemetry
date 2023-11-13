@@ -69,7 +69,9 @@
     </dependencyManagement>
 
     <modules>
+        <module>spec</module>
         <module>tracing</module>
+        <module>metrics</module>
     </modules>
 
     <build>

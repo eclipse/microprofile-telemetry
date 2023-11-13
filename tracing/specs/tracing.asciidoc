@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2022 Contributors to the Eclipse Foundation
+// Copyright (c) 2022, 2023 Contributors to the Eclipse Foundation
 //
 // See the NOTICE file(s) distributed with this work for additional
 // information regarding copyright ownership.
@@ -17,63 +17,8 @@
 // limitations under the License.
 //
 
-= MicroProfile Telemetry Tracing
-:authors: MicroProfile Telemetry Team (Roberto Cortez, Emily Jiang, Bruno Baptista, Jan Westerkamp, Felix Wong, Yasmin Aumeeruddy, Patrik Duditš)
-:email: 
-:version-label!:
-:sectanchors:
-:doctype: book
-:license: Eclipse Foundation Specification License v1.0
-:source-highlighter: coderay
-:toc: left
-:toclevels: 4
-:sectnumlevels: 4
-ifdef::backend-pdf[]
-:pagenums:
-endif::[]
-// Attributes defined in the microprofile-telemetry (parent) maven POM:
-//:otel-java-version:
-
-
-// == License
-:sectnums!:
-include::license-efsl.adoc[]
-:sectnums:
-
-
-== Introduction
-In cloud-native technology stacks, distributed and polyglot architectures are the norm.
-Distributed architectures introduce a variety of operational challenges including how to solve availability and performance issues quickly.
-These challenges have led to the rise of observability.
-
-Telemetry data is needed to power observability products.
-Traditionally, telemetry data has been provided by either open-source projects or commercial vendors.
-With a lack of standardization, the net result is the lack of data portability and the burden on the user to maintain the instrumentation.
-
-The https://opentelemetry.io[OpenTelemetry] project solves these problems by providing a single, vendor-agnostic solution.
-
-== Architecture
-https://opentelemetry.io[OpenTelemetry] is a set of APIs, SDKs, tooling and integrations that are designed for the creation and management of telemetry data such as traces, metrics, and logs.
-
-This specification defines the behaviors that allow MicroProfile applications to easily participate in an environment where distributed tracing is enabled via https://opentelemetry.io[OpenTelemetry] (a merger between https://opentracing.io[OpenTracing] and https://opencensus.io[OpenCensus]).
-
-The OpenTelemetry specification describes the cross-language requirements and expectations for all OpenTelemetry implementations.
-This specification is based on the https://github.com/open-telemetry/opentelemetry-java/tree/v{otel-java-version}[Java implementation v{otel-java-version}] of OpenTelemetry. An implementation of this MicroProfile Telemetry MAY consume a later patch release of the Java implementation as long as the required TCKs pass successfully.
-
-Refer to the OpenTelemetry specification repo to understand some essential terms.
-
-* https://opentelemetry.io/docs/specs/otel/overview/[OpenTelemetry Overview]
-* https://opentelemetry.io/docs/specs/otel/trace/api/[Tracing API]
-* https://opentelemetry.io/docs/specs/otel/baggage/api/[Baggage API]
-* https://opentelemetry.io/docs/specs/otel/context/[Context API]
-* https://opentelemetry.io/docs/specs/otel/resource/sdk/[Resource SDK]
-
-[IMPORTANT]
-====
-The Metrics and Logging integrations of https://opentelemetry.io[OpenTelemetry] are out of scope of this specification.
-Implementations are free to provide support for both Metrics and Logging if desired.
-====
-
+[[Tracing]]
+== Tracing
 This specification supports the following three types of instrumentation:
 
 * <<sec:automatic-instrumentation>>
@@ -555,27 +500,3 @@ GlobalTracer.registerIfAbsent(tracer);
 [[sec:microprofile-telemetry-and-microprofile-opentracing]]
 == MicroProfile Telemetry and MicroProfile OpenTracing
 If MicroProfile Telemetry and MicroProfile OpenTracing are both present in one application, it is recommended to only enable one of them, otherwise non-portable behaviour MAY occur.
-
-== Release Notes
-This section documents the changes introduced by individual releases.
-
-[[release_notes_11]]
-=== Release Notes for MicroProfile Telemetry 1.1
-A full list of changes delivered in the 1.1 release can be found at link:https://github.com/eclipse/microprofile-telemetry/milestone/1?closed=1[MicroProfile Telemetry 1.1 Milestone].
-
-==== Incompatible Changes
-None.
-
-==== API/SPI Changes
-Consume the OpenTelemetry Java release link:https://github.com/open-telemetry/opentelemetry-java/releases/tag/v1.29.0[v1.29.0]. The full comparison with the link:https://github.com/open-telemetry/opentelemetry-java/releases/tag/v1.19.0[v1.19.0] supported by MicroProfile Telemetry 1.0 can be found link:https://github.com/open-telemetry/opentelemetry-java/compare/v1.19.0...v1.29.0[here].
-
-==== Other Changes
-
-* Consume the latest OpenTelemetry Tracing (https://github.com/eclipse/microprofile-telemetry/issues/88[88])
-* Clarify which API classes MUST be available to users (https://github.com/eclipse/microprofile-telemetry/issues/91[91])
-* Clarify the behaviour of Span and Baggage beans when the current span or baggage changes (lhttps://github.com/eclipse/microprofile-telemetry/issues/90[90])
-* TCK: Implement tests in a way that is not timestamp dependent (https://github.com/eclipse/microprofile-telemetry/issues/44[44])
-* TCK: TCK RestClientSpanTest Span Name Doesn't Follow Semantic Conv (https://github.com/eclipse/microprofile-telemetry/issues/86[86])
-* TCK: Adding missing TCKs (https://github.com/eclipse/microprofile-telemetry/issues/89[89])
-* TCK: TCK cannot be run using the Arquillian REST protocol (https://github.com/eclipse/microprofile-telemetry/issues/72[72])
-* Typos in spec document (https://github.com/eclipse/microprofile-telemetry/issues/80[80])

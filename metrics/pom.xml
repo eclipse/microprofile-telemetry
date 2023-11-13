@@ -21,13 +21,12 @@
         <artifactId>microprofile-telemetry-parent</artifactId>
         <version>1.2-SNAPSHOT</version>
     </parent>
-    <groupId>org.eclipse.microprofile.telemetry.tracing</groupId>
-    <artifactId>microprofile-telemetry-tracing-parent</artifactId>
+    <groupId>org.eclipse.microprofile.telemetry.metrics</groupId>
+    <artifactId>microprofile-telemetry-metrics-parent</artifactId>
     <packaging>pom</packaging>
-    <name>MicroProfile Telemetry Tracing</name>
+    <name>MicroProfile Telemetry Metrics</name>
 
     <modules>
-        
         <module>tck</module>
     </modules>
 

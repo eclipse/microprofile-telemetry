@@ -1,0 +1,19 @@
+=========================================================================
+==  NOTICE file corresponding to section 4(d) of the Apache License,   ==
+==  Version 2.0, in this case for MicroProfile Telemetry               ==
+=========================================================================
+
+SPDXVersion: SPDX-2.1
+PackageName: MicroProfile
+PackageHomePage: http://www.eclipse.org/microprofile
+PackageLicenseDeclared: Apache-2.0
+
+PackageCopyrightText: <text>
+Roberto Cortez,
+Emily Jiang,
+Bruno Baptista,
+Jan Westerkamp,
+Felix Wong,
+Yasmin Aumeeruddy,
+Patrik Duditš
+</text>

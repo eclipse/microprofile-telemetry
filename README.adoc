@@ -23,6 +23,27 @@ image:https://badges.gitter.im/eclipse/microprofile-telemetry.svg[link="https://
 
 This specification is to adopt https://opentelemetry.io/[OpenTelemetry] from CNCF to allow MicroProfile Applications benefit from OpenTelemetry and enable Jakarta RESTful Web Services automatically being traced if configured.
 
+== Directly adopt the APIs from OpenTelemetry APIs
+This specification directly expose the Tracing and Metrics APIs from OpenTelemetry and then provide CDI and Jakarta RESTful Web Services integration.
+The https://github.com/open-telemetry/opentelemetry-java/tree/main/api/all/src/main/java/io/opentelemetry/api/metrics Metrics APIs from OpenTelemetry will be exposed.
+
+The https://github.com/open-telemetry/opentelemetry-java/tree/main/api/all/src/main/java/io/opentelemetry/api/tracing Tracing APIs from OpenTelemetry will be exposed.
+
+This specification does not plan to reinvent the wheels but rather exposes OpenTelemetry APIs due to the following reasons:
+
+* OpenTelemetry is a specification under CNCF
+* OpenTelemetry is widely adopted by different vendors and languages
+* OpenTelemetry has Java API and annotations that are readily to be used
+* OpenTelemetry is active and open for the collaboration with us
+* OpenTelemetry is platform technology and we use the effort to make Java libraries to be used directly instead of reinventing our own APIs
+* OpenTelemetry has broad vendor support.
+Many observability vendors are contributing to the spec, providing a guarantee that traces can be used out of the box, with minimal integrations.
+* OpenTelemetry is serious with backward incompatible changes and communicates openly
+
+MicroProfile Telemetry pulls in a particular version of OpenTelemetry.
+Whenever we upgrade, we evaluate the backward compatibility status ourselves as well.
+
+
 == OpenTracing moves to OpenTelemetry
 With the merge of OpenTracing and OpenCensus, OpenTelemetry holds the future.
 OpenTelemetry consists of Tracing, Logging, Metrics and Baggage support.
