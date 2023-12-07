@@ -17,7 +17,7 @@
 // limitations under the License.
 //
 
-= MicroProfile Telemetry Tracing TCK
+= MicroProfile Telemetry Metrics TCK
 Any MicroProfile Telemetry implementation must pass this test suite.
 The TCK uses `TestNG` and `Arquillian`.
 
@@ -41,9 +41,9 @@ To enable the tests in your project you need to add the following dependency to 
 ----
 
 <dependency>
-    <groupId>org.eclipse.microprofile.telemetry.tracing</groupId>
-    <artifactId>microprofile-telemetry-tracing-tck</artifactId>
-    <version>1.0</version>
+    <groupId>org.eclipse.microprofile.telemetry</groupId>
+    <artifactId>microprofile-telemetry-metrics-tck</artifactId>
+    <version>2.0</version>
     <scope>test</scope>
 </dependency>
 
@@ -68,18 +68,10 @@ Test groups can be excluded in the TestNG XML file. E.g. create a file `tck-suit
 ----
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
-<suite name="microprofile-telemetry-tracing-TCK" verbose="2" configfailurepolicy="continue" >
-    <test name="telemetry-tracing-tests" verbose="10">
-        <groups>
-            <run>
-                <!-- Exclude B3 and Jaeger propagation tests-->
-                <exclude name="optional-tests"/>
-                <!-- Exclude JaxRS server async tests-->
-                <exclude name="optional-jaxrs-tests"/>
-            </run>
-        </groups>
+<suite name="microprofile-telemetry-metrics-TCK" verbose="2" configfailurepolicy="continue" >
+    <test name="telemetry-metrics-tests" verbose="10">
         <packages>
-            <package name="org.eclipse.microprofile.telemetry.tracing.tck.*" />
+            <package name="org.eclipse.microprofile.telemetry.metrics.tck.*" />
         </packages>
     </test>
 </suite>
@@ -91,10 +83,10 @@ If you want to run the optional tests, you can specify all tests in the `tck-sui
 ----
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
-<suite name="microprofile-telemetry-tracing-TCK" verbose="2" configfailurepolicy="continue" >
-    <test name="telemetry-tracing-tests" verbose="10">
+<suite name="microprofile-telemetry-metrics-TCK" verbose="2" configfailurepolicy="continue" >
+    <test name="telemetry-metrics-tests" verbose="10">
         <packages>
-            <package name="org.eclipse.microprofile.telemetry.tracing.tck.*" />
+            <package name="org.eclipse.microprofile.telemetry.metrics.tck.*" />
         </packages>
     </test>
 </suite>
@@ -137,7 +129,7 @@ Once you've added the dependency, you don't need a `tck-suite.xml` you can just 
             <version>2.22.2</version>
             <configuration>
                 <dependenciesToScan>
-                    <dependency>org.eclipse.microprofile.telemetry.tracing:microprofile-telemetry-tracing-tck</dependency>
+                    <dependency>org.eclipse.microprofile.telemetry:microprofile-telemetry-metrics-tck</dependency>
                 </dependenciesToScan>
             </configuration>
         </plugin>

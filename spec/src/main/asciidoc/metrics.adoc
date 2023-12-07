@@ -1,0 +1,56 @@
+//
+// Copyright (c) 2022, 2023 Contributors to the Eclipse Foundation
+//
+// See the NOTICE file(s) distributed with this work for additional
+// information regarding copyright ownership.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+[[metrics]]
+== Metrics
+
+
+
+=== Access to the OpenTelemetry Metrics API
+An implementation of MicroProfile Telemetry Metrics MUST provide the following CDI beans for supporting contextual instance injection:
+
+
+=== Supported OpenTelemetry API Classes
+Classes from the following API packages MUST be supported by implementations of this specification, though this specification does not prevent additional API classes from being supported.
+Implementations are allowed to pull in a more recent patch version of the API classes.
+
+==== Metrics APIs
+
+
+* https://www.javadoc.io/static/io.opentelemetry/opentelemetry-api/{otel-java-version}/io/opentelemetry/api/metrics/package-summary.html[io.opentelemetry.api.metrics]
+
+
+
+==== Autoconfigure SPI
+This is the programmatic interface that allows users to register extensions when using the SDK Autoconfigure Extension (which we use for configuration). 
+
+
+==== Semantic Conventions
+
+[NOTE]
+====
+These packages are not stable and MAY be subject to breaking changes in future releases.
+====
+
+
+
+=== Configuration
+OpenTelemetry MUST be configured by MicroProfile Config following the semantics of configuration properties detailed in https://github.com/open-telemetry/opentelemetry-java/tree/v{otel-java-version}/sdk-extensions/autoconfigure[OpenTelemetry SDK Autoconfigure {otel-java-version}].
+
+At minimum the following MicroProfile Config properties MUST be supported:

@@ -17,13 +17,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.eclipse.microprofile.telemetry.tracing</groupId>
-        <artifactId>microprofile-telemetry-tracing-parent</artifactId>
+        <groupId>org.eclipse.microprofile.telemetry</groupId>
+        <artifactId>microprofile-telemetry-parent</artifactId>
         <version>1.2-SNAPSHOT</version>
     </parent>
 
-    <artifactId>microprofile-telemetry-tracing-spec</artifactId>
+    <artifactId>microprofile-telemetry-spec</artifactId>
     <packaging>pom</packaging>
-    <name>MicroProfile Telemetry Tracing Specification</name>
+    <name>MicroProfile Telemetry Specification</name>
 
 </project>
