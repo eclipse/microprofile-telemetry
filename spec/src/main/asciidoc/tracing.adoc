@@ -184,7 +184,7 @@ Implementation libraries can set the library name using the following property:
 `mp.telemetry.tracing.name`
 
 === Tracing Enablement
-Tracing is activated whenever Microprofile Telemetry is enabled, as descibed in <<sec:enabling-opentelemetry-support>>.
+Tracing is activated whenever Microprofile Telemetry is enabled, as described in <<sec:enabling-opentelemetry-support>>.
 
 === MicroProfile OpenTracing
 MicroProfile Telemetry Tracing supersedes MicroProfile OpenTracing.

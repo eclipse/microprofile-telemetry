@@ -73,7 +73,7 @@ Later sections provide more beans for particular signal types.
 
 ==== API classes
 
-In order to provide integration with OpenTelemetry the implementations SHALL make number of OpenTelemetry packages available to applications.
+In order to provide integration with OpenTelemetry the implementations SHALL make a number of OpenTelemetry packages available to applications.
 The full list of packages is listed in <<sec:opentelemetry-api>>.
 
 

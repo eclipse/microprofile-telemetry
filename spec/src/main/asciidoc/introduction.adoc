@@ -32,7 +32,7 @@ The https://opentelemetry.io[OpenTelemetry] project solves these problems by pro
 == Architecture
 https://opentelemetry.io[OpenTelemetry] is a set of APIs, SDKs, tooling and integrations that are designed for the creation and management of telemetry data such as traces, metrics, and logs.
 
-This specification defines the behaviors that allow MicroProfile applications to easily participate in an environment where distributed tracing is enabled via https://opentelemetry.io[OpenTelemetry] (a merger between https://opentracing.io[OpenTracing] and https://opencensus.io[OpenCensus]).
+This specification defines the behaviors that allow MicroProfile applications to easily participate in an environment where distributed tracing is enabled via https://opentelemetry.io[OpenTelemetry].
 
 The OpenTelemetry specification describes the cross-language requirements and expectations for all OpenTelemetry implementations.
 This specification is based on the https://github.com/open-telemetry/opentelemetry-java/tree/v{otel-java-version}[Java implementation v{otel-java-version}] of OpenTelemetry. An implementation of this MicroProfile Telemetry MAY consume a later patch release of the Java implementation as long as the required TCKs pass successfully.
