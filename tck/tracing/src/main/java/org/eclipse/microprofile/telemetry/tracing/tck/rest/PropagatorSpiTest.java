@@ -73,7 +73,7 @@ public class PropagatorSpiTest extends Arquillian {
                 .addAsLibrary(TestLibraries.AWAITILITY_LIB)
                 .addAsResource(
                         new StringAsset("otel.sdk.disabled=false\notel.propagators=" + TestPropagatorProvider.NAME
-                                + "\notel.traces.exporter=in-memory"),
+                                + "\notel.traces.exporter=in-memory\notel.metrics.exporter=none"),
                         "META-INF/microprofile-config.properties")
                 .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
 

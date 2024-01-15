@@ -78,6 +78,7 @@ public class RestSpanTest extends Arquillian {
                 .add("otel.service.name", TEST_SERVICE_NAME)
                 .add("otel.resource.attributes", SERVICE_VERSION.getKey() + "=" + TEST_SERVICE_VERSION)
                 .add("otel.sdk.disabled", "false")
+                .add("otel.metrics.exporter", "none")
                 .add("otel.traces.exporter", "in-memory");
 
         return ShrinkWrap.create(WebArchive.class)

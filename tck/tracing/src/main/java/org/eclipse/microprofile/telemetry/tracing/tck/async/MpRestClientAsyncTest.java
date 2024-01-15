@@ -60,6 +60,7 @@ public class MpRestClientAsyncTest extends Arquillian {
         ConfigAsset config = new ConfigAsset()
                 .add("otel.bsp.schedule.delay", "100")
                 .add("otel.sdk.disabled", "false")
+                .add("otel.metrics.exporter", "none")
                 .add("otel.traces.exporter", "in-memory");
 
         return ShrinkWrap.create(WebArchive.class)
