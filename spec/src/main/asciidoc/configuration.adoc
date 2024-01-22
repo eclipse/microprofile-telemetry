@@ -23,7 +23,7 @@
 OpenTelemetry MUST be configured by MicroProfile Config following the semantics of configuration properties detailed in https://github.com/open-telemetry/opentelemetry-java/tree/v{otel-java-version}/sdk-extensions/autoconfigure[OpenTelemetry SDK Autoconfigure {otel-java-version}].
 Following properties MUST be supported:
 
-=== Configuration Properties
+=== Required Configuration Properties
 // Table with property name, default value and description
 [options="header"]
 |===
@@ -119,18 +119,6 @@ Options include grpc and http/protobuf.
 
 Default value: `grpc`
 
-| `otel.exporter.otlp.traces.protocol`
-| The transport protocol to use on OTLP trace requests.
-Options include grpc and http/protobuf.
-
-Default value: `grpc`
-
-| `otel.exporter.otlp.metrics.protocol`
-| The transport protocol to use on OTLP metric requests.
-Options include grpc and http/protobuf.
-
-Default value: `grpc`
-
 | `otel.exporter.otlp.endpoint`
 | The OTLP traces, metrics, and logs endpoint to connect to.
 MUST be a URL with a scheme of either http or https based on the use of TLS.
@@ -138,32 +126,8 @@ If protocol is http/protobuf the version and signal will be appended to the path
 
 Default value: `http://localhost:4317` when protocol is `grpc`, `http://localhost:4318/v1/\{signal}` when protocol is `http/protobuf`
 
-| `otel.exporter.otlp.traces.endpoint`
-| The OTLP traces endpoint to connect to.
-MUST be a URL with a scheme of either http or https based on the use of TLS.
-
-Default value: `http://localhost:4317` when protocol is `grpc`, and `http://localhost:4318/v1/traces` when protocol is `http/protobuf`
-
-| `otel.exporter.otlp.metrics.endpoint`
-| The OTLP metrics endpoint to connect to.
-MUST be a URL with a scheme of either http or https based on the use of TLS.
-
-Default value: `http://localhost:4317` when protocol is `grpc`, and `http://localhost:4318/v1/metrics` when protocol is `http/protobuf`
-
 | `otel.exporter.otlp.certificate`
 | The path to the file containing trusted certificates to use when verifying an OTLP trace, metric, or log server's TLS credentials.
-The file SHOULD contain one or more X.509 certificates in PEM format.
-
-By default the host platform's trusted root certificates are used.
-
-| `otel.exporter.otlp.traces.certificate`
-| The path to the file containing trusted certificates to use when verifying an OTLP trace server's TLS credentials.
-The file SHOULD contain one or more X.509 certificates in PEM format.
-
-By default the host platform's trusted root certificates are used.
-
-| `otel.exporter.otlp.metrics.certificate`
-| The path to the file containing trusted certificates to use when verifying an OTLP metric server's TLS credentials.
 The file SHOULD contain one or more X.509 certificates in PEM format.
 
 By default the host platform's trusted root certificates are used.
@@ -174,43 +138,13 @@ The file SHOULD contain one private key PKCS8 PEM format.
 
 By default no client key is used.
 
-| `otel.exporter.otlp.traces.client.key`
-| The path to the file containing private client key to use when verifying an OTLP trace client's TLS credentials.
-The file SHOULD contain one private key PKCS8 PEM format.
-
-By default no client key file is used.
-
-| `otel.exporter.otlp.metrics.client.key`
-| The path to the file containing private client key to use when verifying an OTLP metric client's TLS credentials.
-The file SHOULD contain one private key PKCS8 PEM format.
-
-By default no client key file is used.
-
 | `otel.exporter.otlp.client.certificate`
 | The path to the file containing trusted certificates to use when verifying an OTLP trace, metric, or log client's TLS credentials.
 The file SHOULD contain one or more X.509 certificates in PEM format.
 By default no chain file is used.
 
-| `otel.exporter.otlp.traces.client.certificate`
-| The path to the file containing trusted certificates to use when verifying an OTLP trace server's TLS credentials.
-The file SHOULD contain one or more X.509 certificates in PEM format.
-
-By default no chain file is used.
-
-| `otel.exporter.otlp.metrics.client.certificate`
-| The path to the file containing trusted certificates to use when verifying an OTLP metric server's TLS credentials.
-The file SHOULD contain one or more X.509 certificates in PEM format.
-
-By default no chain file is used.
-
 | `otel.exporter.otlp.headers`
 | Key-value pairs separated by commas to pass as request headers on OTLP trace, metric, and log requests.
-
-| `otel.exporter.otlp.traces.headers`
-| Key-value pairs separated by commas to pass as request headers on OTLP trace requests.
-
-| `otel.exporter.otlp.metrics.headers`
-| Key-value pairs separated by commas to pass as request headers on OTLP metric requests.
 
 | `otel.exporter.otlp.compression`
 | The compression type to use on OTLP trace, metric, and log requests.
@@ -218,30 +152,8 @@ Options include `gzip`.
 
 By default no compression will be used.
 
-| `otel.exporter.otlp.traces.compression`
-| The compression type to use on OTLP trace requests.
-Options include `gzip`.
-
-By default no compression will be used.
-
-| `otel.exporter.otlp.metrics.compression`
-| The compression type to use on OTLP metric requests.
-Options include `gzip`.
-
-By default no compression will be used.
-
 | `otel.exporter.otlp.timeout`
 | The maximum waiting time, in milliseconds, allowed to send each OTLP trace, metric, and log batch.
-
-Default value: `10000`
-
-| `otel.exporter.otlp.traces.timeout`
-| The maximum waiting time, in milliseconds, allowed to send each OTLP trace batch.
-
-Default value: `10000`
-
-| `otel.exporter.otlp.metrics.timeout`
-| The maximum waiting time, in milliseconds, allowed to send each OTLP metric batch.
 
 Default value: `10000`
 
@@ -272,6 +184,106 @@ Default value: `60000`
 |===
 
 If Environment Config Source is enabled for MicroProfile Config, then the environment variables as described by the OpenTelemetry SDK Autoconfigure are also supported.
+
+=== Optional Configuration Properties
+
+An implementation MAY support additional configuration properties. Notable examples include per-signal configuration of exporters:
+
+[options="header"]
+|===
+|Property Name |Description
+
+2+h| OTLP Exporter
+
+| `otel.exporter.otlp.traces.protocol`
+| The transport protocol to use on OTLP trace requests.
+Options include grpc and http/protobuf.
+
+Default value: `grpc`
+
+| `otel.exporter.otlp.metrics.protocol`
+| The transport protocol to use on OTLP metric requests.
+Options include grpc and http/protobuf.
+
+Default value: `grpc`
+
+| `otel.exporter.otlp.traces.endpoint`
+| The OTLP traces endpoint to connect to.
+MUST be a URL with a scheme of either http or https based on the use of TLS.
+
+Default value: `http://localhost:4317` when protocol is `grpc`, and `http://localhost:4318/v1/traces` when protocol is `http/protobuf`
+
+| `otel.exporter.otlp.metrics.endpoint`
+| The OTLP metrics endpoint to connect to.
+MUST be a URL with a scheme of either http or https based on the use of TLS.
+
+Default value: `http://localhost:4317` when protocol is `grpc`, and `http://localhost:4318/v1/metrics` when protocol is `http/protobuf`
+
+| `otel.exporter.otlp.traces.certificate`
+| The path to the file containing trusted certificates to use when verifying an OTLP trace server's TLS credentials.
+The file SHOULD contain one or more X.509 certificates in PEM format.
+
+By default the host platform's trusted root certificates are used.
+
+| `otel.exporter.otlp.metrics.certificate`
+| The path to the file containing trusted certificates to use when verifying an OTLP metric server's TLS credentials.
+The file SHOULD contain one or more X.509 certificates in PEM format.
+
+By default the host platform's trusted root certificates are used.
+
+| `otel.exporter.otlp.traces.client.key`
+| The path to the file containing private client key to use when verifying an OTLP trace client's TLS credentials.
+The file SHOULD contain one private key PKCS8 PEM format.
+
+By default no client key file is used.
+
+| `otel.exporter.otlp.metrics.client.key`
+| The path to the file containing private client key to use when verifying an OTLP metric client's TLS credentials.
+The file SHOULD contain one private key PKCS8 PEM format.
+
+By default no client key file is used.
+
+| `otel.exporter.otlp.traces.client.certificate`
+| The path to the file containing trusted certificates to use when verifying an OTLP trace server's TLS credentials.
+The file SHOULD contain one or more X.509 certificates in PEM format.
+
+By default no chain file is used.
+
+| `otel.exporter.otlp.metrics.client.certificate`
+| The path to the file containing trusted certificates to use when verifying an OTLP metric server's TLS credentials.
+The file SHOULD contain one or more X.509 certificates in PEM format.
+
+By default no chain file is used.
+
+| `otel.exporter.otlp.traces.headers`
+| Key-value pairs separated by commas to pass as request headers on OTLP trace requests.
+
+| `otel.exporter.otlp.metrics.headers`
+| Key-value pairs separated by commas to pass as request headers on OTLP metric requests.
+
+| `otel.exporter.otlp.traces.compression`
+| The compression type to use on OTLP trace requests.
+Options include `gzip`.
+
+By default no compression will be used.
+
+| `otel.exporter.otlp.metrics.compression`
+| The compression type to use on OTLP metric requests.
+Options include `gzip`.
+
+By default no compression will be used.
+
+| `otel.exporter.otlp.traces.timeout`
+| The maximum waiting time, in milliseconds, allowed to send each OTLP trace batch.
+
+Default value: `10000`
+
+| `otel.exporter.otlp.metrics.timeout`
+| The maximum waiting time, in milliseconds, allowed to send each OTLP metric batch.
+
+Default value: `10000`
+
+|===
 
 [[sec:service-loader-support]]
 === Service Loader Support
