@@ -282,7 +282,7 @@ The following components are supported
 
 [options=header]
 |===
-| Component interface | Purose
+| Component interface | Purpose
 
 | https://javadoc.io/doc/io.opentelemetry/opentelemetry-sdk-extension-autoconfigure-spi/{otel-java-version}/io/opentelemetry/sdk/autoconfigure/spi/ConfigurablePropagatorProvider.html[`ConfigurablePropagatorProvider`]
 | Provides implementation for a name referred in `otel.propagators`
