@@ -20,7 +20,7 @@
 [[sec:opentelemetry-api]]
 == Supported OpenTelemetry API Classes
 
-Classes from the following API packages MUST be supported by implementations of this specification, though this specification does not prevent additional API classes from being supported.
+Classes from the following API packages MUST be available to applications by implementations of this specification, though this specification does not prevent additional API classes from being available.
 Implementations are allowed to pull in a more recent patch version of the API classes.
 
 === OpenTelemetry API
