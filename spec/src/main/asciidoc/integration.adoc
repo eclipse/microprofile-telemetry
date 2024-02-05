@@ -1,0 +1,79 @@
+//
+// Copyright (c) 2023 Contributors to the Eclipse Foundation
+//
+// See the NOTICE file(s) distributed with this work for additional
+// information regarding copyright ownership.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+== SDK integration
+
+Implementations SHALL provide integration by appropriately configuring compatible OpenTelemetry SDK for application runtime.
+Regardless of signal type being considered -- traces or metrics -- following requirements SHALL be met:
+
+[[sec:enabling-opentelemetry-support]]
+=== Enabling OpenTelemetry support
+By default, MicroProfile Telemetry is deactivated.
+
+In order to enable any of aspects of integration, the configuration `otel.sdk.disabled=false` MUST be specified in any of the configuration sources available via MicroProfile Config.
+
+[IMPORTANT]
+=====
+This is a deviation from the OpenTelemetry Specification that specifies this configuration property officially, where https://opentelemetry.io[OpenTelemetry] is activated by default!
+
+But in fact, it will be activated only by adding its dependency to the application or platform project.
+To be able to add MicroProfile Telemetry to MicroProfile implementations by default without side effects, this deviating behaviour has been defined here (see also <<sec:microprofile-telemetry-and-microprofile-opentracing>>).
+=====
+
+This property is read once when the application is starting.
+Any changes afterwards will not take effect unless the application is restarted.
+
+=== Configuration
+
+OpenTelemetry MUST be configured by MicroProfile Config following the semantics of configuration properties of link:https://github.com/open-telemetry/opentelemetry-java/tree/v{otel-java-version}/sdk-extensions/autoconfigure[OpenTelemetry SDK Autoconfigure extension].
+
+Full list of required configuration property names are listed in <<sec:configuration-properties>>.
+
+==== OTLP support
+
+OpenTelemetry data can be exported in various ways.
+Implementation MUST support exporting data via OTLP protocol and relevant configuration properties for OTLP exporter.
+
+==== Service Providers support
+
+Additional OpenTelemetry SDK components can be integrated by means of Java Service Loader mechanism.
+
+Full list of supported service providers is listed in <<sec:service-loader-support>>.
+
+=== Access to OpenTelemetry API
+
+An implementation of MicroProfile Telemetry MUST provide the following CDI beans for supporting contextual instance injection:
+
+* `io.opentelemetry.api.OpenTelemetry`
+
+Implementations MAY support:
+
+* `io.opentelemetry.api.GlobalOpenTelemetry.get()`
+
+To obtain the access to `OpenTelemetry` instance. The consumer MUST use the exact same instrumentation name and version used by the implementation.
+Failure to do so, MAY result in a different tracing and metrics components to be used.
+
+Later sections provide more beans for particular signal types.
+
+==== API classes
+
+In order to provide integration with OpenTelemetry the implementations SHALL make a number of OpenTelemetry packages available to applications.
+The full list of packages is listed in <<sec:opentelemetry-api>>.
+
+

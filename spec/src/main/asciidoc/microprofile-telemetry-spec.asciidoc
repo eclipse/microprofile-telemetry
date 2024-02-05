@@ -41,7 +41,10 @@ include::license-efsl.adoc[]
 :sectnums:
 
 include::introduction.adoc[]
+include::integration.adoc[]
 include::tracing.adoc[]
 include::metrics.adoc[]
+include::configuration.adoc[]
+include::opentelemetry-apis.adoc[]
 include::release-notes.adoc[]
 

@@ -20,7 +20,7 @@
 [[tracing]]
 == Tracing
 
-In the observibility, Tracing is used to diganose problems. Tracing intrumentation was used to generate tracs.
+In the observability, Tracing is used to diagnose problems. Tracing instrumentation is used to generate traces.
 
 === Tracing Instrumentation
 This specification supports the following three types of instrumentation:
@@ -159,7 +159,6 @@ Both Agent and MicroProfile Telemetry Tracing Instrumentation (if any), MUST coe
 === Access to the OpenTelemetry Tracing API
 An implementation of MicroProfile Telemetry Tracing MUST provide the following CDI beans for supporting contextual instance injection:
 
-* `io.opentelemetry.api.OpenTelemetry`
 * `io.opentelemetry.api.trace.Tracer`
 * `io.opentelemetry.api.trace.Span`
 * `io.opentelemetry.api.baggage.Baggage`
@@ -169,275 +168,8 @@ Calling the OpenTelemetry API directly MUST work in the same way and yield the s
 * `io.opentelemetry.api.trace.Span.current()`
 * `io.opentelemetry.api.baggage.Baggage.current()`
 
-Implementations MAY support: 
-
-* `io.opentelemetry.api.GlobalOpenTelemetry.get()`
-
-To obtain the `Tracer` with the OpenTelemetry API, the consumer MUST use the exact same instrumentation name and version used by the implementation.
-Failure to do so, MAY result in a different `Tracer` and incorrect handling of the OpenTelemetry data.
-
-
-=== Supported OpenTelemetry API Classes
-Classes from the following API packages MUST be supported by implementations of this specification, though this specification does not prevent additional API classes from being supported.
-Implementations are allowed to pull in a more recent patch version of the API classes.
-
-==== Tracing APIs
-
-* https://www.javadoc.io/static/io.opentelemetry/opentelemetry-api/{otel-java-version}/io/opentelemetry/api/package-summary.html[io.opentelemetry.api] (except `GlobalOpenTelemetry`)
-* https://www.javadoc.io/static/io.opentelemetry/opentelemetry-api/{otel-java-version}/io/opentelemetry/api/trace/package-summary.html[io.opentelemetry.api.trace]
-* https://www.javadoc.io/static/io.opentelemetry/opentelemetry-api/{otel-java-version}/io/opentelemetry/api/common/package-summary.html[io.opentelemetry.api.common]
-
-[NOTE]
-====
-`io.opentelemetry.api` does depend on https://www.javadoc.io/static/io.opentelemetry/opentelemetry-api/{otel-java-version}/io/opentelemetry/api/metrics/package-summary.html[io.opentelemetry.api.metrics] and https://www.javadoc.io/static/io.opentelemetry/opentelemetry-api/{otel-java-version}/io/opentelemetry/api/logs/package-summary.html[io.opentelemetry.api.logs], though this specification only supports the parts that relate to Tracing.
-====
-
-==== Baggage APIs
-
-* https://www.javadoc.io/static/io.opentelemetry/opentelemetry-api/{otel-java-version}/io/opentelemetry/api/baggage/package-summary.html[io.opentelemetry.api.baggage]
-* https://www.javadoc.io/static/io.opentelemetry/opentelemetry-api/{otel-java-version}/io/opentelemetry/api/baggage/propagation/package-summary.html[io.opentelemetry.api.baggage.propagation]
-
-==== Context API
-
-* https://www.javadoc.io/static/io.opentelemetry/opentelemetry-context/{otel-java-version}/io/opentelemetry/context/package-summary.html[io.opentelemetry.context]
-* https://www.javadoc.io/static/io.opentelemetry/opentelemetry-context/{otel-java-version}/io/opentelemetry/context/propagation/package-summary.html[io.opentelemetry.context.propagation]
-
-==== Resource SDK
-
-* https://www.javadoc.io/static/io.opentelemetry/opentelemetry-sdk-common/{otel-java-version}/io/opentelemetry/sdk/resources/package-summary.html[io.opentelemetry.sdk.resources]
-
-==== Autoconfigure SPI
-This is the programmatic interface that allows users to register extensions when using the SDK Autoconfigure Extension (which we use for configuration). 
-
-* https://www.javadoc.io/static/io.opentelemetry/opentelemetry-sdk-extension-autoconfigure-spi/{otel-java-version}/io/opentelemetry/sdk/autoconfigure/spi/package-summary.html[io.opentelemetry.sdk.autoconfigure.spi]
-* https://www.javadoc.io/static/io.opentelemetry/opentelemetry-sdk-extension-autoconfigure-spi/{otel-java-version}/io/opentelemetry/sdk/autoconfigure/spi/traces/package-summary.html[io.opentelemetry.sdk.autoconfigure.spi.traces]
-
-The above packages have dependencies on the following packages which MUST be supported to the extent that they are required by the Autoconfigure SPI classes:
-
-* https://www.javadoc.io/static/io.opentelemetry/opentelemetry-sdk-trace/{otel-java-version}/io/opentelemetry/sdk/trace/package-summary.html[io.opentelemetry.sdk.trace]
-* https://www.javadoc.io/static/io.opentelemetry/opentelemetry-sdk-trace/{otel-java-version}/io/opentelemetry/sdk/trace/data/package-summary.html[io.opentelemetry.sdk.trace.data]
-* https://www.javadoc.io/static/io.opentelemetry/opentelemetry-sdk-trace/{otel-java-version}/io/opentelemetry/sdk/trace/export/package-summary.html[io.opentelemetry.sdk.trace.export]
-* https://www.javadoc.io/static/io.opentelemetry/opentelemetry-sdk-trace/{otel-java-version}/io/opentelemetry/sdk/trace/samplers/package-summary.html[io.opentelemetry.sdk.trace.samplers]
-* https://www.javadoc.io/static/io.opentelemetry/opentelemetry-sdk-common/{otel-java-version}/io/opentelemetry/sdk/common/package-summary.html[io.opentelemetry.sdk.common]
-
-==== Annotations
-
-* https://www.javadoc.io/doc/io.opentelemetry.instrumentation/opentelemetry-instrumentation-annotations/latest/io/opentelemetry/instrumentation/annotations/package-summary.html[io.opentelemetry.instrumentation.annotations] (`WithSpan` and `SpanAttribute` only)
-
-==== Semantic Conventions
-
-[NOTE]
-====
-These packages are not stable and MAY be subject to breaking changes in future releases.
-====
-
-* https://www.javadoc.io/static/io.opentelemetry/opentelemetry-semconv/{otel-java-version}-alpha/io/opentelemetry/semconv/trace/attributes/package-summary.html[io.opentelemetry.semconv.trace.attributes]
-* https://www.javadoc.io/static/io.opentelemetry/opentelemetry-semconv/{otel-java-version}-alpha/io/opentelemetry/semconv/resource/attributes/package-summary.html[io.opentelemetry.semconv.resource.attributes]
-
-=== Configuration
-OpenTelemetry MUST be configured by MicroProfile Config following the semantics of configuration properties detailed in https://github.com/open-telemetry/opentelemetry-java/tree/v{otel-java-version}/sdk-extensions/autoconfigure[OpenTelemetry SDK Autoconfigure {otel-java-version}].
-
-At minimum the following MicroProfile Config properties MUST be supported:
-
-// Table with property name, default value and description
-[options="header"]
-|===
-|Property Name |Description
-
-// sub-section, colspan=3
-2+h| Global Configuration
-
-|`otel.sdk.disabled`
-| Set to `false` to enable OpenTelemetry.
-
-Default value: `true`
-2+h| Exporters configuration
-
-|`otel.traces.exporter`
-| List of exporters to be used for tracing, separated by commas.
-`none` means no autoconfigured exporter.
-Values other than `none` and `otlp` might link:#sec:service-loader-support[require additional libraries]
-
-Default value: `otlp`
-
-| `otel.propagators`
-| The propagators to be used.
-Values other than `none`, `tracecontext` and `baggage` might link:#sec:service-loader-support[require additional libraries]
-
-Default value: `tracecontext, baggage`
-
-2+h| Resource attributes
-
-| `otel.resource.attributes`
-| Specify resource attributes in the following format: `key1=val1, key2=val2, key3=val3`
-
-| `otel.service.name`
-| Specify logical service name.
-Takes precedence over `service.name` defined with `otel.resource.attributes`
-
-Default value: application name (if applicable)
-
-2+h| Batch Span Processor
-
-| `otel.bsp.schedule.delay`
-| The interval, in milliseconds, between two consecutive exports.
-
-Default value: `5000`
-
-| `otel.bsp.max.queue.size`
-| The maximum queue size.
-
-Default value: `2048`
-
-| `otel.bsp.max.export.batch.size`
-| The maximum batch size.
-
-Default value: `512`
-
-| `otel.bsp.export.timeout`
-| The maximum allowed time, in milliseconds, to export data.
-
-Default value: `30000`
-
-2+h| Sampler
-
-| `otel.traces.sampler`
-a| The sampler to use for tracing.
-Supported values are:
-
-* `always_on`
-* `always_off`
-* `traceidratio`
-* `parentbased_always_on`
-* `parentbased_always_off`
-* `parentbased_traceidratio`
-
-Support for other samplers might be added with link:#sec:service-loader-support[additional libraries]
-
-Default value: `parentbased_always_on`
-
-| `otel.traces.sampler.arg`
-| An argument to the configured tracer if supported, for example a ratio.
-Consult OpenTelemetry documentation for details.
-
-2+h| OTLP Exporter
-
-| `otel.exporter.otlp.protocol`
-| The transport protocol to use on OTLP trace, metric, and log requests.
-Options include grpc and http/protobuf.
-
-Default value: `grpc`
-
-| `otel.exporter.otlp.traces.protocol`
-| The transport protocol to use on OTLP trace requests.
-Options include grpc and http/protobuf.
-
-Default value: `grpc`
-
-
-| `otel.exporter.otlp.endpoint`
-| The OTLP traces, metrics, and logs endpoint to connect to.
-MUST be a URL with a scheme of either http or https based on the use of TLS.
-If protocol is http/protobuf the version and signal will be appended to the path (e.g. v1/traces, v1/metrics, or v1/logs)
-
-Default value: `http://localhost:4317` when protocol is `grpc`, `http://localhost:4318/v1/\{signal}` when protocol is `http/protobuf`
-
-| `otel.exporter.otlp.traces.endpoint`
-| The OTLP traces endpoint to connect to.
-MUST be a URL with a scheme of either http or https based on the use of TLS.
-
-Default value: `http://localhost:4317` when protocol is `grpc`, and `http://localhost:4318/v1/traces` when protocol is `http/protobuf`
-
-| `otel.exporter.otlp.certificate`
-| The path to the file containing trusted certificates to use when verifying an OTLP trace, metric, or log server's TLS credentials.
-The file SHOULD contain one or more X.509 certificates in PEM format.
-By default the host platform's trusted root certificates are used.
-
-| `otel.exporter.otlp.traces.certificate`
-| The path to the file containing trusted certificates to use when verifying an OTLP trace server's TLS credentials.
-The file SHOULD contain one or more X.509 certificates in PEM format.
-By default the host platform's trusted root certificates are used.
-
-| `otel.exporter.otlp.client.key`
-| The path to the file containing private client key to use when verifying an OTLP trace, metric, or log client's TLS credentials.
-The file SHOULD contain one private key PKCS8 PEM format.
-By default no client key is used.
-
-| `otel.exporter.otlp.traces.client.key`
-| The path to the file containing private client key to use when verifying an OTLP trace client's TLS credentials.
-The file SHOULD contain one private key PKCS8 PEM format.
-By default no client key file is used.
-
-| `otel.exporter.otlp.client.certificate`
-| The path to the file containing trusted certificates to use when verifying an OTLP trace, metric, or log client's TLS credentials.
-The file SHOULD contain one or more X.509 certificates in PEM format.
-By default no chain file is used.
-
-| `otel.exporter.otlp.traces.client.certificate`
-| The path to the file containing trusted certificates to use when verifying an OTLP trace server's TLS credentials.
-The file SHOULD contain one or more X.509 certificates in PEM format.
-By default no chain file is used.
-
-| `otel.exporter.otlp.headers`
-| Key-value pairs separated by commas to pass as request headers on OTLP trace, metric, and log requests.
-
-| `otel.exporter.otlp.traces.headers`
-| Key-value pairs separated by commas to pass as request headers on OTLP trace requests.
-
-| `otel.exporter.otlp.compression`
-| The compression type to use on OTLP trace, metric, and log requests.
-Options include gzip.
-By default no compression will be used.
-
-| `otel.exporter.otlp.traces.compression`
-| The compression type to use on OTLP trace requests.
-Options include gzip.
-By default no compression will be used.
-
-| `otel.exporter.otlp.timeout`
-| The maximum waiting time, in milliseconds, allowed to send each OTLP trace, metric, and log batch.
-
-Default value: `10000`
-
-| `otel.exporter.otlp.traces.timeout`
-| The maximum waiting time, in milliseconds, allowed to send each OTLP trace batch.
-
-Default value: `10000`
-|===
-
-If Environment Config Source is enabled for MicroProfile Config, then the environment variables as described by the OpenTelemetry SDK Autoconfigure are also supported.
-
-[[sec:service-loader-support]]
-==== Service Loader Support
-Implementation will load additional configuration related components by means of service loader.
-This allows the application to define its own metadata and trace handling behavior.
-The following components are supported
-
-[options=header]
-|===
-| Component interface | Purpose
-
-| https://javadoc.io/doc/io.opentelemetry/opentelemetry-sdk-extension-autoconfigure-spi/{otel-java-version}/io/opentelemetry/sdk/autoconfigure/spi/ConfigurablePropagatorProvider.html[`ConfigurablePropagatorProvider`]
-| Provides implementation for a name referred in `otel.propagators`
-
-| https://javadoc.io/doc/io.opentelemetry/opentelemetry-sdk-extension-autoconfigure-spi/{otel-java-version}/io/opentelemetry/sdk/autoconfigure/spi/traces/ConfigurableSpanExporterProvider.html[`ConfigurableSpanExporterProvider`]
-| Provides implementation for a name referred in `otel.traces.exporter`
-
-| https://javadoc.io/doc/io.opentelemetry/opentelemetry-sdk-extension-autoconfigure-spi/{otel-java-version}/io/opentelemetry/sdk/autoconfigure/spi/traces/ConfigurableSamplerProvider.html[`ConfigurableSamplerProvider`]
-| Provides implementation for a name referred in `otel.traces.sampler`
-
-| https://javadoc.io/doc/io.opentelemetry/opentelemetry-sdk-extension-autoconfigure-spi/{otel-java-version}/io/opentelemetry/sdk/autoconfigure/spi/AutoConfigurationCustomizerProvider.html[`AutoConfigurationCustomizerProvider`]
-| Customizes configuration properties before they are applied to the SDK
-
-| https://javadoc.io/doc/io.opentelemetry/opentelemetry-sdk-extension-autoconfigure-spi/{otel-java-version}/io/opentelemetry/sdk/autoconfigure/spi/ResourceProvider.html[`ResourceProvider`]
-| Defines resource attributes describing the application
-|===
-
-Behavior when multiple implementations are found for a given component name is undefined.
-Behavior when customizer changes other properties than those listed in the spec is also undefined.
-
 [[sec:semantic-conventions]]
-=== Semantic Conventions
+=== Trace Semantic Conventions
 The https://github.com/open-telemetry/opentelemetry-java/tree/v{otel-java-version}/semconv/src/main/java/io/opentelemetry/semconv[Trace Semantic Conventions] for Spans and Attributes MUST be followed by any compatible implementation.
 
 All attributes marked as `required` MUST be present in the context of the Span where they are defined.
@@ -452,21 +184,7 @@ Implementation libraries can set the library name using the following property:
 `mp.telemetry.tracing.name`
 
 === Tracing Enablement
-By default, MicroProfile Telemetry Tracing is deactivated.
-
-In order to enable any of the tracing aspects, the configuration `otel.sdk.disabled=false` MUST be specified in any of the configuration sources available via MicroProfile Config.
-
-
-[IMPORTANT]
-====
-This is a deviation from the OpenTelemetry Specification that specifies this configuration property officially, where https://opentelemetry.io[OpenTelemetry] is activated by default!
-
-But in fact, it will be activated only by adding it's dependency to the application or platform project.
-To be able to add MicroProfile Telemetry Tracing to MicroProfile implementations by default without side effects, this deviating behaviour has been defined here (see also <<sec:microprofile-telemetry-and-microprofile-opentracing>>).
-====
-
-This property is read once when the application is starting.
-Any changes afterwards will not take effect unless the application is restarted.
+Tracing is activated whenever Microprofile Telemetry is enabled, as described in <<sec:enabling-opentelemetry-support>>.
 
 === MicroProfile OpenTracing
 MicroProfile Telemetry Tracing supersedes MicroProfile OpenTracing.
