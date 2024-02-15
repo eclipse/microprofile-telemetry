@@ -29,7 +29,7 @@ All systems should meet the following recommended hardware requirements:
     * Network access to the Internet
 
 == Software Requirements
-You can run this TCK on platforms running the Solaris, Linux, Windows, and Mac OS with the following software installed:
+Test can run this TCK on platforms running the Solaris, Linux, Windows, and Mac OS with the following software installed:
 
     * Maven
     * JDK11+
