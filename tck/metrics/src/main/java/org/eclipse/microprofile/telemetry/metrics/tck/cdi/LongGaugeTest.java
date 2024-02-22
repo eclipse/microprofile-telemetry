@@ -84,7 +84,7 @@ public class LongGaugeTest extends Arquillian {
                             measurement.record(1, Attributes.empty());
                         }));
 
-        MetricData metric = metricExporter.getMetricData((MetricDataType.LONG_GAUGE));
+        MetricData metric = metricExporter.getMetricData((MetricDataType.LONG_GAUGE)).get(0);
         Assert.assertEquals(metric.getName(), gaugeName);
         Assert.assertEquals(metric.getDescription(), gaugeDescription);
         Assert.assertEquals(metric.getUnit(), gaugeUnit);

@@ -83,7 +83,7 @@ public class DoubleGaugeTest extends Arquillian {
                             measurement.record(1, Attributes.empty());
                         }));
 
-        MetricData metric = metricExporter.getMetricData((MetricDataType.DOUBLE_GAUGE));
+        MetricData metric = metricExporter.getMetricData(MetricDataType.DOUBLE_GAUGE).get(0);
         Assert.assertEquals(metric.getName(), gaugeName);
         Assert.assertEquals(metric.getDescription(), gaugeDescription);
         Assert.assertEquals(metric.getUnit(), gaugeUnit);

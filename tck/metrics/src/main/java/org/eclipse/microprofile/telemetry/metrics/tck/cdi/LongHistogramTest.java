@@ -84,7 +84,7 @@ public class LongHistogramTest extends Arquillian {
                         .build();
         Assert.assertNotNull(longHistogram);
         longHistogram.record(10);
-        MetricData metric = metricExporter.getMetricData((MetricDataType.HISTOGRAM));
+        MetricData metric = metricExporter.getMetricData((MetricDataType.HISTOGRAM)).get(0);
         Assert.assertEquals(metric.getName(), histogramName);
         Assert.assertEquals(metric.getDescription(), histogramDescription);
         Assert.assertEquals(metric.getUnit(), histogramUnit);

@@ -84,7 +84,7 @@ public class LongUpDownCounterTest extends Arquillian {
         Assert.assertNotNull(longUpDownCounter);
         longUpDownCounter.add(-10);
 
-        MetricData metric = metricExporter.getMetricData((MetricDataType.LONG_SUM));
+        MetricData metric = metricExporter.getMetricData((MetricDataType.LONG_SUM)).get(0);
         Assert.assertEquals(metric.getName(), counterName);
         Assert.assertEquals(metric.getDescription(), counterDescription);
         Assert.assertEquals(metric.getUnit(), counterUnit);

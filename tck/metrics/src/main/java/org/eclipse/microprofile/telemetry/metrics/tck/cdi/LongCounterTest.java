@@ -21,6 +21,10 @@
  **********************************************************************/
 package org.eclipse.microprofile.telemetry.metrics.tck.cdi;
 
+import static io.opentelemetry.api.common.AttributeKey.stringKey;
+
+import java.util.List;
+
 import org.eclipse.microprofile.telemetry.metrics.tck.TestLibraries;
 import org.eclipse.microprofile.telemetry.metrics.tck.exporter.InMemoryMetricExporter;
 import org.eclipse.microprofile.telemetry.metrics.tck.exporter.InMemoryMetricExporterProvider;
@@ -34,9 +38,11 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.metrics.LongCounter;
 import io.opentelemetry.api.metrics.Meter;
 import io.opentelemetry.sdk.autoconfigure.spi.metrics.ConfigurableMetricExporterProvider;
+import io.opentelemetry.sdk.metrics.data.LongPointData;
 import io.opentelemetry.sdk.metrics.data.MetricData;
 import io.opentelemetry.sdk.metrics.data.MetricDataType;
 import jakarta.inject.Inject;
@@ -82,20 +88,35 @@ public class LongCounterTest extends Arquillian {
                         .setUnit(counterUnit)
                         .build();
         Assert.assertNotNull(longCounter);
-        longCounter.add(12);
-        longCounter.add(12);
+        longCounter.add(12, Attributes.builder().put("K", "V").build());
+        longCounter.add(12, Attributes.builder().put("K", "V").build());
 
-        MetricData metric = metricExporter.getMetricData((MetricDataType.LONG_SUM));
-        Assert.assertEquals(metric.getName(), counterName);
-        Assert.assertEquals(metric.getDescription(), counterDescription);
-        Assert.assertEquals(metric.getUnit(), counterUnit);
+        longCounter.add(12, Attributes.empty());
 
-        Assert.assertEquals(metric.getLongSumData()
-                .getPoints()
-                .stream()
-                .findFirst()
-                .get()
-                .getValue(), 24);
+        List<MetricData> metrics = metricExporter.getMetricData((MetricDataType.LONG_SUM));
+
+        long value = 24;
+        long valueWithoutAttributes = 12;
+
+        for (MetricData metric : metrics) {
+
+            valueWithoutAttributes = metric.getLongSumData().getPoints().stream()
+                    .filter(point -> point.getAttributes() == Attributes.empty())
+                    .mapToLong(LongPointData::getValue)
+                    .findFirst()
+                    .getAsLong();
+
+            value = metric.getLongSumData().getPoints().stream()
+                    .filter(point -> ("V").equals(point.getAttributes().get(stringKey("K"))))
+                    .mapToLong(LongPointData::getValue)
+                    .findFirst()
+                    .getAsLong();
+
+        }
+
+        Assert.assertEquals(value, 24);
+
+        Assert.assertEquals(valueWithoutAttributes, 12);
     }
 
 }

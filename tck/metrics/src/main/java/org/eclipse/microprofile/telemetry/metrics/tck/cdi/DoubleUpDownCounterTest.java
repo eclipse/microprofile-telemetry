@@ -85,7 +85,7 @@ public class DoubleUpDownCounterTest extends Arquillian {
         Assert.assertNotNull(doubleUpDownCounter);
         doubleUpDownCounter.add(-10);
 
-        MetricData metric = metricExporter.getMetricData((MetricDataType.DOUBLE_SUM));
+        MetricData metric = metricExporter.getMetricData((MetricDataType.DOUBLE_SUM)).get(0);
         Assert.assertEquals(metric.getName(), counterName);
         Assert.assertEquals(metric.getDescription(), counterDescription);
         Assert.assertEquals(metric.getUnit(), counterUnit);
