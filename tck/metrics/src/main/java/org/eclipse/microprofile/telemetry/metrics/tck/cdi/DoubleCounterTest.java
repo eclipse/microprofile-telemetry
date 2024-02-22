@@ -42,7 +42,6 @@ import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.metrics.DoubleCounter;
 import io.opentelemetry.api.metrics.Meter;
 import io.opentelemetry.sdk.autoconfigure.spi.metrics.ConfigurableMetricExporterProvider;
-import io.opentelemetry.sdk.metrics.data.DoublePointData;
 import io.opentelemetry.sdk.metrics.data.MetricData;
 import io.opentelemetry.sdk.metrics.data.MetricDataType;
 import jakarta.inject.Inject;
@@ -51,6 +50,9 @@ public class DoubleCounterTest extends Arquillian {
     private static final String counterName = "testDoubleCounter";
     private static final String counterDescription = "Testing double counter";
     private static final String counterUnit = "Metric Tonnes";
+
+    private static final double DOUBLE_WITH_ATTRIBUTES = 20.2;
+    private static final double DOUBLE_WITHOUT_ATTRIBUTES = 10.1;
 
     @Deployment
     public static WebArchive createTestArchive() {
@@ -89,28 +91,19 @@ public class DoubleCounterTest extends Arquillian {
                         .build();
         Assert.assertNotNull(doubleCounter);
 
-        doubleCounter.add(20.2, Attributes.builder().put("K", "V").build());
-        doubleCounter.add(10.1, Attributes.empty());
+        doubleCounter.add(DOUBLE_WITH_ATTRIBUTES, Attributes.builder().put("K", "V").build());
+        doubleCounter.add(DOUBLE_WITHOUT_ATTRIBUTES, Attributes.empty());
         List<MetricData> metrics = metricExporter.getMetricData((MetricDataType.DOUBLE_SUM));
-        Double value = 0.0;
-        Double valueWithoutAttributes = 0.0;
-        MetricData metric = metrics.get(0);
 
-        valueWithoutAttributes = metric.getDoubleSumData().getPoints().stream()
-                .filter(point -> point.getAttributes() == Attributes.empty())
-                .mapToDouble(DoublePointData::getValue)
-                .findFirst()
-                .getAsDouble();
+        boolean result = metrics
+                .stream()
+                .flatMap(metricData -> metricData.getDoubleSumData().getPoints().stream())
+                .allMatch(point -> (point.getValue() == DOUBLE_WITHOUT_ATTRIBUTES
+                        && point.getAttributes() == Attributes.empty())
+                        || (point.getValue() == DOUBLE_WITH_ATTRIBUTES
+                                && point.getAttributes().get(stringKey("K")).equals("V")));
 
-        value = metric.getDoubleSumData().getPoints().stream()
-                .filter(point -> ("V").equals(point.getAttributes().get(stringKey("K"))))
-                .mapToDouble(DoublePointData::getValue)
-                .findFirst()
-                .getAsDouble();
-
-        Assert.assertEquals(value, 20.2);
-
-        Assert.assertEquals(valueWithoutAttributes, 10.1);
+        Assert.assertTrue(result);
     }
 
 }
