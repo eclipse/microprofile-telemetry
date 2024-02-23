@@ -21,9 +21,10 @@
  **********************************************************************/
 package org.eclipse.microprofile.telemetry.metrics.tck.cdi;
 
-import static io.opentelemetry.api.common.AttributeKey.stringKey;
-
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.eclipse.microprofile.telemetry.metrics.tck.TestLibraries;
 import org.eclipse.microprofile.telemetry.metrics.tck.exporter.InMemoryMetricExporter;
@@ -82,6 +83,7 @@ public class DoubleCounterTest extends Arquillian {
 
     @Test
     void testDoubleCounter() throws InterruptedException {
+
         DoubleCounter doubleCounter =
                 sdkMeter
                         .counterBuilder(counterName)
@@ -91,19 +93,35 @@ public class DoubleCounterTest extends Arquillian {
                         .build();
         Assert.assertNotNull(doubleCounter);
 
-        doubleCounter.add(DOUBLE_WITH_ATTRIBUTES, Attributes.builder().put("K", "V").build());
-        doubleCounter.add(DOUBLE_WITHOUT_ATTRIBUTES, Attributes.empty());
+        Map<Double, Attributes> expectedResults = new HashMap<Double, Attributes>();
+        expectedResults.put(DOUBLE_WITH_ATTRIBUTES, Attributes.builder().put("K", "V").build());
+        expectedResults.put(DOUBLE_WITHOUT_ATTRIBUTES, Attributes.empty());
+
+        expectedResults.keySet().stream().forEach(key -> doubleCounter.add(key, expectedResults.get(key)));
+
         List<MetricData> metrics = metricExporter.getMetricData((MetricDataType.DOUBLE_SUM));
-
-        boolean result = metrics
-                .stream()
+        metrics.stream()
+                .peek(metricData -> {
+                    Assert.assertEquals(metricData.getName(), counterName);
+                    Assert.assertEquals(metricData.getDescription(), counterDescription);
+                    Assert.assertEquals(metricData.getUnit(), counterUnit);
+                })
                 .flatMap(metricData -> metricData.getDoubleSumData().getPoints().stream())
-                .allMatch(point -> (point.getValue() == DOUBLE_WITHOUT_ATTRIBUTES
-                        && point.getAttributes() == Attributes.empty())
-                        || (point.getValue() == DOUBLE_WITH_ATTRIBUTES
-                                && point.getAttributes().get(stringKey("K")).equals("V")));
-
-        Assert.assertTrue(result);
+                .forEach(point -> {
+                    Assert.assertTrue(expectedResults.containsKey(point.getValue()),
+                            "Double" + point.getValue() + " was not an expected result");
+                    Assert.assertTrue(point.getAttributes().equals(expectedResults.get(point.getValue())),
+                            "Attributes were not equal."
+                                    + System.lineSeparator() + "Actual values: "
+                                    + mapToString(point.getAttributes().asMap())
+                                    + System.lineSeparator() + "Expected values: "
+                                    + mapToString(expectedResults.get(point.getValue()).asMap()));
+                });
     }
 
+    private String mapToString(Map<?, ?> map) {
+        return (String) map.keySet().stream()
+                .map(key -> "" + key + "=" + map.get(key))
+                .collect(Collectors.joining(", ", "{", "}"));
+    }
 }
