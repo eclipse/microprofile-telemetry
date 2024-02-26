@@ -39,6 +39,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.metrics.DoubleCounter;
 import io.opentelemetry.api.metrics.Meter;
@@ -119,9 +120,9 @@ public class DoubleCounterTest extends Arquillian {
                 });
     }
 
-    private String mapToString(Map<?, ?> map) {
+    private String mapToString(Map<AttributeKey<?>, ?> map) {
         return (String) map.keySet().stream()
-                .map(key -> "" + key + "=" + map.get(key))
+                .map(key -> "" + key.getKey() + "=" + map.get(key))
                 .collect(Collectors.joining(", ", "{", "}"));
     }
 }
