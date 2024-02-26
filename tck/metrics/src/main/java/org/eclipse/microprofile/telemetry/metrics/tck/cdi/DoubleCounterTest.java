@@ -24,9 +24,9 @@ package org.eclipse.microprofile.telemetry.metrics.tck.cdi;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.eclipse.microprofile.telemetry.metrics.tck.TestLibraries;
+import org.eclipse.microprofile.telemetry.metrics.tck.TestUtils;
 import org.eclipse.microprofile.telemetry.metrics.tck.exporter.InMemoryMetricExporter;
 import org.eclipse.microprofile.telemetry.metrics.tck.exporter.InMemoryMetricExporterProvider;
 import org.jboss.arquillian.container.test.api.Deployment;
@@ -39,7 +39,6 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.metrics.DoubleCounter;
 import io.opentelemetry.api.metrics.Meter;
@@ -114,15 +113,9 @@ public class DoubleCounterTest extends Arquillian {
                     Assert.assertTrue(point.getAttributes().equals(expectedResults.get(point.getValue())),
                             "Attributes were not equal."
                                     + System.lineSeparator() + "Actual values: "
-                                    + mapToString(point.getAttributes().asMap())
+                                    + TestUtils.mapToString(point.getAttributes().asMap())
                                     + System.lineSeparator() + "Expected values: "
-                                    + mapToString(expectedResults.get(point.getValue()).asMap()));
+                                    + TestUtils.mapToString(expectedResults.get(point.getValue()).asMap()));
                 });
-    }
-
-    private String mapToString(Map<AttributeKey<?>, ?> map) {
-        return (String) map.keySet().stream()
-                .map(key -> "" + key.getKey() + "=" + map.get(key))
-                .collect(Collectors.joining(", ", "{", "}"));
     }
 }

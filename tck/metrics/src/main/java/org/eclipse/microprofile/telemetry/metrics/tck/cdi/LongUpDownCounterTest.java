@@ -21,7 +21,12 @@
  **********************************************************************/
 package org.eclipse.microprofile.telemetry.metrics.tck.cdi;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.eclipse.microprofile.telemetry.metrics.tck.TestLibraries;
+import org.eclipse.microprofile.telemetry.metrics.tck.TestUtils;
 import org.eclipse.microprofile.telemetry.metrics.tck.exporter.InMemoryMetricExporter;
 import org.eclipse.microprofile.telemetry.metrics.tck.exporter.InMemoryMetricExporterProvider;
 import org.jboss.arquillian.container.test.api.Deployment;
@@ -34,6 +39,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.metrics.LongUpDownCounter;
 import io.opentelemetry.api.metrics.Meter;
 import io.opentelemetry.sdk.autoconfigure.spi.metrics.ConfigurableMetricExporterProvider;
@@ -46,6 +52,9 @@ public class LongUpDownCounterTest extends Arquillian {
     private static final String counterName = "testLongUpDownCounter";
     private static final String counterDescription = "Testing long up down counter";
     private static final String counterUnit = "Metric Tonnes";
+
+    private static final long LONG_WITH_ATTRIBUTES = -20;
+    private static final long LONG_WITHOUT_ATTRIBUTES = -10;
 
     @Deployment
     public static WebArchive createTestArchive() {
@@ -82,19 +91,30 @@ public class LongUpDownCounterTest extends Arquillian {
                         .setUnit(counterUnit)
                         .build();
         Assert.assertNotNull(longUpDownCounter);
-        longUpDownCounter.add(-10);
 
-        MetricData metric = metricExporter.getMetricData((MetricDataType.LONG_SUM)).get(0);
-        Assert.assertEquals(metric.getName(), counterName);
-        Assert.assertEquals(metric.getDescription(), counterDescription);
-        Assert.assertEquals(metric.getUnit(), counterUnit);
+        Map<Long, Attributes> expectedResults = new HashMap<Long, Attributes>();
+        expectedResults.put(LONG_WITH_ATTRIBUTES, Attributes.builder().put("K", "V").build());
+        expectedResults.put(LONG_WITHOUT_ATTRIBUTES, Attributes.empty());
 
-        Assert.assertEquals(metric.getLongSumData()
-                .getPoints()
-                .stream()
-                .findFirst()
-                .get()
-                .getValue(), -10);
+        expectedResults.keySet().stream().forEach(key -> longUpDownCounter.add(key, expectedResults.get(key)));
+
+        List<MetricData> metrics = metricExporter.getMetricData((MetricDataType.LONG_SUM));
+        metrics.stream()
+                .peek(metricData -> {
+                    Assert.assertEquals(metricData.getName(), counterName);
+                    Assert.assertEquals(metricData.getDescription(), counterDescription);
+                    Assert.assertEquals(metricData.getUnit(), counterUnit);
+                })
+                .flatMap(metricData -> metricData.getLongSumData().getPoints().stream())
+                .forEach(point -> {
+                    Assert.assertTrue(expectedResults.containsKey(point.getValue()),
+                            "Long" + point.getValue() + " was not an expected result");
+                    Assert.assertTrue(point.getAttributes().equals(expectedResults.get(point.getValue())),
+                            "Attributes were not equal."
+                                    + System.lineSeparator() + "Actual values: "
+                                    + TestUtils.mapToString(point.getAttributes().asMap())
+                                    + System.lineSeparator() + "Expected values: "
+                                    + TestUtils.mapToString(expectedResults.get(point.getValue()).asMap()));
+                });
     }
-
 }

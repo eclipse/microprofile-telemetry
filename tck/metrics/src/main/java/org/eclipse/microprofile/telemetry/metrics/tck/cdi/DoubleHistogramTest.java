@@ -21,7 +21,12 @@
  **********************************************************************/
 package org.eclipse.microprofile.telemetry.metrics.tck.cdi;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.eclipse.microprofile.telemetry.metrics.tck.TestLibraries;
+import org.eclipse.microprofile.telemetry.metrics.tck.TestUtils;
 import org.eclipse.microprofile.telemetry.metrics.tck.exporter.InMemoryMetricExporter;
 import org.eclipse.microprofile.telemetry.metrics.tck.exporter.InMemoryMetricExporterProvider;
 import org.jboss.arquillian.container.test.api.Deployment;
@@ -34,6 +39,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.metrics.DoubleHistogram;
 import io.opentelemetry.api.metrics.Meter;
 import io.opentelemetry.sdk.autoconfigure.spi.metrics.ConfigurableMetricExporterProvider;
@@ -46,6 +52,9 @@ public class DoubleHistogramTest extends Arquillian {
     private static final String histogramName = "testDoubleHistogram";
     private static final String histogramDescription = "Testing double histogram";
     private static final String histogramUnit = "Metric Tonnes";
+
+    private static final double DOUBLE_WITH_ATTRIBUTES = 20;
+    private static final double DOUBLE_WITHOUT_ATTRIBUTES = 10;
 
     @Deployment
     public static WebArchive createTestArchive() {
@@ -82,17 +91,30 @@ public class DoubleHistogramTest extends Arquillian {
                         .setUnit(histogramUnit)
                         .build();
         Assert.assertNotNull(doubleHistogram);
-        doubleHistogram.record(10);
-        MetricData metric = metricExporter.getMetricData((MetricDataType.HISTOGRAM)).get(0);
-        Assert.assertEquals(metric.getName(), histogramName);
-        Assert.assertEquals(metric.getDescription(), histogramDescription);
-        Assert.assertEquals(metric.getUnit(), histogramUnit);
 
-        Assert.assertEquals(metric.getHistogramData()
-                .getPoints()
-                .stream()
-                .findFirst()
-                .get()
-                .getSum(), 10);
+        Map<Double, Attributes> expectedResults = new HashMap<Double, Attributes>();
+        expectedResults.put(DOUBLE_WITH_ATTRIBUTES, Attributes.builder().put("K", "V").build());
+        expectedResults.put(DOUBLE_WITHOUT_ATTRIBUTES, Attributes.empty());
+
+        expectedResults.keySet().stream().forEach(key -> doubleHistogram.record(key, expectedResults.get(key)));
+
+        List<MetricData> metrics = metricExporter.getMetricData((MetricDataType.HISTOGRAM));
+        metrics.stream()
+                .peek(metricData -> {
+                    Assert.assertEquals(metricData.getName(), histogramName);
+                    Assert.assertEquals(metricData.getDescription(), histogramDescription);
+                    Assert.assertEquals(metricData.getUnit(), histogramUnit);
+                })
+                .flatMap(metricData -> metricData.getHistogramData().getPoints().stream())
+                .forEach(point -> {
+                    Assert.assertTrue(expectedResults.containsKey(point.getSum()),
+                            "Double " + point.getSum() + " was not an expected result");
+                    Assert.assertTrue(point.getAttributes().equals(expectedResults.get(point.getSum())),
+                            "Attributes were not equal."
+                                    + System.lineSeparator() + "Actual values: "
+                                    + TestUtils.mapToString(point.getAttributes().asMap())
+                                    + System.lineSeparator() + "Expected values: "
+                                    + TestUtils.mapToString(expectedResults.get(point.getSum()).asMap()));
+                });
     }
 }
