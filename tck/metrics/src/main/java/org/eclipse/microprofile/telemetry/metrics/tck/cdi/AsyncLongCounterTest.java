@@ -21,10 +21,6 @@
  **********************************************************************/
 package org.eclipse.microprofile.telemetry.metrics.tck.cdi;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.eclipse.microprofile.telemetry.metrics.tck.TestLibraries;
 import org.eclipse.microprofile.telemetry.metrics.tck.TestUtils;
 import org.eclipse.microprofile.telemetry.metrics.tck.exporter.InMemoryMetricExporter;
@@ -40,20 +36,21 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import io.opentelemetry.api.common.Attributes;
-import io.opentelemetry.api.metrics.DoubleCounter;
 import io.opentelemetry.api.metrics.Meter;
 import io.opentelemetry.sdk.autoconfigure.spi.metrics.ConfigurableMetricExporterProvider;
 import io.opentelemetry.sdk.metrics.data.MetricData;
 import io.opentelemetry.sdk.metrics.data.MetricDataType;
 import jakarta.inject.Inject;
 
-public class DoubleCounterTest extends Arquillian {
-    private static final String counterName = "testDoubleCounter";
-    private static final String counterDescription = "Testing double counter";
+public class AsyncLongCounterTest extends Arquillian {
+
+    private static final String counterName = "testLongCounter";
+    private static final String counterDescription = "Testing long counter";
     private static final String counterUnit = "Metric Tonnes";
 
-    private static final double DOUBLE_WITH_ATTRIBUTES = 20.2;
-    private static final double DOUBLE_WITHOUT_ATTRIBUTES = 10.1;
+    private static final long LONG_VALUE = 12;
+    private static final long LONG_WITH_ATTRIBUTES = 24;
+    private static final long LONG_WITHOUT_ATTRIBUTES = 12;
 
     @Deployment
     public static WebArchive createTestArchive() {
@@ -82,41 +79,27 @@ public class DoubleCounterTest extends Arquillian {
     }
 
     @Test
-    void testDoubleCounter() throws InterruptedException {
-
-        DoubleCounter doubleCounter =
+    void testAsyncLongCounter() throws InterruptedException {
+        Assert.assertNotNull(
                 sdkMeter
                         .counterBuilder(counterName)
-                        .ofDoubles()
                         .setDescription(counterDescription)
                         .setUnit(counterUnit)
-                        .build();
-        Assert.assertNotNull(doubleCounter);
+                        .buildWithCallback(measurement -> {
+                            measurement.record(1, Attributes.empty());
+                        }));
 
-        Map<Double, Attributes> expectedResults = new HashMap<Double, Attributes>();
-        expectedResults.put(DOUBLE_WITH_ATTRIBUTES, Attributes.builder().put("K", "V").build());
-        expectedResults.put(DOUBLE_WITHOUT_ATTRIBUTES, Attributes.empty());
+        MetricData metric = metricExporter.getMetricData((MetricDataType.LONG_SUM)).get(0);
 
-        expectedResults.keySet().stream().forEach(key -> doubleCounter.add(key, expectedResults.get(key)));
+        Assert.assertEquals(metric.getName(), counterName);
+        Assert.assertEquals(metric.getDescription(), counterDescription);
+        Assert.assertEquals(metric.getUnit(), counterUnit);
 
-        List<MetricData> metrics = metricExporter.getMetricData((MetricDataType.DOUBLE_SUM));
-        metrics.stream()
-                .peek(metricData -> {
-                    Assert.assertEquals(metricData.getName(), counterName);
-                    Assert.assertEquals(metricData.getDescription(), counterDescription);
-                    Assert.assertEquals(metricData.getUnit(), counterUnit);
-                })
-                .flatMap(metricData -> metricData.getDoubleSumData().getPoints().stream())
-                .forEach(point -> {
-                    Assert.assertTrue(expectedResults.containsKey(point.getValue()),
-                            "Double" + point.getValue() + " was not an expected result");
-                    Assert.assertTrue(point.getAttributes().equals(expectedResults.get(point.getValue())),
-                            "Attributes were not equal."
-                                    + System.lineSeparator() + "Actual values: "
-                                    + TestUtils.mapToString(point.getAttributes().asMap())
-                                    + System.lineSeparator() + "Expected values: "
-                                    + TestUtils.mapToString(expectedResults.get(point.getValue()).asMap()));
-                });
+        Assert.assertEquals(metric.getLongSumData()
+                .getPoints()
+                .stream()
+                .findFirst()
+                .get()
+                .getValue(), 1);
     }
-
 }

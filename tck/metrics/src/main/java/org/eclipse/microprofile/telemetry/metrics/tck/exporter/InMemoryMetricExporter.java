@@ -98,6 +98,7 @@ public class InMemoryMetricExporter implements MetricExporter {
         if (isStopped) {
             return CompletableResultCode.ofFailure();
         }
+        System.out.println("Exporting metrics :" + metrics);
         finishedMetricItems.addAll(metrics);
         return CompletableResultCode.ofSuccess();
     }
