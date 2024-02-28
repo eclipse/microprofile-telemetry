@@ -60,7 +60,7 @@ public class LongHistogramTest extends Arquillian {
     public static WebArchive createTestArchive() {
 
         return ShrinkWrap.create(WebArchive.class)
-                .addClasses(InMemoryMetricExporter.class, InMemoryMetricExporterProvider.class)
+                .addClasses(InMemoryMetricExporter.class, InMemoryMetricExporterProvider.class, TestUtils.class)
                 .addAsLibrary(TestLibraries.AWAITILITY_LIB)
                 .addAsServiceProvider(ConfigurableMetricExporterProvider.class, InMemoryMetricExporterProvider.class)
                 .addAsResource(new StringAsset(
@@ -100,6 +100,7 @@ public class LongHistogramTest extends Arquillian {
         expectedResults.keySet().stream().forEach(key -> longHistogram.record(key, expectedResults.get(key)));
 
         List<MetricData> metrics = metricExporter.getMetricData((MetricDataType.HISTOGRAM));
+        System.out.println("Expected results :" + expectedResults);
         metrics.stream()
                 .peek(metricData -> {
                     Assert.assertEquals(metricData.getName(), histogramName);
@@ -108,14 +109,14 @@ public class LongHistogramTest extends Arquillian {
                 })
                 .flatMap(metricData -> metricData.getHistogramData().getPoints().stream())
                 .forEach(point -> {
-                    Assert.assertTrue(expectedResults.containsKey(point.getSum()),
-                            "Long " + point.getSum() + " was not an expected result");
-                    Assert.assertTrue(point.getAttributes().equals(expectedResults.get(point.getSum())),
+                    Assert.assertTrue(expectedResults.containsKey((long) point.getSum()),
+                            "Long " + (long) point.getSum() + " was not an expected result");
+                    Assert.assertTrue(point.getAttributes().equals(expectedResults.get((long) point.getSum())),
                             "Attributes were not equal."
                                     + System.lineSeparator() + "Actual values: "
                                     + TestUtils.mapToString(point.getAttributes().asMap())
                                     + System.lineSeparator() + "Expected values: "
-                                    + TestUtils.mapToString(expectedResults.get(point.getSum()).asMap()));
+                                    + TestUtils.mapToString(expectedResults.get((long) point.getSum()).asMap()));
                 });
     }
 }
