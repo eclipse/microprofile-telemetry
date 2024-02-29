@@ -22,6 +22,7 @@
 package org.eclipse.microprofile.telemetry.metrics.tck.cdi;
 
 import org.eclipse.microprofile.telemetry.metrics.tck.TestLibraries;
+import org.eclipse.microprofile.telemetry.metrics.tck.TestUtils;
 import org.eclipse.microprofile.telemetry.metrics.tck.exporter.InMemoryMetricExporter;
 import org.eclipse.microprofile.telemetry.metrics.tck.exporter.InMemoryMetricExporterProvider;
 import org.jboss.arquillian.container.test.api.Deployment;
@@ -41,16 +42,21 @@ import io.opentelemetry.sdk.metrics.data.MetricData;
 import io.opentelemetry.sdk.metrics.data.MetricDataType;
 import jakarta.inject.Inject;
 
-public class DoubleGaugeTest extends Arquillian {
-    private static final String gaugeName = "testDoubleGauge";
-    private static final String gaugeDescription = "Testing double gauge";
-    private static final String gaugeUnit = "ms";
+public class AsyncLongCounterTest extends Arquillian {
+
+    private static final String counterName = "testLongCounter";
+    private static final String counterDescription = "Testing long counter";
+    private static final String counterUnit = "Metric Tonnes";
+
+    private static final long LONG_VALUE = 12;
+    private static final long LONG_WITH_ATTRIBUTES = 24;
+    private static final long LONG_WITHOUT_ATTRIBUTES = 12;
 
     @Deployment
     public static WebArchive createTestArchive() {
 
         return ShrinkWrap.create(WebArchive.class)
-                .addClasses(InMemoryMetricExporter.class, InMemoryMetricExporterProvider.class)
+                .addClasses(InMemoryMetricExporter.class, InMemoryMetricExporterProvider.class, TestUtils.class)
                 .addAsLibrary(TestLibraries.AWAITILITY_LIB)
                 .addAsServiceProvider(ConfigurableMetricExporterProvider.class, InMemoryMetricExporterProvider.class)
                 .addAsResource(new StringAsset(
@@ -73,27 +79,27 @@ public class DoubleGaugeTest extends Arquillian {
     }
 
     @Test
-    void testDoubleGauge() throws InterruptedException {
+    void testAsyncLongCounter() throws InterruptedException {
         Assert.assertNotNull(
                 sdkMeter
-                        .gaugeBuilder(gaugeName)
-                        .setDescription(gaugeDescription)
-                        .setUnit("ms")
+                        .counterBuilder(counterName)
+                        .setDescription(counterDescription)
+                        .setUnit(counterUnit)
                         .buildWithCallback(measurement -> {
                             measurement.record(1, Attributes.empty());
                         }));
 
-        MetricData metric = metricExporter.getMetricData(MetricDataType.DOUBLE_GAUGE).get(0);
-        Assert.assertEquals(metric.getName(), gaugeName);
-        Assert.assertEquals(metric.getDescription(), gaugeDescription);
-        Assert.assertEquals(metric.getUnit(), gaugeUnit);
+        MetricData metric = metricExporter.getMetricData((MetricDataType.LONG_SUM)).get(0);
 
-        Assert.assertEquals(metric.getDoubleGaugeData()
+        Assert.assertEquals(metric.getName(), counterName);
+        Assert.assertEquals(metric.getDescription(), counterDescription);
+        Assert.assertEquals(metric.getUnit(), counterUnit);
+
+        Assert.assertEquals(metric.getLongSumData()
                 .getPoints()
                 .stream()
                 .findFirst()
                 .get()
                 .getValue(), 1);
     }
-
 }

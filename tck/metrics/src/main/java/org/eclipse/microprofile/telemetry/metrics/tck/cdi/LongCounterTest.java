@@ -21,7 +21,12 @@
  **********************************************************************/
 package org.eclipse.microprofile.telemetry.metrics.tck.cdi;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.eclipse.microprofile.telemetry.metrics.tck.TestLibraries;
+import org.eclipse.microprofile.telemetry.metrics.tck.TestUtils;
 import org.eclipse.microprofile.telemetry.metrics.tck.exporter.InMemoryMetricExporter;
 import org.eclipse.microprofile.telemetry.metrics.tck.exporter.InMemoryMetricExporterProvider;
 import org.jboss.arquillian.container.test.api.Deployment;
@@ -34,6 +39,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.metrics.LongCounter;
 import io.opentelemetry.api.metrics.Meter;
 import io.opentelemetry.sdk.autoconfigure.spi.metrics.ConfigurableMetricExporterProvider;
@@ -47,11 +53,15 @@ public class LongCounterTest extends Arquillian {
     private static final String counterDescription = "Testing long counter";
     private static final String counterUnit = "Metric Tonnes";
 
+    private static final long LONG_VALUE = 12;
+    private static final long LONG_WITH_ATTRIBUTES = 24;
+    private static final long LONG_WITHOUT_ATTRIBUTES = 12;
+
     @Deployment
     public static WebArchive createTestArchive() {
 
         return ShrinkWrap.create(WebArchive.class)
-                .addClasses(InMemoryMetricExporter.class, InMemoryMetricExporterProvider.class)
+                .addClasses(InMemoryMetricExporter.class, InMemoryMetricExporterProvider.class, TestUtils.class)
                 .addAsLibrary(TestLibraries.AWAITILITY_LIB)
                 .addAsServiceProvider(ConfigurableMetricExporterProvider.class, InMemoryMetricExporterProvider.class)
                 .addAsResource(new StringAsset(
@@ -75,6 +85,7 @@ public class LongCounterTest extends Arquillian {
 
     @Test
     void testLongCounter() throws InterruptedException {
+
         LongCounter longCounter =
                 sdkMeter
                         .counterBuilder(counterName)
@@ -82,20 +93,30 @@ public class LongCounterTest extends Arquillian {
                         .setUnit(counterUnit)
                         .build();
         Assert.assertNotNull(longCounter);
-        longCounter.add(12);
-        longCounter.add(12);
 
-        MetricData metric = metricExporter.getMetricData((MetricDataType.LONG_SUM));
-        Assert.assertEquals(metric.getName(), counterName);
-        Assert.assertEquals(metric.getDescription(), counterDescription);
-        Assert.assertEquals(metric.getUnit(), counterUnit);
+        Map<Long, Attributes> expectedResults = new HashMap<Long, Attributes>();
+        expectedResults.put(LONG_WITH_ATTRIBUTES, Attributes.builder().put("K", "V").build());
+        expectedResults.put(LONG_WITHOUT_ATTRIBUTES, Attributes.empty());
 
-        Assert.assertEquals(metric.getLongSumData()
-                .getPoints()
-                .stream()
-                .findFirst()
-                .get()
-                .getValue(), 24);
+        expectedResults.keySet().stream().forEach(key -> longCounter.add(key, expectedResults.get(key)));
+
+        List<MetricData> metrics = metricExporter.getMetricData((MetricDataType.LONG_SUM));
+        metrics.stream()
+                .peek(metricData -> {
+                    Assert.assertEquals(metricData.getName(), counterName);
+                    Assert.assertEquals(metricData.getDescription(), counterDescription);
+                    Assert.assertEquals(metricData.getUnit(), counterUnit);
+                })
+                .flatMap(metricData -> metricData.getLongSumData().getPoints().stream())
+                .forEach(point -> {
+                    Assert.assertTrue(expectedResults.containsKey(point.getValue()),
+                            "Long" + point.getValue() + " was not an expected result");
+                    Assert.assertTrue(point.getAttributes().equals(expectedResults.get(point.getValue())),
+                            "Attributes were not equal."
+                                    + System.lineSeparator() + "Actual values: "
+                                    + TestUtils.mapToString(point.getAttributes().asMap())
+                                    + System.lineSeparator() + "Expected values: "
+                                    + TestUtils.mapToString(expectedResults.get(point.getValue()).asMap()));
+                });
     }
-
 }

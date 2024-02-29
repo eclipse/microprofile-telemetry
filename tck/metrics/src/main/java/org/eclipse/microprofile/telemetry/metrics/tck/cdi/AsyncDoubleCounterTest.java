@@ -41,10 +41,13 @@ import io.opentelemetry.sdk.metrics.data.MetricData;
 import io.opentelemetry.sdk.metrics.data.MetricDataType;
 import jakarta.inject.Inject;
 
-public class DoubleGaugeTest extends Arquillian {
-    private static final String gaugeName = "testDoubleGauge";
-    private static final String gaugeDescription = "Testing double gauge";
-    private static final String gaugeUnit = "ms";
+public class AsyncDoubleCounterTest extends Arquillian {
+    private static final String counterName = "testDoubleCounter";
+    private static final String counterDescription = "Testing double counter";
+    private static final String counterUnit = "Metric Tonnes";
+
+    private static final double DOUBLE_WITH_ATTRIBUTES = 20.2;
+    private static final double DOUBLE_WITHOUT_ATTRIBUTES = 10.1;
 
     @Deployment
     public static WebArchive createTestArchive() {
@@ -73,22 +76,24 @@ public class DoubleGaugeTest extends Arquillian {
     }
 
     @Test
-    void testDoubleGauge() throws InterruptedException {
+    void testAsyncDoubleCounter() throws InterruptedException {
         Assert.assertNotNull(
                 sdkMeter
-                        .gaugeBuilder(gaugeName)
-                        .setDescription(gaugeDescription)
-                        .setUnit("ms")
+                        .counterBuilder(counterName)
+                        .ofDoubles()
+                        .setDescription(counterDescription)
+                        .setUnit(counterUnit)
                         .buildWithCallback(measurement -> {
                             measurement.record(1, Attributes.empty());
                         }));
 
-        MetricData metric = metricExporter.getMetricData(MetricDataType.DOUBLE_GAUGE).get(0);
-        Assert.assertEquals(metric.getName(), gaugeName);
-        Assert.assertEquals(metric.getDescription(), gaugeDescription);
-        Assert.assertEquals(metric.getUnit(), gaugeUnit);
+        MetricData metric = metricExporter.getMetricData((MetricDataType.DOUBLE_SUM)).get(0);
 
-        Assert.assertEquals(metric.getDoubleGaugeData()
+        Assert.assertEquals(metric.getName(), counterName);
+        Assert.assertEquals(metric.getDescription(), counterDescription);
+        Assert.assertEquals(metric.getUnit(), counterUnit);
+
+        Assert.assertEquals(metric.getDoubleSumData()
                 .getPoints()
                 .stream()
                 .findFirst()

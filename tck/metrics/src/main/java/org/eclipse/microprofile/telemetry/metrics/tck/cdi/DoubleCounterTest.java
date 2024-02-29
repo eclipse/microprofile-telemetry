@@ -21,7 +21,12 @@
  **********************************************************************/
 package org.eclipse.microprofile.telemetry.metrics.tck.cdi;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.eclipse.microprofile.telemetry.metrics.tck.TestLibraries;
+import org.eclipse.microprofile.telemetry.metrics.tck.TestUtils;
 import org.eclipse.microprofile.telemetry.metrics.tck.exporter.InMemoryMetricExporter;
 import org.eclipse.microprofile.telemetry.metrics.tck.exporter.InMemoryMetricExporterProvider;
 import org.jboss.arquillian.container.test.api.Deployment;
@@ -47,11 +52,14 @@ public class DoubleCounterTest extends Arquillian {
     private static final String counterDescription = "Testing double counter";
     private static final String counterUnit = "Metric Tonnes";
 
+    private static final double DOUBLE_WITH_ATTRIBUTES = 20.2;
+    private static final double DOUBLE_WITHOUT_ATTRIBUTES = 10.1;
+
     @Deployment
     public static WebArchive createTestArchive() {
 
         return ShrinkWrap.create(WebArchive.class)
-                .addClasses(InMemoryMetricExporter.class, InMemoryMetricExporterProvider.class)
+                .addClasses(InMemoryMetricExporter.class, InMemoryMetricExporterProvider.class, TestUtils.class)
                 .addAsLibrary(TestLibraries.AWAITILITY_LIB)
                 .addAsServiceProvider(ConfigurableMetricExporterProvider.class, InMemoryMetricExporterProvider.class)
                 .addAsResource(new StringAsset(
@@ -75,6 +83,7 @@ public class DoubleCounterTest extends Arquillian {
 
     @Test
     void testDoubleCounter() throws InterruptedException {
+
         DoubleCounter doubleCounter =
                 sdkMeter
                         .counterBuilder(counterName)
@@ -83,18 +92,31 @@ public class DoubleCounterTest extends Arquillian {
                         .setUnit(counterUnit)
                         .build();
         Assert.assertNotNull(doubleCounter);
-        doubleCounter.add(10.1, Attributes.empty());
-        MetricData metric = metricExporter.getMetricData((MetricDataType.DOUBLE_SUM));
-        Assert.assertEquals(metric.getName(), counterName);
-        Assert.assertEquals(metric.getDescription(), counterDescription);
-        Assert.assertEquals(metric.getUnit(), counterUnit);
 
-        Assert.assertEquals(metric.getDoubleSumData()
-                .getPoints()
-                .stream()
-                .findFirst()
-                .get()
-                .getValue(), 10.1);
+        Map<Double, Attributes> expectedResults = new HashMap<Double, Attributes>();
+        expectedResults.put(DOUBLE_WITH_ATTRIBUTES, Attributes.builder().put("K", "V").build());
+        expectedResults.put(DOUBLE_WITHOUT_ATTRIBUTES, Attributes.empty());
+
+        expectedResults.keySet().stream().forEach(key -> doubleCounter.add(key, expectedResults.get(key)));
+
+        List<MetricData> metrics = metricExporter.getMetricData((MetricDataType.DOUBLE_SUM));
+        metrics.stream()
+                .peek(metricData -> {
+                    Assert.assertEquals(metricData.getName(), counterName);
+                    Assert.assertEquals(metricData.getDescription(), counterDescription);
+                    Assert.assertEquals(metricData.getUnit(), counterUnit);
+                })
+                .flatMap(metricData -> metricData.getDoubleSumData().getPoints().stream())
+                .forEach(point -> {
+                    Assert.assertTrue(expectedResults.containsKey(point.getValue()),
+                            "Double" + point.getValue() + " was not an expected result");
+                    Assert.assertTrue(point.getAttributes().equals(expectedResults.get(point.getValue())),
+                            "Attributes were not equal."
+                                    + System.lineSeparator() + "Actual values: "
+                                    + TestUtils.mapToString(point.getAttributes().asMap())
+                                    + System.lineSeparator() + "Expected values: "
+                                    + TestUtils.mapToString(expectedResults.get(point.getValue()).asMap()));
+                });
     }
 
 }

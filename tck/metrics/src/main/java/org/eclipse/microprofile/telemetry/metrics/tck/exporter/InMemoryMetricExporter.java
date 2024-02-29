@@ -66,9 +66,10 @@ public class InMemoryMetricExporter implements MetricExporter {
                 .untilAsserted(() -> Assert.assertEquals(finishedMetricItems.size(), itemCount));
     }
 
-    public MetricData getMetricData(MetricDataType dataType) {
-        return getFinishedMetricItems(1).stream().filter(metric -> metric.getType() == dataType).findFirst()
-                .orElseThrow(() -> new IllegalStateException("No metric found with type " + dataType));
+    public List<MetricData> getMetricData(MetricDataType dataType) {
+        return getFinishedMetricItems(1).stream().filter(metric -> metric.getType() == dataType)
+                .collect(Collectors.toList());
+        // .orElseThrow(() -> new IllegalStateException("No metric found with type " + dataType));
     }
 
     /**
@@ -97,6 +98,7 @@ public class InMemoryMetricExporter implements MetricExporter {
         if (isStopped) {
             return CompletableResultCode.ofFailure();
         }
+        System.out.println("Exporting metrics :" + metrics);
         finishedMetricItems.addAll(metrics);
         return CompletableResultCode.ofSuccess();
     }
