@@ -22,6 +22,10 @@
 package org.eclipse.microprofile.telemetry.metrics.tck.cdi;
 
 import org.eclipse.microprofile.telemetry.metrics.tck.TestLibraries;
+<<<<<<< HEAD
+=======
+import org.eclipse.microprofile.telemetry.metrics.tck.TestUtils;
+>>>>>>> d3e9e0b (Add TCK attributes and async counter tests (#163))
 import org.eclipse.microprofile.telemetry.metrics.tck.exporter.InMemoryMetricExporter;
 import org.eclipse.microprofile.telemetry.metrics.tck.exporter.InMemoryMetricExporterProvider;
 import org.jboss.arquillian.container.test.api.Deployment;
