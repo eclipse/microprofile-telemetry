@@ -22,7 +22,6 @@
 package org.eclipse.microprofile.telemetry.metrics.tck.cdi;
 
 import org.eclipse.microprofile.telemetry.metrics.tck.TestLibraries;
-import org.eclipse.microprofile.telemetry.metrics.tck.TestUtils;
 import org.eclipse.microprofile.telemetry.metrics.tck.exporter.InMemoryMetricExporter;
 import org.eclipse.microprofile.telemetry.metrics.tck.exporter.InMemoryMetricExporterProvider;
 import org.jboss.arquillian.container.test.api.Deployment;
@@ -56,7 +55,7 @@ public class AsyncLongCounterTest extends Arquillian {
     public static WebArchive createTestArchive() {
 
         return ShrinkWrap.create(WebArchive.class)
-                .addClasses(InMemoryMetricExporter.class, InMemoryMetricExporterProvider.class, TestUtils.class)
+                .addClasses(InMemoryMetricExporter.class, InMemoryMetricExporterProvider.class)
                 .addAsLibrary(TestLibraries.AWAITILITY_LIB)
                 .addAsServiceProvider(ConfigurableMetricExporterProvider.class, InMemoryMetricExporterProvider.class)
                 .addAsResource(new StringAsset(

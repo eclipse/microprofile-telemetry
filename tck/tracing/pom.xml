@@ -60,7 +60,7 @@
             <artifactId>opentelemetry-instrumentation-annotations</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.opentelemetry</groupId>
+            <groupId>io.opentelemetry.semconv</groupId>
             <artifactId>opentelemetry-semconv</artifactId>
             <version>${version.otel.semconv}</version>
         </dependency>

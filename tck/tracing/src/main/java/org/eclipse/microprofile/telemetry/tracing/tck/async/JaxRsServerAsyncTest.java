@@ -20,8 +20,8 @@
 
 package org.eclipse.microprofile.telemetry.tracing.tck.async;
 
-import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.HTTP_STATUS_CODE;
-import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.HTTP_TARGET;
+import static io.opentelemetry.semconv.SemanticAttributes.HTTP_RESPONSE_STATUS_CODE;
+import static io.opentelemetry.semconv.SemanticAttributes.URL_QUERY;
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static org.eclipse.microprofile.telemetry.tracing.tck.async.JaxRsServerAsyncTestEndpoint.BAGGAGE_VALUE_ATTR;
 import static org.testng.Assert.assertEquals;
@@ -148,7 +148,7 @@ public class JaxRsServerAsyncTest extends Arquillian {
         Assert.assertTrue(subtaskSpan.getAttributes().get(BAGGAGE_VALUE_ATTR).contains(TEST_VALUE));
 
         // Assert that query parameter was passed correctly
-        Assert.assertTrue(serverSpan.getAttributes().get(HTTP_TARGET).contains(QUERY_VALUE));
+        Assert.assertTrue(serverSpan.getAttributes().get(URL_QUERY).contains(QUERY_VALUE));
 
         // Assert that the server span finished after the subtask span
         // Even though the resource method returned quickly, the span should not end until the response is actually
@@ -193,8 +193,8 @@ public class JaxRsServerAsyncTest extends Arquillian {
         assertEquals(clientSpan.getSpanId(), serverSpan.getParentSpanId());
 
         // Assert the status code for the client and server spans
-        assertEquals(serverSpan.getAttributes().get(HTTP_STATUS_CODE).intValue(), HTTP_BAD_REQUEST);
-        assertEquals(clientSpan.getAttributes().get(HTTP_STATUS_CODE).intValue(), HTTP_BAD_REQUEST);
+        assertEquals(serverSpan.getAttributes().get(HTTP_RESPONSE_STATUS_CODE).intValue(), HTTP_BAD_REQUEST);
+        assertEquals(clientSpan.getAttributes().get(HTTP_RESPONSE_STATUS_CODE).intValue(), HTTP_BAD_REQUEST);
 
         // Assert that the expected headers were used
         Assert.assertTrue(serverSpan.getAttributes().get(BAGGAGE_VALUE_ATTR).contains(TEST_VALUE));
@@ -203,7 +203,7 @@ public class JaxRsServerAsyncTest extends Arquillian {
         Assert.assertTrue(subtaskSpan.getAttributes().get(BAGGAGE_VALUE_ATTR).contains(TEST_VALUE));
 
         // Assert that query parameter was passed correctly
-        Assert.assertTrue(serverSpan.getAttributes().get(HTTP_TARGET).contains(QUERY_VALUE));
+        Assert.assertTrue(serverSpan.getAttributes().get(URL_QUERY).contains(QUERY_VALUE));
 
         // Assert that the server span finished after the subtask span
         // Even though the resource method returned quickly, the span should not end until the response is actually

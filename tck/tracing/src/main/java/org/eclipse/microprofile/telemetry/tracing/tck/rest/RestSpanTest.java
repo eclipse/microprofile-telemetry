@@ -21,15 +21,16 @@
 package org.eclipse.microprofile.telemetry.tracing.tck.rest;
 
 import static io.opentelemetry.api.trace.SpanKind.SERVER;
-import static io.opentelemetry.semconv.resource.attributes.ResourceAttributes.SERVICE_NAME;
-import static io.opentelemetry.semconv.resource.attributes.ResourceAttributes.SERVICE_VERSION;
-import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.HTTP_METHOD;
-import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.HTTP_ROUTE;
-import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.HTTP_SCHEME;
-import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.HTTP_STATUS_CODE;
-import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.HTTP_TARGET;
-import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.NET_HOST_NAME;
-import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.NET_HOST_PORT;
+import static io.opentelemetry.semconv.ResourceAttributes.SERVICE_NAME;
+import static io.opentelemetry.semconv.ResourceAttributes.SERVICE_VERSION;
+import static io.opentelemetry.semconv.SemanticAttributes.HTTP_REQUEST_METHOD;
+import static io.opentelemetry.semconv.SemanticAttributes.HTTP_RESPONSE_STATUS_CODE;
+import static io.opentelemetry.semconv.SemanticAttributes.HTTP_ROUTE;
+import static io.opentelemetry.semconv.SemanticAttributes.SERVER_ADDRESS;
+import static io.opentelemetry.semconv.SemanticAttributes.SERVER_PORT;
+import static io.opentelemetry.semconv.SemanticAttributes.URL_PATH;
+import static io.opentelemetry.semconv.SemanticAttributes.URL_QUERY;
+import static io.opentelemetry.semconv.SemanticAttributes.URL_SCHEME;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
@@ -110,16 +111,22 @@ public class RestSpanTest extends Arquillian {
     }
     private void assertServerSpan(SpanData server, String path, int statusCode) {
         Assert.assertEquals(server.getKind(), SERVER);
-        Assert.assertEquals(server.getAttributes().get(HTTP_STATUS_CODE).intValue(), statusCode);
-        Assert.assertEquals(server.getAttributes().get(HTTP_METHOD), HttpMethod.GET);
-        Assert.assertEquals(server.getAttributes().get(HTTP_SCHEME), url.getProtocol());
-        Assert.assertEquals(server.getAttributes().get(HTTP_TARGET), url.getPath() + path);
+        Assert.assertEquals(server.getAttributes().get(HTTP_RESPONSE_STATUS_CODE).intValue(), statusCode);
+        Assert.assertEquals(server.getAttributes().get(HTTP_REQUEST_METHOD), HttpMethod.GET);
+        Assert.assertEquals(server.getAttributes().get(URL_SCHEME), url.getProtocol());
+        if (server.getAttributes().get(URL_QUERY) != null) {
+            Assert.assertEquals(server.getAttributes().get(URL_PATH) + "?" + server.getAttributes().get(URL_QUERY),
+                    url.getPath() + path);
+        } else {
+            Assert.assertEquals(server.getAttributes().get(URL_PATH),
+                    url.getPath() + path);
+        }
         // route is required when available, definitely available for REST endpoints
         Assert.assertNotNull(server.getAttributes().get(HTTP_ROUTE));
         // not asserting specific value as it is only recommended, and should contain application prefix
-        Assert.assertEquals(server.getAttributes().get(NET_HOST_NAME), url.getHost());
+        Assert.assertEquals(server.getAttributes().get(SERVER_ADDRESS), url.getHost());
         if (url.getPort() != url.getDefaultPort()) {
-            Assert.assertEquals(server.getAttributes().get(NET_HOST_PORT).intValue(), url.getPort());
+            Assert.assertEquals(server.getAttributes().get(SERVER_PORT).intValue(), url.getPort());
         }
     }
 

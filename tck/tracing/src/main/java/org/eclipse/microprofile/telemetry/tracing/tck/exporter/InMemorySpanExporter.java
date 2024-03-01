@@ -36,7 +36,7 @@ import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.sdk.common.CompletableResultCode;
 import io.opentelemetry.sdk.trace.data.SpanData;
 import io.opentelemetry.sdk.trace.export.SpanExporter;
-import io.opentelemetry.semconv.trace.attributes.SemanticAttributes;
+import io.opentelemetry.semconv.SemanticAttributes;
 import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
@@ -79,7 +79,7 @@ public class InMemorySpanExporter implements SpanExporter {
     private static boolean isArquillianSpan(SpanData span) {
         String path = span.getAttributes().get(SemanticAttributes.HTTP_ROUTE);
         if (path == null) {
-            path = span.getAttributes().get(SemanticAttributes.HTTP_TARGET);
+            path = span.getAttributes().get(SemanticAttributes.URL_QUERY);
         }
         if (path != null
                 && (path.contains("/ArquillianServletRunner")
