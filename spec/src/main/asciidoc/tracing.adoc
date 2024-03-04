@@ -170,11 +170,16 @@ Calling the OpenTelemetry API directly MUST work in the same way and yield the s
 
 [[sec:semantic-conventions]]
 === Trace Semantic Conventions
-The https://github.com/open-telemetry/opentelemetry-java/tree/v{otel-java-version}/semconv/src/main/java/io/opentelemetry/semconv[Trace Semantic Conventions] for Spans and Attributes MUST be followed by any compatible implementation.
+The https://github.com/open-telemetry/semantic-conventions/blob/v{otel-semconv-version}/docs/http/http-spans.md[Semantic Conventions for HTTP Spans]  MUST be followed by any compatible implementation.
 
-All attributes marked as `required` MUST be present in the context of the Span where they are defined.
+NOTE: This is a breaking change from MicroProfile Telemetry 1.1 due to stabilization of HTTP semantic conventions in OpenTelemetry.
+Changes to attributes are described in https://github.com/open-telemetry/semantic-conventions/blob/main/docs/http/migration-guide.md[HTTP semantic convention stability migration guide].
+// Migration guide was not part of 1.24.0 release, so the link is to the main branch.
+
+Semantic Conventions distinguish several https://github.com/open-telemetry/semantic-conventions/blob/v{otel-semconv-version}/docs/general/attribute-requirement-level.md[Requirement Levels] for attributes.
+All Span attributes marked as `Required` and `Conditionally Required` MUST be present in the context of the Span where they are defined.
 Any other attribute is optional.
-Implementations can also add their own attributes.
+Implementations MAY also add their own attributes, or provide means of configuring `Opt-In` attribute emission.
 
 ==== MicroProfile Attributes
 Other MicroProfile specifications can add their own attributes under their own attribute name following the convention `mp.[specification short name].[attribute name]`.
