@@ -53,7 +53,6 @@ public class AsyncLongCounterTest extends Arquillian {
 
     @Deployment
     public static WebArchive createTestArchive() {
-
         return ShrinkWrap.create(WebArchive.class)
                 .addClasses(InMemoryMetricExporter.class, InMemoryMetricExporterProvider.class)
                 .addAsLibrary(TestLibraries.AWAITILITY_LIB)
