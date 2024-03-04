@@ -33,7 +33,7 @@ ifdef::backend-pdf[]
 endif::[]
 // Attributes defined in the microprofile-telemetry (parent) maven POM:
 //:otel-java-version:
-
+//:otel-semconv-version:
 
 // == License
 :sectnums!:
