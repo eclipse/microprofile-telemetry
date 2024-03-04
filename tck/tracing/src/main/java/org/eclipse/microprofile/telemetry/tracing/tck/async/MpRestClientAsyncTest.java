@@ -20,11 +20,11 @@
 
 package org.eclipse.microprofile.telemetry.tracing.tck.async;
 
-import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.HTTP_METHOD;
-import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.HTTP_SCHEME;
-import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.HTTP_STATUS_CODE;
-import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.HTTP_TARGET;
-import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.HTTP_URL;
+import static io.opentelemetry.semconv.SemanticAttributes.HTTP_REQUEST_METHOD;
+import static io.opentelemetry.semconv.SemanticAttributes.HTTP_RESPONSE_STATUS_CODE;
+import static io.opentelemetry.semconv.SemanticAttributes.URL_FULL;
+import static io.opentelemetry.semconv.SemanticAttributes.URL_PATH;
+import static io.opentelemetry.semconv.SemanticAttributes.URL_SCHEME;
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static java.net.HttpURLConnection.HTTP_OK;
 
@@ -60,6 +60,7 @@ public class MpRestClientAsyncTest extends Arquillian {
         ConfigAsset config = new ConfigAsset()
                 .add("otel.bsp.schedule.delay", "100")
                 .add("otel.sdk.disabled", "false")
+                .add("otel.metrics.exporter", "none")
                 .add("otel.traces.exporter", "in-memory");
 
         return ShrinkWrap.create(WebArchive.class)
@@ -119,7 +120,7 @@ public class MpRestClientAsyncTest extends Arquillian {
         SpanData httpGet = spanExporter.getFirst(SpanKind.CLIENT);
 
         for (SpanData span : serverSpans) {
-            if (span.getAttributes().get(HTTP_TARGET).contains("MpRestClientAsyncTestEndpoint/mpclient")) {
+            if (span.getAttributes().get(URL_PATH).contains("MpRestClientAsyncTestEndpoint/mpclient")) {
                 firstURL = span;
             } else {
                 secondURL = span;
@@ -134,13 +135,13 @@ public class MpRestClientAsyncTest extends Arquillian {
         Assert.assertEquals(httpGet.getSpanId(), secondURL.getParentSpanId());
         Assert.assertEquals(firstURL.getSpanId(), httpGet.getParentSpanId());
 
-        Assert.assertEquals(firstURL.getAttributes().get(HTTP_STATUS_CODE).intValue(), HTTP_OK);
-        Assert.assertEquals(firstURL.getAttributes().get(HTTP_METHOD), HttpMethod.GET);
-        Assert.assertEquals(firstURL.getAttributes().get(HTTP_SCHEME), "http");
+        Assert.assertEquals(firstURL.getAttributes().get(HTTP_RESPONSE_STATUS_CODE).intValue(), HTTP_OK);
+        Assert.assertEquals(firstURL.getAttributes().get(HTTP_REQUEST_METHOD), HttpMethod.GET);
+        Assert.assertEquals(firstURL.getAttributes().get(URL_SCHEME), "http");
 
-        Assert.assertEquals(httpGet.getAttributes().get(HTTP_STATUS_CODE).intValue(), HTTP_OK);
-        Assert.assertEquals(httpGet.getAttributes().get(HTTP_METHOD), HttpMethod.GET);
-        Assert.assertTrue(httpGet.getAttributes().get(HTTP_URL).contains("MpRestClientAsyncTestEndpoint"));
+        Assert.assertEquals(httpGet.getAttributes().get(HTTP_RESPONSE_STATUS_CODE).intValue(), HTTP_OK);
+        Assert.assertEquals(httpGet.getAttributes().get(HTTP_REQUEST_METHOD), HttpMethod.GET);
+        Assert.assertTrue(httpGet.getAttributes().get(URL_FULL).contains("MpRestClientAsyncTestEndpoint"));
     }
 
     public void readSpansError() {
@@ -154,7 +155,7 @@ public class MpRestClientAsyncTest extends Arquillian {
         SpanData httpGet = spanExporter.getFirst(SpanKind.CLIENT);
 
         for (SpanData span : serverSpans) {
-            if (span.getAttributes().get(HTTP_TARGET).contains("MpRestClientAsyncTestEndpoint/mpclient")) {
+            if (span.getAttributes().get(URL_PATH).contains("MpRestClientAsyncTestEndpoint/mpclient")) {
                 firstURL = span;
             } else {
                 secondURL = span;
@@ -169,18 +170,18 @@ public class MpRestClientAsyncTest extends Arquillian {
         Assert.assertEquals(firstURL.getSpanId(), httpGet.getParentSpanId());
 
         // requestMpClientError() returns a BAD_REQUEST status
-        Assert.assertEquals(secondURL.getAttributes().get(HTTP_STATUS_CODE).intValue(), HTTP_BAD_REQUEST);
-        Assert.assertEquals(secondURL.getAttributes().get(HTTP_METHOD), HttpMethod.GET);
-        Assert.assertEquals(secondURL.getAttributes().get(HTTP_SCHEME), "http");
+        Assert.assertEquals(secondURL.getAttributes().get(HTTP_RESPONSE_STATUS_CODE).intValue(), HTTP_BAD_REQUEST);
+        Assert.assertEquals(secondURL.getAttributes().get(HTTP_REQUEST_METHOD), HttpMethod.GET);
+        Assert.assertEquals(secondURL.getAttributes().get(URL_SCHEME), "http");
 
         // which is received by the client
-        Assert.assertEquals(httpGet.getAttributes().get(HTTP_STATUS_CODE).intValue(), HTTP_BAD_REQUEST);
-        Assert.assertEquals(httpGet.getAttributes().get(HTTP_METHOD), HttpMethod.GET);
-        Assert.assertTrue(httpGet.getAttributes().get(HTTP_URL).contains("MpRestClientAsyncTestEndpoint"));
+        Assert.assertEquals(httpGet.getAttributes().get(HTTP_RESPONSE_STATUS_CODE).intValue(), HTTP_BAD_REQUEST);
+        Assert.assertEquals(httpGet.getAttributes().get(HTTP_REQUEST_METHOD), HttpMethod.GET);
+        Assert.assertTrue(httpGet.getAttributes().get(URL_FULL).contains("MpRestClientAsyncTestEndpoint"));
 
         // Exception is handled in the receiving code so the status code here should be OK
-        Assert.assertEquals(firstURL.getAttributes().get(HTTP_STATUS_CODE).intValue(), HTTP_OK);
-        Assert.assertEquals(firstURL.getAttributes().get(HTTP_METHOD), HttpMethod.GET);
-        Assert.assertEquals(firstURL.getAttributes().get(HTTP_SCHEME), "http");
+        Assert.assertEquals(firstURL.getAttributes().get(HTTP_RESPONSE_STATUS_CODE).intValue(), HTTP_OK);
+        Assert.assertEquals(firstURL.getAttributes().get(HTTP_REQUEST_METHOD), HttpMethod.GET);
+        Assert.assertEquals(firstURL.getAttributes().get(URL_SCHEME), "http");
     }
 }

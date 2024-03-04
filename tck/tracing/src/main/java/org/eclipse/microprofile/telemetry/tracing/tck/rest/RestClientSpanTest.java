@@ -20,16 +20,15 @@
 
 package org.eclipse.microprofile.telemetry.tracing.tck.rest;
 
-import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.HTTP_METHOD;
-import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.HTTP_ROUTE;
-import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.HTTP_SCHEME;
-import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.HTTP_STATUS_CODE;
-import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.HTTP_TARGET;
-import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.HTTP_URL;
-import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.NET_HOST_NAME;
-import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.NET_HOST_PORT;
-import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.NET_PEER_NAME;
-import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.NET_PEER_PORT;
+import static io.opentelemetry.semconv.SemanticAttributes.HTTP_REQUEST_METHOD;
+import static io.opentelemetry.semconv.SemanticAttributes.HTTP_RESPONSE_STATUS_CODE;
+import static io.opentelemetry.semconv.SemanticAttributes.HTTP_ROUTE;
+import static io.opentelemetry.semconv.SemanticAttributes.SERVER_ADDRESS;
+import static io.opentelemetry.semconv.SemanticAttributes.SERVER_PORT;
+import static io.opentelemetry.semconv.SemanticAttributes.URL_FULL;
+import static io.opentelemetry.semconv.SemanticAttributes.URL_PATH;
+import static io.opentelemetry.semconv.SemanticAttributes.URL_QUERY;
+import static io.opentelemetry.semconv.SemanticAttributes.URL_SCHEME;
 import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
 import static jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import static jakarta.ws.rs.core.Response.Status.OK;
@@ -88,7 +87,9 @@ public class RestClientSpanTest extends Arquillian {
                 .addClasses(InMemorySpanExporter.class, InMemorySpanExporterProvider.class)
                 .addAsLibrary(TestLibraries.AWAITILITY_LIB)
                 .addAsServiceProvider(ConfigurableSpanExporterProvider.class, InMemorySpanExporterProvider.class)
-                .addAsResource(new StringAsset("otel.sdk.disabled=false\notel.traces.exporter=in-memory"),
+                .addAsResource(
+                        new StringAsset(
+                                "otel.sdk.disabled=false\notel.traces.exporter=in-memory\notel.metrics.exporter=none"),
                         "META-INF/microprofile-config.properties")
                 .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
     }
@@ -320,12 +321,12 @@ public class RestClientSpanTest extends Arquillian {
 
     private void assertClientSpan(SpanData client, String path, Response.StatusType status) {
         assertEquals(client.getKind(), SpanKind.CLIENT);
-        assertEquals(client.getAttributes().get(HTTP_STATUS_CODE).intValue(), status.getStatusCode());
-        assertEquals(client.getAttributes().get(HTTP_METHOD), HttpMethod.GET);
-        assertEquals(client.getAttributes().get(HTTP_URL), url.toString() + path);
-        assertEquals(client.getAttributes().get(NET_PEER_NAME), url.getHost());
+        assertEquals(client.getAttributes().get(HTTP_RESPONSE_STATUS_CODE).intValue(), status.getStatusCode());
+        assertEquals(client.getAttributes().get(HTTP_REQUEST_METHOD), HttpMethod.GET);
+        assertEquals(client.getAttributes().get(URL_FULL), url.toString() + path);
+        assertEquals(client.getAttributes().get(SERVER_ADDRESS), url.getHost());
         if (url.getPort() != url.getDefaultPort()) {
-            assertEquals(client.getAttributes().get(NET_PEER_PORT).intValue(), url.getPort());
+            assertEquals(client.getAttributes().get(SERVER_PORT).intValue(), url.getPort());
         }
     }
 
@@ -335,16 +336,22 @@ public class RestClientSpanTest extends Arquillian {
 
     private void assertServerSpan(SpanData server, String path, Response.StatusType status) {
         assertEquals(server.getKind(), SpanKind.SERVER);
-        assertEquals(server.getAttributes().get(HTTP_STATUS_CODE).intValue(), status.getStatusCode());
-        assertEquals(server.getAttributes().get(HTTP_METHOD), HttpMethod.GET);
-        assertEquals(server.getAttributes().get(HTTP_SCHEME), url.getProtocol());
-        assertEquals(server.getAttributes().get(HTTP_TARGET), url.getPath() + path);
+        assertEquals(server.getAttributes().get(HTTP_RESPONSE_STATUS_CODE).intValue(), status.getStatusCode());
+        assertEquals(server.getAttributes().get(HTTP_REQUEST_METHOD), HttpMethod.GET);
+        assertEquals(server.getAttributes().get(URL_SCHEME), url.getProtocol());
+        if (server.getAttributes().get(URL_QUERY) != null) {
+            Assert.assertEquals(server.getAttributes().get(URL_PATH) + "?" + server.getAttributes().get(URL_QUERY),
+                    url.getPath() + path);
+        } else {
+            Assert.assertEquals(server.getAttributes().get(URL_PATH),
+                    url.getPath() + path);
+        }
         // route is required when available, definitely available for REST endpoints
         Assert.assertNotNull(server.getAttributes().get(HTTP_ROUTE));
         // not asserting specific value as it is only recommended, and should contain application prefix
-        assertEquals(server.getAttributes().get(NET_HOST_NAME), url.getHost());
+        assertEquals(server.getAttributes().get(SERVER_ADDRESS), url.getHost());
         if (url.getPort() != url.getDefaultPort()) {
-            assertEquals(server.getAttributes().get(NET_HOST_PORT).intValue(), url.getPort());
+            assertEquals(server.getAttributes().get(SERVER_PORT).intValue(), url.getPort());
         }
     }
 

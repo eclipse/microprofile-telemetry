@@ -69,7 +69,7 @@ public class RestClientSpanDefaultTest extends Arquillian {
                 .addClasses(InMemorySpanExporter.class, InMemorySpanExporterProvider.class)
                 .addAsLibrary(TestLibraries.AWAITILITY_LIB)
                 .addAsServiceProvider(ConfigurableSpanExporterProvider.class, InMemorySpanExporterProvider.class)
-                .addAsResource(new StringAsset("otel.traces.exporter=in-memory"),
+                .addAsResource(new StringAsset("otel.traces.exporter=in-memory\notel.metrics.exporter=none"),
                         "META-INF/microprofile-config.properties")
                 .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
     }

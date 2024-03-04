@@ -65,7 +65,7 @@ public class JaegerPropagationTest extends Arquillian {
                 .addAsServiceProvider(ConfigurableSpanExporterProvider.class, InMemorySpanExporterProvider.class)
                 .addAsResource(
                         new StringAsset(
-                                "otel.sdk.disabled=false\notel.traces.exporter=in-memory\notel.propagators=jaeger"),
+                                "otel.sdk.disabled=false\notel.traces.exporter=in-memory\notel.metrics.exporter=none\notel.propagators=jaeger"),
                         "META-INF/microprofile-config.properties")
                 .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
     }
