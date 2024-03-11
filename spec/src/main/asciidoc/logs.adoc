@@ -19,25 +19,4 @@
 
 [[logs]]
 == Logs
-The OpenTelemetry Logs bridge API exists to enable bridging logs from other log frameworks (e.g. SLF4J, Log4j, JUL, Logback, etc) into OpenTelemetry. It does not define new Log APIs. The following shows the entry points.
-
-[source,java]
-----
-LoggerProvider (provider.loggerBuilder(instrumentationScopeName)
-    -> LoggerBuilder  (loggerBuilder.build())
-      ->Logger (logger.logRecordBuilder)
-        ->LogRecordBuilder
-----
-
-=== Access to the OpenTelemetry Logs API
-An implementation of MicroProfile Telemetry Logs MUST provide the following CDI beans for supporting contextual instance injection:
-
-* `io.opentelemetry.api.logs.LoggerProvider`
-
-[source,java]
-----
-@Inject LoggerProvider provider;
-----
-
-
-
+The OpenTelemetry Logs bridge API exists to enable bridging logs from other log frameworks (e.g. SLF4J, Log4j, JUL, Logback, etc) into OpenTelemetry. It does not define new Log APIs and the Logs bridge APIs in OpenTelemetry are not for application but for runtime to bridge log frameworks. Therefore, this specification does not expose any Log APIs.
