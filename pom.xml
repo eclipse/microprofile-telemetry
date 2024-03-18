@@ -32,6 +32,7 @@
     <properties>
         <inceptionYear>2022</inceptionYear>
         <opentelemetry.java.version>1.32.0</opentelemetry.java.version>
+        <opentelemetry.semconv.version>1.24.0</opentelemetry.semconv.version>
         <version.mp.rest.client>3.0.1</version.mp.rest.client>
         <version.microprofile-config-api>3.1</version.microprofile-config-api>
         <version.awaitility>4.2.1</version.awaitility>
@@ -86,6 +87,7 @@
                     <configuration>
                         <attributes>
                             <otel-java-version>${opentelemetry.java.version}</otel-java-version>
+                            <otel-semconv-version>${opentelemetry.semconv.version}</otel-semconv-version>
                         </attributes>
                     </configuration>
                  </plugin>
