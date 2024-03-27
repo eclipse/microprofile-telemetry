@@ -35,8 +35,6 @@ Baggage API::
 * https://www.javadoc.io/static/io.opentelemetry/opentelemetry-api/{otel-java-version}/io/opentelemetry/api/baggage/propagation/package-summary.html[io.opentelemetry.api.baggage.propagation]
 Metrics API::
 * https://www.javadoc.io/static/io.opentelemetry/opentelemetry-api/{otel-java-version}/io/opentelemetry/api/metrics/package-summary.html[io.opentelemetry.api.metrics]
-Logs API::
-* https://www.javadoc.io/static/io.opentelemetry/opentelemetry-api/{otel-java-version}/io/opentelemetry/api/logs/package-summary.html[io.opentelemetry.api.logs]
 
 === Context API
 
