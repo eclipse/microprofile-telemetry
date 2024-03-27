@@ -47,6 +47,7 @@ Default value: `otlp`
 
 |`otel.metrics.exporter`
 | List of exporters to be used for metrics, separated by commas.
+`none` means no autoconfigured exporter.
 Values other than `none` and `otlp` might link:#sec:service-loader-support[require additional libraries]
 
 Default value: `otlp`
