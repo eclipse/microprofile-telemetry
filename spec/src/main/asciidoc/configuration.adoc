@@ -51,6 +51,13 @@ Values other than `none` and `otlp` might link:#sec:service-loader-support[requi
 
 Default value: `otlp`
 
+|`otel.logs.exporter`
+| List of exporters to be used for logs, separated by commas.
+`none` means no autoconfigured exporter.
+Values other than `none` and `otlp` might link:#sec:service-loader-support[require additional libraries]
+
+Default value: `otlp`
+
 | `otel.propagators`
 | The propagators to be used.
 Values other than `none`, `tracecontext` and `baggage` might link:#sec:service-loader-support[require additional libraries]
@@ -180,8 +187,30 @@ Default value: `TRACE_BASED`
 | `otel.metric.export.interval`
 | The interval, in milliseconds, between the start of two export attempts.
 
-Default value: `60000`
+2+h| Batch log record processor
+
+| `otel.blrp.schedule.delay`
+| The interval, in milliseconds, between two consecutive exports.
+
+Default value: `1000`
+
+| `otel.blrp.max.queue.size`
+| The maximum batch size.
+
+Default value: `512`
+
+| `otel.blrp.max.export.batch.size`
+| The maximum queue size.
+
+Default value: `2048`
+
+| `otel.blrp.export.timeout`
+| The maximum allowed time, in milliseconds, to export data.
+
+Default value: `30000`
+
 |===
+
 
 If Environment Config Source is enabled for MicroProfile Config, then the environment variables as described by the OpenTelemetry SDK Autoconfigure are also supported.
 
@@ -207,6 +236,12 @@ Options include grpc and http/protobuf.
 
 Default value: `grpc`
 
+| `otel.exporter.otlp.logs.protocol`
+| The transport protocol to use on OTLP log requests.
+Options include grpc and http/protobuf.
+
+Default value: `grpc`
+
 | `otel.exporter.otlp.traces.endpoint`
 | The OTLP traces endpoint to connect to.
 MUST be a URL with a scheme of either http or https based on the use of TLS.
@@ -219,6 +254,12 @@ MUST be a URL with a scheme of either http or https based on the use of TLS.
 
 Default value: `http://localhost:4317` when protocol is `grpc`, and `http://localhost:4318/v1/metrics` when protocol is `http/protobuf`
 
+| `otel.exporter.otlp.logs.endpoint`
+| The OTLP logs endpoint to connect to.
+MUST be a URL with a scheme of either http or https based on the use of TLS.
+
+Default value: `http://localhost:4317` when protocol is `grpc`, and `http://localhost:4318/v1/logs` when protocol is `http/protobuf`
+
 | `otel.exporter.otlp.traces.certificate`
 | The path to the file containing trusted certificates to use when verifying an OTLP trace server's TLS credentials.
 The file SHOULD contain one or more X.509 certificates in PEM format.
@@ -227,6 +268,12 @@ By default the host platform's trusted root certificates are used.
 
 | `otel.exporter.otlp.metrics.certificate`
 | The path to the file containing trusted certificates to use when verifying an OTLP metric server's TLS credentials.
+The file SHOULD contain one or more X.509 certificates in PEM format.
+
+By default the host platform's trusted root certificates are used.
+
+| `otel.exporter.otlp.logs.certificate`
+| The path to the file containing trusted certificates to use when verifying an OTLP log server's TLS credentials.
 The file SHOULD contain one or more X.509 certificates in PEM format.
 
 By default the host platform's trusted root certificates are used.
@@ -243,6 +290,12 @@ The file SHOULD contain one private key PKCS8 PEM format.
 
 By default no client key file is used.
 
+| `otel.exporter.otlp.logs.client.key`
+| The path to the file containing private client key to use when verifying an OTLP log client's TLS credentials.
+The file SHOULD contain one private key PKCS8 PEM format.
+
+By default no client key file is used.
+
 | `otel.exporter.otlp.traces.client.certificate`
 | The path to the file containing trusted certificates to use when verifying an OTLP trace server's TLS credentials.
 The file SHOULD contain one or more X.509 certificates in PEM format.
@@ -255,11 +308,20 @@ The file SHOULD contain one or more X.509 certificates in PEM format.
 
 By default no chain file is used.
 
+| `otel.exporter.otlp.logs.client.certificate`
+| The path to the file containing trusted certificates to use when verifying an OTLP log server's TLS credentials.
+The file SHOULD contain one or more X.509 certificates in PEM format.
+
+By default no chain file is used.
+
 | `otel.exporter.otlp.traces.headers`
 | Key-value pairs separated by commas to pass as request headers on OTLP trace requests.
 
 | `otel.exporter.otlp.metrics.headers`
 | Key-value pairs separated by commas to pass as request headers on OTLP metric requests.
+
+| `otel.exporter.otlp.logs.headers`
+| Key-value pairs separated by commas to pass as request headers on OTLP log requests.
 
 | `otel.exporter.otlp.traces.compression`
 | The compression type to use on OTLP trace requests.
@@ -273,6 +335,12 @@ Options include `gzip`.
 
 By default no compression will be used.
 
+| `otel.exporter.otlp.logs.compression`
+| The compression type to use on OTLP log requests.
+Options include `gzip`.
+
+By default no compression will be used.
+
 | `otel.exporter.otlp.traces.timeout`
 | The maximum waiting time, in milliseconds, allowed to send each OTLP trace batch.
 
@@ -280,6 +348,11 @@ Default value: `10000`
 
 | `otel.exporter.otlp.metrics.timeout`
 | The maximum waiting time, in milliseconds, allowed to send each OTLP metric batch.
+
+Default value: `10000`
+
+| `otel.exporter.otlp.logs.timeout`
+| The maximum waiting time, in milliseconds, allowed to send each OTLP log batch.
 
 Default value: `10000`
 
@@ -313,6 +386,9 @@ The following components are supported
 
 | https://javadoc.io/doc/io.opentelemetry/opentelemetry-sdk-extension-autoconfigure-spi/{otel-java-version}/io/opentelemetry/sdk/autoconfigure/spi/metrics/ConfigurableMetricExporterProvider.html[`ConfigurableMetricExporterProvider`]
 | Provides implementation for a name referred in `otel.metrics.exporter`
+
+| https://javadoc.io/doc/io.opentelemetry/opentelemetry-sdk-extension-autoconfigure-spi/{otel-java-version}/io/opentelemetry/sdk/autoconfigure/spi/logs/ConfigurableLogRecordExporterProvider.html[`ConfigurableLogRecordExporterProvider`]
+| Provides implementation for a name referred in `otel.logs.exporter`
 |===
 
 Behavior when multiple implementations are found for a given component name is undefined.
