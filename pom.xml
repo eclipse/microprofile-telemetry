@@ -35,7 +35,7 @@
         <version.mp.rest.client>3.0.1</version.mp.rest.client>
         <version.microprofile-config-api>3.1</version.microprofile-config-api>
         <version.awaitility>4.2.1</version.awaitility>
-        <version.otel.semconv>1.23.1-alpha</version.otel.semconv>
+        <version.otel.semconv>1.24.0-alpha</version.otel.semconv>
     </properties>
 
     <issueManagement>
