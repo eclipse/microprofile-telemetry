@@ -36,12 +36,6 @@ Baggage API::
 Metrics API::
 * https://www.javadoc.io/static/io.opentelemetry/opentelemetry-api/{otel-java-version}/io/opentelemetry/api/metrics/package-summary.html[io.opentelemetry.api.metrics]
 
-
-[NOTE]
-=====
-`io.opentelemetry.api` does depend on https://www.javadoc.io/static/io.opentelemetry/opentelemetry-api/{otel-java-version}/io/opentelemetry/api/logs/package-summary.html[io.opentelemetry.api.logs], though this specification only supports the parts that relate to Tracing and Metrics.
-=====
-
 === Context API
 
 * https://www.javadoc.io/static/io.opentelemetry/opentelemetry-context/{otel-java-version}/io/opentelemetry/context/package-summary.html[io.opentelemetry.context]
