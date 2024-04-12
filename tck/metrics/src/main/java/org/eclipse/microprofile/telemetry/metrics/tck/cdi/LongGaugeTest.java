@@ -54,7 +54,7 @@ public class LongGaugeTest extends Arquillian {
                 .addAsLibrary(TestLibraries.AWAITILITY_LIB)
                 .addAsServiceProvider(ConfigurableMetricExporterProvider.class, InMemoryMetricExporterProvider.class)
                 .addAsResource(new StringAsset(
-                        "otel.sdk.disabled=false\notel.metrics.exporter=in-memory\notel.traces.exporter=none\notel.metric.export.interval=3000"),
+                        "otel.sdk.disabled=false\notel.metrics.exporter=in-memory\notel.logs.exporter=none\notel.traces.exporter=none\notel.metric.export.interval=3000"),
                         "META-INF/microprofile-config.properties")
                 .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
     }
@@ -84,8 +84,8 @@ public class LongGaugeTest extends Arquillian {
                             measurement.record(1, Attributes.empty());
                         }));
 
-        MetricData metric = metricExporter.getMetricData((MetricDataType.LONG_GAUGE)).get(0);
-        Assert.assertEquals(metric.getName(), gaugeName);
+        MetricData metric = metricExporter.getMetricData((gaugeName)).get(0);
+        Assert.assertEquals(metric.getType(), MetricDataType.LONG_GAUGE);
         Assert.assertEquals(metric.getDescription(), gaugeDescription);
         Assert.assertEquals(metric.getUnit(), gaugeUnit);
 

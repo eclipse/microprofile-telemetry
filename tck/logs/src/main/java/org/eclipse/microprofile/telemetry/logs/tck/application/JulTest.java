@@ -20,6 +20,10 @@
 
 package org.eclipse.microprofile.telemetry.logs.tck.application;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.eclipse.microprofile.telemetry.logs.tck.TestLibraries;
@@ -29,12 +33,14 @@ import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.opentelemetry.api.OpenTelemetry;
 import jakarta.inject.Inject;
 
-public class LogAppenderTest extends Arquillian {
+public class JulTest extends Arquillian {
+
     @Deployment
     public static WebArchive createDeployment() {
         return ShrinkWrap.create(WebArchive.class)
@@ -50,13 +56,43 @@ public class LogAppenderTest extends Arquillian {
 
     private static final Logger julLogger = Logger.getLogger("jul-logger");
 
-    @Test
-    void julTest() throws InterruptedException {
+    private static final String logFilePath = System.getProperty("log.file.path");
 
-        julLogger.info("A JUL log message");
-        julLogger.info("A JUL log message");
-        julLogger.info("A JUL log message");
-        julLogger.info("A JUL log message");
-        Thread.sleep(10000);
+    private static final String JUL_INFO_MESSAGE = "a very distinguishable info message";
+    private static final String JUL_WARN_MESSAGE = "a very distinguishable warning message";
+
+    private static final String SYS_OUT = "SystemOut";
+
+    @Test
+    void julInfoTest() throws IOException {
+        julLogger.log(Level.INFO, JUL_INFO_MESSAGE);
+        try {
+            Assert.assertTrue(checkMessage(SYS_OUT + ".*" + "INFO" + ".*" + JUL_INFO_MESSAGE));
+        } catch (IOException e) {
+        }
+    }
+
+    @Test
+    void julWarnTest() throws IOException {
+        julLogger.log(Level.WARNING, JUL_INFO_MESSAGE);
+        try {
+            Assert.assertTrue(checkMessage(SYS_OUT + ".*" + "WARN" + ".*" + JUL_INFO_MESSAGE));
+        } catch (IOException e) {
+        }
+    }
+
+    public boolean checkMessage(String logMessage) throws IOException {
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(logFilePath));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.contains(logMessage)) {
+                    return true;
+                }
+            }
+            return false;
+        } catch (IOException e) {
+            return false;
+        }
     }
 }

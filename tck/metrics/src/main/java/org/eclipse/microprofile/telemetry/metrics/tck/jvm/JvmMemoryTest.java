@@ -19,7 +19,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  **********************************************************************/
-package org.eclipse.microprofile.telemetry.metrics.tck.cdi;
+package org.eclipse.microprofile.telemetry.metrics.tck.jvm;
 
 import org.eclipse.microprofile.telemetry.metrics.tck.TestLibraries;
 import org.eclipse.microprofile.telemetry.metrics.tck.exporter.InMemoryMetricExporter;
@@ -34,22 +34,17 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import io.opentelemetry.api.common.Attributes;
+import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.api.metrics.Meter;
 import io.opentelemetry.sdk.autoconfigure.spi.metrics.ConfigurableMetricExporterProvider;
 import io.opentelemetry.sdk.metrics.data.MetricData;
 import io.opentelemetry.sdk.metrics.data.MetricDataType;
 import jakarta.inject.Inject;
 
-public class AsyncLongCounterTest extends Arquillian {
+public class JvmMemoryTest extends Arquillian {
 
-    private static final String counterName = "testAsyncLongCounter";
-    private static final String counterDescription = "Testing long counter";
-    private static final String counterUnit = "Metric Tonnes";
-
-    private static final long LONG_VALUE = 12;
-    private static final long LONG_WITH_ATTRIBUTES = 24;
-    private static final long LONG_WITHOUT_ATTRIBUTES = 12;
+    @Inject
+    OpenTelemetry openTelemetry;
 
     @Deployment
     public static WebArchive createTestArchive() {
@@ -77,27 +72,36 @@ public class AsyncLongCounterTest extends Arquillian {
     }
 
     @Test
-    void testAsyncLongCounter() throws InterruptedException {
-        Assert.assertNotNull(
-                sdkMeter
-                        .counterBuilder(counterName)
-                        .setDescription(counterDescription)
-                        .setUnit(counterUnit)
-                        .buildWithCallback(measurement -> {
-                            measurement.record(1, Attributes.empty());
-                        }));
-
-        MetricData metric = metricExporter.getMetricData((counterName)).get(0);
-
+    void testJvmMemoryUsedMetric() {
+        MetricData metric = metricExporter.getMetricData("jvm.memory.used").get(0);
+        Assert.assertEquals(metric.getDescription(), "Measure of memory used.");
         Assert.assertEquals(metric.getType(), MetricDataType.LONG_SUM);
-        Assert.assertEquals(metric.getDescription(), counterDescription);
-        Assert.assertEquals(metric.getUnit(), counterUnit);
-
-        Assert.assertEquals(metric.getLongSumData()
-                .getPoints()
-                .stream()
-                .findFirst()
-                .get()
-                .getValue(), 1);
+        Assert.assertEquals(metric.getUnit(), "{By}");
     }
+
+    @Test
+    void testJvmMemoryCommittedMetric() {
+        MetricData metric = metricExporter.getMetricData("jvm.memory.committed").get(0);
+        Assert.assertEquals(metric.getDescription(), "Measure of memory committed.");
+        Assert.assertEquals(metric.getType(), MetricDataType.LONG_SUM);
+        Assert.assertEquals(metric.getUnit(), "{By}");
+    }
+
+    @Test
+    void testMemoryLimitMetric() {
+        MetricData metric = metricExporter.getMetricData("jvm.memory.limit").get(0);
+        Assert.assertEquals(metric.getDescription(), "Measure of max obtainable memory.");
+        Assert.assertEquals(metric.getType(), MetricDataType.LONG_SUM);
+        Assert.assertEquals(metric.getUnit(), "{class}");
+    }
+
+    @Test
+    void testMemoryUsedAfterLastGcMetric() {
+        MetricData metric = metricExporter.getMetricData("jvm.memory.used_after_last_gc").get(0);
+        Assert.assertEquals(metric.getDescription(),
+                "Measure of memory used, as measured after the most recent garbage collection event on this pool.");
+        Assert.assertEquals(metric.getType(), MetricDataType.LONG_SUM);
+        Assert.assertEquals(metric.getUnit(), "{By}");
+    }
+
 }

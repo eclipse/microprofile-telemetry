@@ -63,7 +63,7 @@ public class DoubleCounterTest extends Arquillian {
                 .addAsLibrary(TestLibraries.AWAITILITY_LIB)
                 .addAsServiceProvider(ConfigurableMetricExporterProvider.class, InMemoryMetricExporterProvider.class)
                 .addAsResource(new StringAsset(
-                        "otel.sdk.disabled=false\notel.metrics.exporter=in-memory\notel.traces.exporter=none\notel.metric.export.interval=3000"),
+                        "otel.sdk.disabled=false\notel.metrics.exporter=in-memory\notel.logs.exporter=none\notel.traces.exporter=none\notel.metric.export.interval=3000"),
                         "META-INF/microprofile-config.properties")
                 .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
     }
@@ -99,10 +99,10 @@ public class DoubleCounterTest extends Arquillian {
 
         expectedResults.keySet().stream().forEach(key -> doubleCounter.add(key, expectedResults.get(key)));
 
-        List<MetricData> metrics = metricExporter.getMetricData((MetricDataType.DOUBLE_SUM));
+        List<MetricData> metrics = metricExporter.getMetricData((counterName));
         metrics.stream()
                 .peek(metricData -> {
-                    Assert.assertEquals(metricData.getName(), counterName);
+                    Assert.assertEquals(metricData.getType(), MetricDataType.DOUBLE_SUM);
                     Assert.assertEquals(metricData.getDescription(), counterDescription);
                     Assert.assertEquals(metricData.getUnit(), counterUnit);
                 })

@@ -19,7 +19,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  **********************************************************************/
-package org.eclipse.microprofile.telemetry.metrics.tck.cdi;
+package org.eclipse.microprofile.telemetry.metrics.tck.jvm;
 
 import org.eclipse.microprofile.telemetry.metrics.tck.TestLibraries;
 import org.eclipse.microprofile.telemetry.metrics.tck.exporter.InMemoryMetricExporter;
@@ -30,26 +30,22 @@ import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
+// import io.opentelemetry.instrumentation.api.internal.SemconvStability;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import io.opentelemetry.api.common.Attributes;
+import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.api.metrics.Meter;
 import io.opentelemetry.sdk.autoconfigure.spi.metrics.ConfigurableMetricExporterProvider;
 import io.opentelemetry.sdk.metrics.data.MetricData;
 import io.opentelemetry.sdk.metrics.data.MetricDataType;
 import jakarta.inject.Inject;
 
-public class AsyncLongCounterTest extends Arquillian {
+public class JvmCpuTest extends Arquillian {
 
-    private static final String counterName = "testAsyncLongCounter";
-    private static final String counterDescription = "Testing long counter";
-    private static final String counterUnit = "Metric Tonnes";
-
-    private static final long LONG_VALUE = 12;
-    private static final long LONG_WITH_ATTRIBUTES = 24;
-    private static final long LONG_WITHOUT_ATTRIBUTES = 12;
+    @Inject
+    OpenTelemetry openTelemetry;
 
     @Deployment
     public static WebArchive createTestArchive() {
@@ -77,27 +73,27 @@ public class AsyncLongCounterTest extends Arquillian {
     }
 
     @Test
-    void testAsyncLongCounter() throws InterruptedException {
-        Assert.assertNotNull(
-                sdkMeter
-                        .counterBuilder(counterName)
-                        .setDescription(counterDescription)
-                        .setUnit(counterUnit)
-                        .buildWithCallback(measurement -> {
-                            measurement.record(1, Attributes.empty());
-                        }));
-
-        MetricData metric = metricExporter.getMetricData((counterName)).get(0);
-
+    void testCpuTimeMetric() {
+        MetricData metric = metricExporter.getMetricData("jvm.cpu.time").get(0);
+        Assert.assertEquals(metric.getDescription(), "CPU time used by the process as reported by the JVM.");
         Assert.assertEquals(metric.getType(), MetricDataType.LONG_SUM);
-        Assert.assertEquals(metric.getDescription(), counterDescription);
-        Assert.assertEquals(metric.getUnit(), counterUnit);
-
-        Assert.assertEquals(metric.getLongSumData()
-                .getPoints()
-                .stream()
-                .findFirst()
-                .get()
-                .getValue(), 1);
+        Assert.assertEquals(metric.getUnit(), "{s}");
     }
+
+    @Test
+    void testCpuCountMetric() {
+        MetricData metric = metricExporter.getMetricData("jvm.cpu.count").get(0);
+        Assert.assertEquals(metric.getDescription(), "Number of processors available to the Java virtual machine..");
+        Assert.assertEquals(metric.getType(), MetricDataType.LONG_SUM);
+        Assert.assertEquals(metric.getUnit(), "{cpu}");
+    }
+
+    @Test
+    void testCpuRecentUtilizationMetric() {
+        MetricData metric = metricExporter.getMetricData("jvm.cpu.recent_utilization").get(0);
+        Assert.assertEquals(metric.getDescription(), "Recent CPU utilization for the process as reported by the JVM.");
+        Assert.assertEquals(metric.getType(), MetricDataType.LONG_GAUGE);
+        Assert.assertEquals(metric.getUnit(), "{1}");
+    }
+
 }

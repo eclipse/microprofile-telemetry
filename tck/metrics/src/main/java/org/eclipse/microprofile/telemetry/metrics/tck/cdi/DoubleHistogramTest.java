@@ -64,7 +64,7 @@ public class DoubleHistogramTest extends Arquillian {
                 .addAsLibrary(TestLibraries.AWAITILITY_LIB)
                 .addAsServiceProvider(ConfigurableMetricExporterProvider.class, InMemoryMetricExporterProvider.class)
                 .addAsResource(new StringAsset(
-                        "otel.sdk.disabled=false\notel.metrics.exporter=in-memory\notel.traces.exporter=none\notel.metric.export.interval=3000"),
+                        "otel.sdk.disabled=false\notel.metrics.exporter=in-memory\notel.logs.exporter=none\notel.traces.exporter=none\notel.metric.export.interval=3000"),
                         "META-INF/microprofile-config.properties")
                 .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
     }
@@ -98,10 +98,10 @@ public class DoubleHistogramTest extends Arquillian {
 
         expectedResults.keySet().stream().forEach(key -> doubleHistogram.record(key, expectedResults.get(key)));
 
-        List<MetricData> metrics = metricExporter.getMetricData((MetricDataType.HISTOGRAM));
+        List<MetricData> metrics = metricExporter.getMetricData((histogramName));
         metrics.stream()
                 .peek(metricData -> {
-                    Assert.assertEquals(metricData.getName(), histogramName);
+                    Assert.assertEquals(metricData.getType(), MetricDataType.HISTOGRAM);
                     Assert.assertEquals(metricData.getDescription(), histogramDescription);
                     Assert.assertEquals(metricData.getUnit(), histogramUnit);
                 })
