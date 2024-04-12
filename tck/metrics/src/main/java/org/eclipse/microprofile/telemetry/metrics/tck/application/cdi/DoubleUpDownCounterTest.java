@@ -19,16 +19,16 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  **********************************************************************/
-package org.eclipse.microprofile.telemetry.metrics.tck.cdi;
+package org.eclipse.microprofile.telemetry.metrics.tck.application.cdi;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.microprofile.telemetry.metrics.tck.TestLibraries;
-import org.eclipse.microprofile.telemetry.metrics.tck.TestUtils;
-import org.eclipse.microprofile.telemetry.metrics.tck.exporter.InMemoryMetricExporter;
-import org.eclipse.microprofile.telemetry.metrics.tck.exporter.InMemoryMetricExporterProvider;
+import org.eclipse.microprofile.telemetry.metrics.tck.application.TestLibraries;
+import org.eclipse.microprofile.telemetry.metrics.tck.application.TestUtils;
+import org.eclipse.microprofile.telemetry.metrics.tck.application.exporter.InMemoryMetricExporter;
+import org.eclipse.microprofile.telemetry.metrics.tck.application.exporter.InMemoryMetricExporterProvider;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.testng.Arquillian;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
@@ -40,20 +40,21 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import io.opentelemetry.api.common.Attributes;
-import io.opentelemetry.api.metrics.DoubleCounter;
+import io.opentelemetry.api.metrics.DoubleUpDownCounter;
 import io.opentelemetry.api.metrics.Meter;
 import io.opentelemetry.sdk.autoconfigure.spi.metrics.ConfigurableMetricExporterProvider;
 import io.opentelemetry.sdk.metrics.data.MetricData;
 import io.opentelemetry.sdk.metrics.data.MetricDataType;
 import jakarta.inject.Inject;
 
-public class DoubleCounterTest extends Arquillian {
-    private static final String counterName = "testDoubleCounter";
-    private static final String counterDescription = "Testing double counter";
+public class DoubleUpDownCounterTest extends Arquillian {
+
+    private static final String counterName = "testDoubleUpDownCounter";
+    private static final String counterDescription = "Testing double up down counter";
     private static final String counterUnit = "Metric Tonnes";
 
-    private static final double DOUBLE_WITH_ATTRIBUTES = 20.2;
-    private static final double DOUBLE_WITHOUT_ATTRIBUTES = 10.1;
+    private static final double DOUBLE_WITH_ATTRIBUTES = -20;
+    private static final double DOUBLE_WITHOUT_ATTRIBUTES = -10;
 
     @Deployment
     public static WebArchive createTestArchive() {
@@ -63,7 +64,7 @@ public class DoubleCounterTest extends Arquillian {
                 .addAsLibrary(TestLibraries.AWAITILITY_LIB)
                 .addAsServiceProvider(ConfigurableMetricExporterProvider.class, InMemoryMetricExporterProvider.class)
                 .addAsResource(new StringAsset(
-                        "otel.sdk.disabled=false\notel.metrics.exporter=in-memory\notel.traces.exporter=none\notel.metric.export.interval=3000"),
+                        "otel.sdk.disabled=false\notel.metrics.exporter=in-memory\notel.logs.exporter=none\notel.traces.exporter=none\notel.metric.export.interval=3000"),
                         "META-INF/microprofile-config.properties")
                 .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
     }
@@ -82,27 +83,26 @@ public class DoubleCounterTest extends Arquillian {
     }
 
     @Test
-    void testDoubleCounter() throws InterruptedException {
-
-        DoubleCounter doubleCounter =
+    void testDoubleUpDownCounter() throws InterruptedException {
+        DoubleUpDownCounter doubleUpDownCounter =
                 sdkMeter
-                        .counterBuilder(counterName)
+                        .upDownCounterBuilder(counterName)
                         .ofDoubles()
                         .setDescription(counterDescription)
                         .setUnit(counterUnit)
                         .build();
-        Assert.assertNotNull(doubleCounter);
+        Assert.assertNotNull(doubleUpDownCounter);
 
         Map<Double, Attributes> expectedResults = new HashMap<Double, Attributes>();
         expectedResults.put(DOUBLE_WITH_ATTRIBUTES, Attributes.builder().put("K", "V").build());
         expectedResults.put(DOUBLE_WITHOUT_ATTRIBUTES, Attributes.empty());
 
-        expectedResults.keySet().stream().forEach(key -> doubleCounter.add(key, expectedResults.get(key)));
+        expectedResults.keySet().stream().forEach(key -> doubleUpDownCounter.add(key, expectedResults.get(key)));
 
-        List<MetricData> metrics = metricExporter.getMetricData((MetricDataType.DOUBLE_SUM));
+        List<MetricData> metrics = metricExporter.getMetricData((counterName));
         metrics.stream()
                 .peek(metricData -> {
-                    Assert.assertEquals(metricData.getName(), counterName);
+                    Assert.assertEquals(metricData.getType(), MetricDataType.DOUBLE_SUM);
                     Assert.assertEquals(metricData.getDescription(), counterDescription);
                     Assert.assertEquals(metricData.getUnit(), counterUnit);
                 })
@@ -118,5 +118,4 @@ public class DoubleCounterTest extends Arquillian {
                                     + TestUtils.mapToString(expectedResults.get(point.getValue()).asMap()));
                 });
     }
-
 }

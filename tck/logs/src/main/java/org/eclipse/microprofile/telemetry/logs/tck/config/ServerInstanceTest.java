@@ -40,7 +40,6 @@ public class ServerInstanceTest extends Arquillian {
     @Deployment
     public static WebArchive createDeployment() {
         return ShrinkWrap.create(WebArchive.class)
-                .addAsLibrary(TestLibraries.AWAITILITY_LIB)
                 .addAsResource(new StringAsset(
                         "otel.service.name=" + serviceNameUnused),
                         "META-INF/microprofile-config.properties")

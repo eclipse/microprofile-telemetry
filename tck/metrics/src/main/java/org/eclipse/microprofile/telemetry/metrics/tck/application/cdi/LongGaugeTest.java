@@ -19,11 +19,11 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  **********************************************************************/
-package org.eclipse.microprofile.telemetry.metrics.tck.cdi;
+package org.eclipse.microprofile.telemetry.metrics.tck.application.cdi;
 
-import org.eclipse.microprofile.telemetry.metrics.tck.TestLibraries;
-import org.eclipse.microprofile.telemetry.metrics.tck.exporter.InMemoryMetricExporter;
-import org.eclipse.microprofile.telemetry.metrics.tck.exporter.InMemoryMetricExporterProvider;
+import org.eclipse.microprofile.telemetry.metrics.tck.application.TestLibraries;
+import org.eclipse.microprofile.telemetry.metrics.tck.application.exporter.InMemoryMetricExporter;
+import org.eclipse.microprofile.telemetry.metrics.tck.application.exporter.InMemoryMetricExporterProvider;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.testng.Arquillian;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
@@ -54,7 +54,7 @@ public class LongGaugeTest extends Arquillian {
                 .addAsLibrary(TestLibraries.AWAITILITY_LIB)
                 .addAsServiceProvider(ConfigurableMetricExporterProvider.class, InMemoryMetricExporterProvider.class)
                 .addAsResource(new StringAsset(
-                        "otel.sdk.disabled=false\notel.metrics.exporter=in-memory\notel.traces.exporter=none\notel.metric.export.interval=3000"),
+                        "otel.sdk.disabled=false\notel.metrics.exporter=in-memory\notel.logs.exporter=none\notel.traces.exporter=none\notel.metric.export.interval=3000"),
                         "META-INF/microprofile-config.properties")
                 .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
     }
@@ -84,8 +84,8 @@ public class LongGaugeTest extends Arquillian {
                             measurement.record(1, Attributes.empty());
                         }));
 
-        MetricData metric = metricExporter.getMetricData((MetricDataType.LONG_GAUGE)).get(0);
-        Assert.assertEquals(metric.getName(), gaugeName);
+        MetricData metric = metricExporter.getMetricData((gaugeName)).get(0);
+        Assert.assertEquals(metric.getType(), MetricDataType.LONG_GAUGE);
         Assert.assertEquals(metric.getDescription(), gaugeDescription);
         Assert.assertEquals(metric.getUnit(), gaugeUnit);
 

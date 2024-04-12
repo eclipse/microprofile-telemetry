@@ -17,7 +17,7 @@
  * limitations under the License.
  *
  */
-package org.eclipse.microprofile.telemetry.metrics.tck;
+package org.eclipse.microprofile.telemetry.metrics.tck.application;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
