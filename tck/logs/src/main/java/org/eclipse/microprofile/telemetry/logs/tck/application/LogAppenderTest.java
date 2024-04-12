@@ -49,7 +49,7 @@ public class LogAppenderTest extends Arquillian {
                 .addAsServiceProvider(ConfigurableLogRecordExporterProvider.class,
                         InMemoryLogRecordExporterProvider.class)
                 .addAsResource(new StringAsset(
-                        "otel.sdk.disabled=false\notel.metrics.exporter=none\notel.traces.exporter=none\notel.logs.exporter=otlp"),
+                        "otel.sdk.disabled=false\notel.metrics.exporter=\notel.traces.exporter=none\notel.logs.exporter=in-memory"),
                         "META-INF/microprofile-config.properties")
                 .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
     }
@@ -71,7 +71,6 @@ public class LogAppenderTest extends Arquillian {
         SLF4JBridgeHandler.removeHandlersForRootLogger();
         SLF4JBridgeHandler.install();
         julLogger.info("A JUL log message");
-        System.out.println(openTelemetry);
         Assert.assertEquals(memoryExporter.getFinishedLogRecordItems(1).get(0).getBody(), "A JUL log message");
     }
 }
