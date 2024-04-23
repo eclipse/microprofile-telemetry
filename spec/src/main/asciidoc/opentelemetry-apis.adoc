@@ -72,13 +72,3 @@ The above packages have dependencies on the following packages which MUST be sup
 === Tracing Annotations
 
 * https://www.javadoc.io/doc/io.opentelemetry.instrumentation/opentelemetry-instrumentation-annotations/latest/io/opentelemetry/instrumentation/annotations/package-summary.html[io.opentelemetry.instrumentation.annotations] (`WithSpan` and `SpanAttribute` only)
-
-=== Semantic Conventions Attributes
-
-[NOTE]
-====
-These packages are not stable and MAY be subject to breaking changes in future releases.
-====
-
-* https://www.javadoc.io/static/io.opentelemetry/opentelemetry-semconv/{otel-java-version}-alpha/io/opentelemetry/semconv/trace/attributes/package-summary.html[io.opentelemetry.semconv]
-* https://www.javadoc.io/static/io.opentelemetry/opentelemetry-semconv/{otel-java-version}-alpha/io/opentelemetry/semconv/resource/attributes/package-summary.html[io.opentelemetry.semconv.resource.attributes]
