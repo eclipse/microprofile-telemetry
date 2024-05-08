@@ -30,6 +30,7 @@
     <modules>
         <module>tracing</module>
         <module>metrics</module>
+        <module>logs</module>
     </modules>
 
     <dependencyManagement>
