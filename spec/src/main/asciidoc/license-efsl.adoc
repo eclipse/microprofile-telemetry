@@ -1,11 +1,8 @@
 [subs="normal"]
 ....
 Specification: {doctitle}
-
 Version: {revnumber}
-
 Status: {revremark}
-
 Release: {revdate}
 ....
 
