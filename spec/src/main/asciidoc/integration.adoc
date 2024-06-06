@@ -36,6 +36,8 @@ At runtime initialization time runtimes may use the `OTEL_SDK_DISABLED` environm
 
 At application initialization time runtimes MUST use configuration sources available via MicroProfile Config for configuration.
 
+NOTE: This is a breaking change from MicroProfile Telemetry 1.1 where previously the `OTEL_SDK_DISABLED` environment variable could be used to indicate whether to enable or disable the application instance(s) of OpenTelemetry. Users that want to enable/disable individual application instances can do so using any MicroProfile Config configuration source that is only visible to applications. Users that want to enable an OpenTelemetry instance to be used by the runtime and all applications need to provide any OpenTelemetry configuration settings in a way that is visible to the runtime at initialization time (for example, using environment variables).
+
 [IMPORTANT]
 =====
 This is a deviation from the OpenTelemetry Specification that specifies the `otel.sdk.disabled` configuration property officially, where https://opentelemetry.io[OpenTelemetry] is activated by default!
