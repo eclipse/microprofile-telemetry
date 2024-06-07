@@ -58,7 +58,7 @@ These tests test the B3 and Jaeger propagation formats which are not required. I
 
 * `optional-jaxrs-tests` JAX-RS server async programming models
 +
-Although support for JAX-RS server async programming models is not optional, these tests depend on Jakarta Concurrency because they use `ManagedExecutorService`.
+Although support for JAX-RS server async programming models is not optional, these tests require you to provide an executor. <<Executor, See the section on providing an executor>>
 +
 If you are testing in an environment which does not provide Jakarta Concurrency, you should exclude the `optional-jaxrs-tests` group.
 
@@ -120,6 +120,13 @@ If you use Apache Maven then the tests are run via the `maven-surefire-plugin`
     </plugins>
 </build>
 ----
+
+== Providing an Executor [[Executor]]
+
+When the tests are running, ensure that the classpath contains the following:
+
+- A class that implements the interface `java.util.concurrent.Executor` in whatever way is most appropriate for your server.
+- A file under META-INF/microprofile-telemetry-tck.properties. This file must contain a line `telemetry.tck.executor=<packagename>.<classname>` referring to the previous class.
 
 == Running as a Scanned Dependency
 You can also run the TCK as a scanned dependency.

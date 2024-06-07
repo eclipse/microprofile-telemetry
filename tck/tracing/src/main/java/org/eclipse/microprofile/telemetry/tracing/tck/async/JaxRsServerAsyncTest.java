@@ -37,6 +37,7 @@ import org.eclipse.microprofile.telemetry.tracing.tck.ConfigAsset;
 import org.eclipse.microprofile.telemetry.tracing.tck.TestLibraries;
 import org.eclipse.microprofile.telemetry.tracing.tck.exporter.InMemorySpanExporter;
 import org.eclipse.microprofile.telemetry.tracing.tck.exporter.InMemorySpanExporterProvider;
+import org.eclipse.microprofile.telemetry.tracing.tck.porting.PropertiesBasedConfigurationBuilder;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.arquillian.testng.Arquillian;
@@ -70,6 +71,7 @@ public class JaxRsServerAsyncTest extends Arquillian {
                 .addClasses(InMemorySpanExporter.class, InMemorySpanExporterProvider.class,
                         JaxRsServerAsyncTestEndpointClient.class, JaxRsServerAsyncTestEndpoint.class)
                 .addAsLibrary(TestLibraries.AWAITILITY_LIB)
+                .addPackages(true, PropertiesBasedConfigurationBuilder.class.getPackage())
                 .addAsServiceProvider(ConfigurableSpanExporterProvider.class, InMemorySpanExporterProvider.class)
                 .addAsResource(config, "META-INF/microprofile-config.properties")
                 .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
@@ -171,7 +173,9 @@ public class JaxRsServerAsyncTest extends Arquillian {
                     requestFunction.apply(client);
                     fail("Client did not throw an exception");
                 } catch (WebApplicationException e) {
-                    assertEquals(e.getResponse().getStatus(), HttpURLConnection.HTTP_BAD_REQUEST);
+                    assertEquals(e.getResponse().getStatus(), HttpURLConnection.HTTP_BAD_REQUEST,
+                            "expected " + HttpURLConnection.HTTP_BAD_REQUEST + " but got " + e.getResponse().getStatus()
+                                    + " full output: " + e.getResponse().readEntity(String.class));
                     readErrorSpans();
                 }
             } catch (URISyntaxException e) {

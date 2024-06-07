@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2023 Contributors to the Eclipse Foundation
+ * Copyright (c) 2016-2024 Contributors to the Eclipse Foundation
  *
  *  See the NOTICE file(s) distributed with this work for additional
  *  information regarding copyright ownership.
@@ -23,7 +23,9 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
+
+import org.eclipse.microprofile.telemetry.tracing.tck.porting.api.ConfigurationAccessor;
 
 import io.opentelemetry.api.baggage.Baggage;
 import io.opentelemetry.api.common.AttributeKey;
@@ -31,8 +33,6 @@ import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.context.Context;
 import io.opentelemetry.context.Scope;
-import jakarta.annotation.Resource;
-import jakarta.enterprise.concurrent.ManagedExecutorService;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.GET;
@@ -72,8 +72,7 @@ public class JaxRsServerAsyncTestEndpoint {
     public static final String BAGGAGE_KEY = "test.baggage.key";
     public static final AttributeKey<String> BAGGAGE_VALUE_ATTR = AttributeKey.stringKey("test.baggage");
 
-    @Resource
-    private ManagedExecutorService managedExecutor;
+    private Executor executor = ConfigurationAccessor.get().getExecutor();
 
     @Inject
     private Tracer tracer;
@@ -90,7 +89,7 @@ public class JaxRsServerAsyncTestEndpoint {
         }
 
         // Call a subtask, propagating the context
-        ExecutorService contextExecutor = Context.taskWrapping(managedExecutor);
+        Executor contextExecutor = Context.taskWrapping(executor);
         CompletableFuture<String> result = CompletableFuture.supplyAsync(this::subtask, contextExecutor);
 
         // Return the async result
@@ -109,7 +108,7 @@ public class JaxRsServerAsyncTestEndpoint {
         }
 
         // Call a subtask, propagating the context
-        ExecutorService contextExecutor = Context.taskWrapping(managedExecutor);
+        Executor contextExecutor = Context.taskWrapping(executor);
         CompletableFuture<Response> result = CompletableFuture.supplyAsync(this::subtaskError, contextExecutor);
         // Return the async result
         return result;
@@ -127,7 +126,7 @@ public class JaxRsServerAsyncTestEndpoint {
         }
 
         // Call a subtask, propagating the context
-        ExecutorService contextExecutor = Context.taskWrapping(managedExecutor);
+        Executor contextExecutor = Context.taskWrapping(executor);
         contextExecutor.execute(() -> {
             // Ensure we call resume, either with the result or a thrown exception
             try {
@@ -150,7 +149,7 @@ public class JaxRsServerAsyncTestEndpoint {
         }
 
         // Call a subtask, propagating the context
-        ExecutorService contextExecutor = Context.taskWrapping(managedExecutor);
+        Executor contextExecutor = Context.taskWrapping(executor);
         contextExecutor.execute(() -> {
             // Ensure we call resume, either with the result or a thrown exception
             try {
