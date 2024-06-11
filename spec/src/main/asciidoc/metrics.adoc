@@ -39,17 +39,128 @@ An implementation of MicroProfile Telemetry Metrics MUST provide the following C
 
 * `io.opentelemetry.api.metrics.Meter`
 
+=== Required Metrics
 
+The following metrics MUST be provided by runtimes. These are as defined in the OpenTelemetry Semantic Conventions v{otel-semconv-version} 
 
+All attributes that are listed as required and stable in the OpenTelemetry Semantic Conventions MUST be included.
 
+All attributes that are listed as conditionally required and stable in the OpenTelemetry Semantic Conventions MUST be included when the condition described in the OpenTelemetry Semantic Conventions is satisfied.
 
+All attributes that are listed as recommended and stable in the OpenTelemetry Semantic Conventions SHOULD be included if they are readily available and can be efficiently populated.
 
-==== Semantic Conventions
+All attributes that are listed as opt-in and stable in the OpenTelemetry Semantic Conventions MUST NOT be included unless the implementation provides a means for users to configure which opt-in attributes to enable. This requirement is based on OpenTelemetry Semantic Conventions documentation indicating that opt-in attributes MUST NOT be included unless the user has a way to choose if they are enabled/disabled.
 
-[NOTE]
-====
-These packages are not stable and MAY be subject to breaking changes in future releases.
-====
+Attribute values and usage guidelines as defined in the semantic conventions document MUST be followed.
+
+// Table with metric name and attributes
+[options="header"]
+|===
+|Metric Name |Type |Attributes
+
+3+h| HTTP Server
+
+|`http.server.request.duration`
+| Histogram
+a|required attributes
+
+* `http.request.method`
+* `url.scheme`
+* `network.protocol.name`
+
+conditionally required
+
+* `error.type`
+* `http.response.status_code`
+* `http.route`
+* `network.protocol.name`
+
+recommended
+
+* `network.protocol.version`
+
+opt-in
+
+* `server.address`
+* `server.port`
+
+3+h| JVM Memory
+
+|`jvm.memory.used`
+|UpDownCounter
+a|recommended
+
+* `jvm.memory.pool.name`
+* `jvm.memory.type`
+
+|`jvm.memory.committed`
+|UpDownCounter
+a|recommended
+
+* `jvm.memory.pool.name`
+* `jvm.memory.type`
+
+|`jvm.memory.limit`
+|UpDownCounter
+a|recommended
+
+* `jvm.memory.pool.name`
+* `jvm.memory.type`
+
+|`jvm.memory.used_after_last_gc`
+|UpDownCounter
+a|recommended
+
+* `jvm.memory.pool.name`
+* `jvm.memory.type`
+
+3+h| JVM Garbage Collection
+
+|jvm.gc.duration
+|Histogram
+a|recommended
+
+* `jvm.gc.action`
+* `jvm.gc.name`
+
+3+h| JVM Threads
+
+|`jvm.thread.count`
+|UpDownCounter
+a|recommended
+
+* `jvm.thread.daemon`
+* `jvm.thread.state`
+
+3+h| JVM Classes
+
+|`jvm.class.loaded`
+|Counter
+|
+
+|`jvm.class.unloaded`
+|Counter
+|
+
+|`jvm.class.count`
+|UpDownCounter
+|
+
+3+h| JVM CPU
+
+|`jvm.cpu.time`
+|Counter
+|
+
+|`jvm.cpu.count`
+|UpDownCounter
+|
+
+|`jvm.cpu.recent_utilization`
+|Gauge
+|
+
+|===
 
 === Metrics Enablement
 Metrics are activated whenever Microprofile Telemetry is enabled, as described in <<sec:enabling-opentelemetry-support>>.
