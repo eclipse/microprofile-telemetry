@@ -188,6 +188,20 @@ Implementation libraries can set the library name using the following property:
 
 `mp.telemetry.tracing.name`
 
+=== Routing Traces
+OpenTelemetry can be enabled selectively for each application, or globally for the runtime and all applications as described in <<sec:enabling-opentelemetry-support>>. Traces and spans may be emitted by applications or on behalf of a component in the runtime. For example, spans created by an app to track the execution of a database call are application spans, whereas spans created to track the execution of a call to the runtime's `/health` endpoint are runtime spans.
+
+For spans that originate from an application:
+
+- if the OpenTelemetry SDK instance is shared by the runtime and applications then application spans should be routed to this instance
+- if an OpenTelemetry SDK instance is enabled for the application that is creating spans then spans from that application should be routed to this instance
+- if no OpenTelemetry SDK instance is enabled for the application that is creating spans then spans from that application should be discarded (typically by sending the request to a noop OpenTelemetry SDK instance)
+
+For spans that originate from the runtime:
+
+- if the OpenTelemetry SDK instance is shared by the runtime and applications then runtime spans should be routed to this instance
+- if no OpenTelemetry SDK instance is shared by the runtime and applications then spans from the runtime should be discarded (typically by sending the request to a noop OpenTelemetry SDK instance)
+
 === Tracing Enablement
 Tracing is activated whenever Microprofile Telemetry is enabled, as described in <<sec:enabling-opentelemetry-support>>.
 

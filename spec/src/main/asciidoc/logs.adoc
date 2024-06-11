@@ -20,3 +20,20 @@
 [[logs]]
 == Logs
 The OpenTelemetry Logs bridge API exists to enable bridging logs from other log frameworks (e.g. SLF4J, Log4j, JUL, Logback, etc) into OpenTelemetry. It does not define new Log APIs and the Logs bridge APIs in OpenTelemetry are not for application but for runtime to bridge log frameworks. Therefore, this specification does not expose any Log APIs.
+
+=== Routing Logs
+OpenTelemetry can be enabled selectively for each application, or globally for the runtime and all applications as described in <<sec:enabling-opentelemetry-support>>. Logs may be emitted by applications or on behalf of a component in the runtime. For example, logs written from a RESTful web service that is part of a banking application are application logs, whereas logs written from the kernel of a runtime before any application has started are runtime logs.
+
+For logs that originate from an application:
+
+- if the OpenTelemetry SDK instance is shared by the runtime and applications then application logs should be routed to this instance
+- if an OpenTelemetry SDK instance is enabled for the application that is logging then logs from that application should be routed to this instance
+- if no OpenTelemetry SDK instance is enabled for the application that is logging then logs from that application should be discarded (typically by sending the logging request to a noop OpenTelemetry SDK instance)
+
+For logs that originate from the runtime:
+
+- if the OpenTelemetry SDK instance is shared by the runtime and applications then runtime logs should be routed to this instance
+- if no OpenTelemetry SDK instance is shared by the runtime and applications then logs from the runtime should be discarded (typically by sending the logging request to a noop OpenTelemetry SDK instance)
+
+=== Logs Enablement
+Logging is activated whenever Microprofile Telemetry is enabled, as described in <<sec:enabling-opentelemetry-support>>.

@@ -363,7 +363,7 @@ Default value: `10000`
 === Service Loader Support
 
 Implementation will load additional configuration related components by means of service loader.
-This allows the application to define its own metadata and trace handling behavior.
+This allows the application or runtime extender to define their own metadata and trace / metrics / log handling behavior.
 The following components are supported
 
 [options=header]
