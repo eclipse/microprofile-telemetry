@@ -20,6 +20,19 @@
 [[metrics]]
 == Metrics
 
+=== Routing Metrics
+OpenTelemetry can be enabled selectively for each application, or globally for the runtime and all applications as described in <<sec:enabling-opentelemetry-support>>. Metrics may be registered by applications or on behalf of a component in the runtime. For example, a counter metric that is registered by an application to track the number of cars driving over a bridge is an application metric, whereas a gauge tracking the amount of memory used by the JVM is a runtime metric.
+
+For metrics that are registered by an application:
+
+- if the OpenTelemetry SDK instance is shared by the runtime and applications then application-registered metrics should be routed to this instance
+- if an OpenTelemetry SDK instance is enabled for the application that is registering a metric then that metric should be routed to this instance
+- if no OpenTelemetry SDK instance is enabled for the application that is registering a metric then that metric should be discarded (typically by sending the registration request to a noop OpenTelemetry SDK instance)
+
+For metrics that originate from the runtime:
+
+- if the OpenTelemetry SDK instance is shared by the runtime and applications then runtime-registered metrics should be routed to this instance
+- if no OpenTelemetry SDK instance is shared by the runtime and applications then runtime-registered metrics from the runtime should be discarded (typically by sending the registration request to a noop OpenTelemetry SDK instance)
 
 === Access to the OpenTelemetry Metrics API
 An implementation of MicroProfile Telemetry Metrics MUST provide the following CDI beans for supporting contextual instance injection:
@@ -148,3 +161,6 @@ a|recommended
 |
 
 |===
+
+=== Metrics Enablement
+Metrics are activated whenever Microprofile Telemetry is enabled, as described in <<sec:enabling-opentelemetry-support>>.

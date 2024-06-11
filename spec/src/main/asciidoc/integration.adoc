@@ -19,18 +19,33 @@
 
 == SDK integration
 
-Implementations SHALL provide integration by appropriately configuring compatible OpenTelemetry SDK for application runtime.
-Regardless of signal type being considered -- traces or metrics -- following requirements SHALL be met:
+Implementations SHALL provide integration by appropriately configuring one or more compatible OpenTelemetry SDK instances for the application runtime.
+Regardless of signal type being considered -- traces, logs or metrics -- the following requirements SHALL be met.
 
 [[sec:enabling-opentelemetry-support]]
 === Enabling OpenTelemetry support
 By default, MicroProfile Telemetry is deactivated.
 
-In order to enable any of aspects of integration, the configuration `otel.sdk.disabled=false` MUST be specified in any of the configuration sources available via MicroProfile Config.
+In order to enable any aspects of integration, the configuration `otel.sdk.disabled=false` MUST be specified.
+
+If the `otel.sdk.disabled=false` configuration setting is visible to the runtime at initialization time then the runtime MUST provide a SINGLE OpenTelemetry SDK instance which MUST be used by the runtime and all applications.
+
+If the `otel.sdk.disabled=false` configuration setting is only visible to the application(s) at initialization time, then runtime telemetry MUST be disabled and the application(s) MUST be configured using the visible `otel.*` properties.
+
+Implementations that do not support use of MicroProfile Config during runtime initialization may use the `OTEL_SDK_DISABLED` environment variable or `otel.sdk.disabled` Java system property to specify this setting.
+
+At application initialization time runtimes MUST use configuration sources available via MicroProfile Config for configuration.
+
+Runtimes MAY provide additional means of configuring per-application SDKs or runtime extensions.
+
+NOTE: This is a breaking change for runtimes that can simultaneously run multiple applications.
+In MicroProfile Telemetry 1.1 the `OTEL_SDK_DISABLED` environment variable could be used to indicate whether to enable or disable the application instance(s) of OpenTelemetry.
+Users that want to enable/disable individual application instances can do so using any MicroProfile Config configuration source that is only visible to applications.
+Users that want to enable an OpenTelemetry instance to be used by the runtime and all applications need to provide any OpenTelemetry configuration settings in a way that is visible to the runtime at initialization time (for example, using environment variables).
 
 [IMPORTANT]
 =====
-This is a deviation from the OpenTelemetry Specification that specifies this configuration property officially, where https://opentelemetry.io[OpenTelemetry] is activated by default!
+This is a deviation from the OpenTelemetry Specification that specifies the `otel.sdk.disabled` configuration property officially, where https://opentelemetry.io[OpenTelemetry] is activated by default!
 
 But in fact, it will be activated only by adding its dependency to the application or platform project.
 To be able to add MicroProfile Telemetry to MicroProfile implementations by default without side effects, this deviating behaviour has been defined here (see also <<sec:microprofile-telemetry-and-microprofile-opentracing>>).
