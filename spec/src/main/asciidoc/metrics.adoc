@@ -28,7 +28,7 @@ An implementation of MicroProfile Telemetry Metrics MUST provide the following C
 
 === Required Metrics
 
-The following metrics MUST be provided by runtimes. These are as defined in the OpenTelemetry Semantic Conventions v1.26.0. 
+The following metrics MUST be provided by runtimes. These are as defined in the OpenTelemetry Semantic Conventions v{otel-semconv-version} 
 
 All attributes that are listed as required and stable in the OpenTelemetry Semantic Conventions MUST be included.
 
