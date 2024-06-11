@@ -20,6 +20,37 @@
 [[metrics]]
 == Metrics
 
+Metrics are captured measurements of applications' and runtime's behavior.
+An application may provide metrics of its own in addition to the metrics provided by the runtime.
+
+Implementations are required to capture certain <<required_metrics,required metrics>> such as JVM performance counters and HTTP request processing times. Custom metrics can be defined by utilizing <<metrics_api,Metrics API>> as following example demostrates:
+
+[source,java]
+----
+class WithCounter {
+    @Inject
+    Meter meter;
+
+    private LongCounter counter;
+
+    @PostConstruct
+    public void init() {
+        counter = meter
+                    .counterBuilder("new_subscriptions")
+                    .setDescription("Number of new subscriptions")
+                    .setUnit("1")
+                    .build();
+    }
+
+    void subscribe(String plan) {
+        counter.add(1,
+            Attributes.of(AttributeKey.stringKey("plan"), plan));
+    }
+}
+----
+In this example `Meter` is used to define an instrument, in this case a Counter and application code then can record measurement values along with additional attributes.
+Measurement aggregations are computed separately for each unique combination of attributes.
+
 === Routing Metrics
 OpenTelemetry can be enabled selectively for each application, or globally for the runtime and all applications as described in <<sec:enabling-opentelemetry-support>>. Metrics may be registered by applications or on behalf of a component in the runtime. For example, a counter metric that is registered by an application to track the number of cars driving over a bridge is an application metric, whereas a gauge tracking the amount of memory used by the JVM is a runtime metric.
 
@@ -34,11 +65,13 @@ For metrics that originate from the runtime:
 - if the OpenTelemetry SDK instance is shared by the runtime and applications then runtime-registered metrics should be routed to this instance
 - if no OpenTelemetry SDK instance is shared by the runtime and applications then runtime-registered metrics from the runtime should be discarded (typically by sending the registration request to a noop OpenTelemetry SDK instance)
 
+[#metrics_api]
 === Access to the OpenTelemetry Metrics API
 An implementation of MicroProfile Telemetry Metrics MUST provide the following CDI beans for supporting contextual instance injection:
 
 * `io.opentelemetry.api.metrics.Meter`
 
+[#required_metrics]
 === Required Metrics
 
 The following metrics MUST be provided by runtimes. These are as defined in the OpenTelemetry Semantic Conventions v{otel-semconv-version} 
