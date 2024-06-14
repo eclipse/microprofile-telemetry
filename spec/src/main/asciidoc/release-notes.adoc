@@ -31,7 +31,7 @@ A full list of changes delivered in the 2.0 release can be found at link:https:/
 A full list of changes delivered in the 1.1 release can be found at link:https://github.com/eclipse/microprofile-telemetry/milestone/1?closed=1[MicroProfile Telemetry 1.1 Milestone].
 
 ==== Incompatible Changes
-
+None.
 
 ==== API/SPI Changes
 
