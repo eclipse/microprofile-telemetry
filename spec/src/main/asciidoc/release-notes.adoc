@@ -21,11 +21,6 @@
 == Release Notes
 This section documents the changes introduced by individual releases.
 
-[[release_notes_20]]
-=== Release Notes for MicroProfile Telemetry 2.0
-A full list of changes delivered in the 2.0 release can be found at link:https://github.com/eclipse/microprofile-telemetry/milestone/2?closed=1[MicroProfile Telemetry 2.0 Milestone].
-
-
 [[release_notes_11]]
 === Release Notes for MicroProfile Telemetry 1.1
 A full list of changes delivered in the 1.1 release can be found at link:https://github.com/eclipse/microprofile-telemetry/milestone/1?closed=1[MicroProfile Telemetry 1.1 Milestone].
@@ -34,7 +29,31 @@ A full list of changes delivered in the 1.1 release can be found at link:https:/
 None.
 
 ==== API/SPI Changes
+Consume the OpenTelemetry Java release link:https://github.com/open-telemetry/opentelemetry-java/releases/tag/v1.29.0[v1.29.0]. The full comparison with the link:https://github.com/open-telemetry/opentelemetry-java/releases/tag/v1.19.0[v1.19.0] supported by MicroProfile Telemetry 1.0 can be found link:https://github.com/open-telemetry/opentelemetry-java/compare/v1.19.0...v1.29.0[here].
 
+==== Other Changes
+
+* Consume the latest OpenTelemetry Tracing (https://github.com/eclipse/microprofile-telemetry/issues/88[88])
+* Clarify which API classes MUST be available to users (https://github.com/eclipse/microprofile-telemetry/issues/91[91])
+* Clarify the behaviour of Span and Baggage beans when the current span or baggage changes (lhttps://github.com/eclipse/microprofile-telemetry/issues/90[90])
+* TCK: Implement tests in a way that is not timestamp dependent (https://github.com/eclipse/microprofile-telemetry/issues/44[44])
+* TCK: TCK RestClientSpanTest Span Name Doesn't Follow Semantic Conv (https://github.com/eclipse/microprofile-telemetry/issues/86[86])
+* TCK: Adding missing TCKs (https://github.com/eclipse/microprofile-telemetry/issues/89[89])
+* TCK: TCK cannot be run using the Arquillian REST protocol (https://github.com/eclipse/microprofile-telemetry/issues/72[72])
+* Typos in spec document (https://github.com/eclipse/microprofile-telemetry/issues/80[80])
+
+
+
+[[release_notes_20]]
+=== Release Notes for MicroProfile Telemetry 2.0
+A full list of changes delivered in the 2.0 release can be found at link:https://github.com/eclipse/microprofile-telemetry/milestone/2?closed=1[MicroProfile Telemetry 2.0 Milestone].
+
+==== Incompatible Changes
+- The https://github.com/open-telemetry/semantic-conventions/blob/v{otel-semconv-version}/docs/http/http-spans.md[Semantic Conventions for HTTP Spans] differ from the conventions used with MicroProfile Telemetry 1.1 due to stabilization of HTTP semantic conventions in OpenTelemetry. Changes to attributes are described in https://github.com/open-telemetry/semantic-conventions/blob/main/docs/http/migration-guide.md[HTTP semantic convention stability migration guide].
+
+- For runtimes that can simultaneously run multiple applications, in MicroProfile Telemetry 1.1 the `OTEL_SDK_DISABLED` environment variable could be set to `false` to enable all applications to use separate OpenTelemetry SDK instances. Setting `OTEL_SDK_DISABLED` to `false` in MicroProfile Telemetry 2.0 results in a single OpenTelemetry SDK instance being created for shared use between the runtime and applications. To enable all applications to use separate OpenTelemetry SDK instances in MicroProfile Telemetry 2.0, do not set the `OTEL_SDK_DISABLED` environment variable and set `otel.sdk.disabled` to `false` in a `microprofile-config.properties` file packaged with each application or using any other MicroProfile Config source that is only visible to applications.
+
+==== API/SPI Changes
 * Consume the OpenTelemetry Java release link:https://github.com/open-telemetry/opentelemetry-java/releases/tag/v1.32.0[v1.32.0]. The full comparison with the link:https://github.com/open-telemetry/opentelemetry-java/releases/tag/v1.29.0[v1.29.0] supported by MicroProfile Telemetry 1.1 can be found link:https://github.com/open-telemetry/opentelemetry-java/compare/v1.29.0...v1.32.0[here].
 * Adopt OpenTelemetry Metrics API (https://github.com/eclipse/microprofile-telemetry/issues/141[141], https://github.com/eclipse/microprofile-telemetry/issues/149[149])
 
