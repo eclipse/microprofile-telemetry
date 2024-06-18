@@ -41,21 +41,21 @@ Default value: `true`
 |`otel.traces.exporter`
 | List of exporters to be used for tracing, separated by commas.
 `none` means no autoconfigured exporter.
-Values other than `none` and `otlp` might link:#sec:service-loader-support[require additional libraries]
+Values other than `none`, `otlp` or `console` might link:#sec:service-loader-support[require additional libraries]. Implementations of the `otlp` and `console` exporters MUST be from the OpenTelemetry SDK.
 
 Default value: `otlp`
 
 |`otel.metrics.exporter`
 | List of exporters to be used for metrics, separated by commas.
 `none` means no autoconfigured exporter.
-Values other than `none` and `otlp` might link:#sec:service-loader-support[require additional libraries]
+Values other than `none`, `otlp` or `console` might link:#sec:service-loader-support[require additional libraries]. Implementations of the `otlp` and `console` exporters MUST be from the OpenTelemetry SDK.
 
 Default value: `otlp`
 
 |`otel.logs.exporter`
 | List of exporters to be used for logs, separated by commas.
 `none` means no autoconfigured exporter.
-Values other than `none` and `otlp` might link:#sec:service-loader-support[require additional libraries]
+Values other than `none`, `otlp` or `console` might link:#sec:service-loader-support[require additional libraries]. Implementations of the `otlp` and `console` exporters MUST be from the OpenTelemetry SDK.
 
 Default value: `otlp`
 
