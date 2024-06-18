@@ -173,8 +173,7 @@ Calling the OpenTelemetry API directly MUST work in the same way and yield the s
 The https://github.com/open-telemetry/semantic-conventions/blob/v{otel-semconv-version}/docs/http/http-spans.md[Semantic Conventions for HTTP Spans]  MUST be followed by any compatible implementation.
 
 NOTE: This is a breaking change from MicroProfile Telemetry 1.1 due to stabilization of HTTP semantic conventions in OpenTelemetry.
-Changes to attributes are described in https://github.com/open-telemetry/semantic-conventions/blob/main/docs/http/migration-guide.md[HTTP semantic convention stability migration guide].
-// Migration guide was not part of 1.24.0 release, so the link is to the main branch.
+Changes to attributes are described in https://github.com/open-telemetry/semantic-conventions/blob/v{otel-semconv-version}/docs/http/migration-guide.md[HTTP semantic convention stability migration guide].
 
 Semantic Conventions distinguish several https://github.com/open-telemetry/semantic-conventions/blob/v{otel-semconv-version}/docs/general/attribute-requirement-level.md[Requirement Levels] for attributes.
 All Span attributes marked as `Required` and `Conditionally Required` MUST be present in the context of the Span where they are defined.

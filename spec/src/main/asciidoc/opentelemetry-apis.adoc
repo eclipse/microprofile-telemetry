@@ -71,4 +71,4 @@ The above packages have dependencies on the following packages which MUST be sup
 
 === Tracing Annotations
 
-* https://www.javadoc.io/doc/io.opentelemetry.instrumentation/opentelemetry-instrumentation-annotations/latest/io/opentelemetry/instrumentation/annotations/package-summary.html[io.opentelemetry.instrumentation.annotations] (`WithSpan` and `SpanAttribute` only)
+* https://www.javadoc.io/doc/io.opentelemetry.instrumentation/opentelemetry-instrumentation-annotations/{otel-instrumentation-version}/io/opentelemetry/instrumentation/annotations/package-summary.html[io.opentelemetry.instrumentation.annotations] (`WithSpan` and `SpanAttribute` only)
