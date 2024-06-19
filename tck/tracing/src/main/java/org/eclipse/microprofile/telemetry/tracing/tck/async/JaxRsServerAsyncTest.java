@@ -46,7 +46,6 @@ import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
 
 import io.opentelemetry.api.baggage.Baggage;
 import io.opentelemetry.api.trace.SpanKind;
@@ -94,22 +93,18 @@ public class JaxRsServerAsyncTest extends Arquillian {
         }
     }
 
-    @Test(groups = "optional-jaxrs-tests")
     public void testJaxRsServerAsyncCompletionStage() {
         doAsyncTest((client) -> client.getCompletionStage(QUERY_VALUE));
     }
 
-    @Test(groups = "optional-jaxrs-tests")
     public void testJaxRsServerAsyncCompletionStageError() {
         doErrorAsyncTest((client) -> client.getCompletionStageError(QUERY_VALUE));
     }
 
-    @Test(groups = "optional-jaxrs-tests")
     public void testJaxRsServerAsyncSuspend() {
         doAsyncTest((client) -> client.getSuspend(QUERY_VALUE));
     }
 
-    @Test(groups = "optional-jaxrs-tests")
     public void testJaxRsServerAsyncSuspendError() {
         doErrorAsyncTest((client) -> client.getSuspendError(QUERY_VALUE));
     }

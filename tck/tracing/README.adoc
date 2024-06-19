@@ -50,17 +50,11 @@ To enable the tests in your project you need to add the following dependency to 
 ----
 
 == Declaring the Tests to run
-There are multiple groups of optional tests. These include: 
+There is a group of optional tests. This includes: 
 
 * `optional-tests`: `B3` and `Jaeger` progagation formats. 
 +
 These tests test the B3 and Jaeger propagation formats which are not required. If your implementation does not include support for these propagation formats, you should exclude the `optional-tests` group.
-
-* `optional-jaxrs-tests` JAX-RS server async programming models
-+
-Although support for JAX-RS server async programming models is not optional, these tests require you to provide an executor. <<Executor, See the section on providing an executor>>
-+
-If you are testing in an environment which does not provide Jakarta Concurrency, you should exclude the `optional-jaxrs-tests` group.
 
 Test groups can be excluded in the TestNG XML file. E.g. create a file `tck-suite.xml` in your project which contains the following content:
 
@@ -74,8 +68,6 @@ Test groups can be excluded in the TestNG XML file. E.g. create a file `tck-suit
             <run>
                 <!-- Exclude B3 and Jaeger propagation tests-->
                 <exclude name="optional-tests"/>
-                <!-- Exclude JaxRS server async tests-->
-                <exclude name="optional-jaxrs-tests"/>
             </run>
         </groups>
         <packages>
