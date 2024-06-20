@@ -22,6 +22,7 @@
 package org.eclipse.microprofile.telemetry.metrics.tck.http;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,6 +55,9 @@ import jakarta.ws.rs.core.Application;
 import jakarta.ws.rs.core.Response;
 
 public class HttpHistogramTest extends Arquillian {
+
+    private static final String HTTP_SERVER_REQUEST_DURATION = "http.server.request.duration";
+    private static final String HTTP_SERVER_REQUEST_DURATION_DESCRIPTION = "Duration of HTTP server requests.";
 
     private static final AttributeKey<String> HTTP_REQUEST_METHOD = AttributeKey.stringKey("http.request.method");
     private static final AttributeKey<String> URL_SCHEME = AttributeKey.stringKey("url.scheme");
@@ -111,7 +115,26 @@ public class HttpHistogramTest extends Arquillian {
         }
 
         List<MetricData> items = metricExporter.getFinishedMetricItems();
+        List<MetricData> unfilteredItems = new ArrayList<MetricData>(items);
 
+        Assert.assertFalse(items.isEmpty(), "We did not find any MetricData");
+
+        // Filter out any MetricData objects that have the wrong name or description
+        items.removeIf(md -> !md.getName().equals(HTTP_SERVER_REQUEST_DURATION));
+        Assert.assertFalse(items.isEmpty(),
+                "We did not find any MetricData with the name " + HTTP_SERVER_REQUEST_DURATION + " we found "
+                        + unfilteredItems.stream()
+                                .map(md -> md.toString())
+                                .collect(Collectors.joining(", ")));
+
+        items.removeIf(md -> !md.getDescription().equals(HTTP_SERVER_REQUEST_DURATION_DESCRIPTION));
+        Assert.assertFalse(items.isEmpty(),
+                "We did not find any MetricData with the descriptoin " + HTTP_SERVER_REQUEST_DURATION_DESCRIPTION
+                        + " we found " + unfilteredItems.stream()
+                                .map(md -> md.toString())
+                                .collect(Collectors.joining(", ")));
+
+        // Build maps of the expected attribute keys and their values
         Map<AttributeKey<String>, String> successfulHTTPMethod = new HashMap<AttributeKey<String>, String>();
         successfulHTTPMethod.put(HTTP_REQUEST_METHOD, "GET");
         successfulHTTPMethod.put(URL_SCHEME, "http");
@@ -127,6 +150,8 @@ public class HttpHistogramTest extends Arquillian {
         failingHTTPMethod.put(HTTP_ROUTE, url.getPath() + "fail");
         failingHTTPMethod.put(ERROR_TYPE, "500");
 
+        // Test that one of the MetricData objects with the right name and description also
+        // has all the items in a map
         testMetricData(successfulHTTPMethod, items);
         testMetricData(failingHTTPMethod, items);
     }
