@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2024 Contributors to the Eclipse Foundation
+ * Copyright (c) 2024 Contributors to the Eclipse Foundation
  *
  *  See the NOTICE file(s) distributed with this work for additional
  *  information regarding copyright ownership.
@@ -18,9 +18,7 @@
  *
  */
 
-package org.eclipse.microprofile.telemetry.logs.tck.application;
-
-import java.util.logging.Logger;
+package org.eclipse.microprofile.telemetry.logs.tck.config;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.testng.Arquillian;
@@ -28,18 +26,23 @@ import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.opentelemetry.api.OpenTelemetry;
 import jakarta.inject.Inject;
 
-public class LogAppenderTest extends Arquillian {
+public class ServerInstanceTest extends Arquillian {
+
+    private static final String serviceNameUnused = "NOT_USED";
+
+    // otel.sdk.disabled=false must be set at runtime level to make this test valid
     @Deployment
     public static WebArchive createDeployment() {
         return ShrinkWrap.create(WebArchive.class)
                 .addAsLibrary(TestLibraries.AWAITILITY_LIB)
                 .addAsResource(new StringAsset(
-                        "otel.sdk.disabled=false\notel.metrics.exporter=none\notel.traces.exporter=none\notel.logs.exporter=logging\notel.service.name=openliberty"),
+                        "otel.service.name=" + serviceNameUnused),
                         "META-INF/microprofile-config.properties")
                 .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
     }
@@ -47,15 +50,10 @@ public class LogAppenderTest extends Arquillian {
     @Inject
     private OpenTelemetry openTelemetry;
 
-    private static final Logger julLogger = Logger.getLogger("jul-logger");
-
+    // The service.name property should not be used because it is set in the application config
+    // The OpenTelemetry instance should be created at the runtime initialization
     @Test
-    void julTest() throws InterruptedException {
-
-        julLogger.info("A JUL log message");
-        julLogger.info("A JUL log message");
-        julLogger.info("A JUL log message");
-        julLogger.info("A JUL log message");
-        Thread.sleep(10000);
+    void runtimeInstance() {
+        Assert.assertFalse(openTelemetry.toString().contains("service.name=\"serviceNameUnused\""));
     }
 }

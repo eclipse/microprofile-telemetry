@@ -49,7 +49,7 @@ To enable the tests in your project you need to add the following dependency to 
 
 ----
 
-If you want to run the logs tests, you can specify all tests in the `tck-suite.xml`. E.g. 
+If you want to run the logs tests, you can specify the application logging tests in the `tck-suite.xml`. E.g. 
 
 [source, xml]
 ----
@@ -58,7 +58,24 @@ If you want to run the logs tests, you can specify all tests in the `tck-suite.x
 <suite name="microprofile-telemetry-logs-TCK" verbose="2" configfailurepolicy="continue" >
     <test name="telemetry-logs-tests" verbose="10">
         <packages>
-            <package name="org.eclipse.microprofile.telemetry.logs.tck.*" />
+            <package name="org.eclipse.microprofile.telemetry.logs.tck.application.*" />
+        </packages>
+    </test>
+</suite>
+----
+
+== Runtime Initialization Tests
+
+To test that the OpenTelemetry instance is set properly at runtime initialization, configure the runtime with `otel.sdk.disabled=false`/`OTEL_SDK_DISABLED=FALSE` as a system property or environment variable. With the properly configured runtime, include the required test in the `tck-suite.xml`:
+
+[source, xml]
+----
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+
+<suite name="microprofile-telemetry-logs-TCK" verbose="2" configfailurepolicy="continue" >
+    <test name="telemetry-logs-tests" verbose="10">
+        <packages>
+            <package name="org.eclipse.microprofile.telemetry.logs.tck.config.*" />
         </packages>
     </test>
 </suite>
