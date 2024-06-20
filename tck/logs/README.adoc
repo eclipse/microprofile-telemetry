@@ -65,12 +65,13 @@ If you want to run the logs tests, you can specify all tests in the `tck-suite.x
 ----
 
 == Logging File Configuration 
-OpenTelemetry logs are sent to stdout in the tests. Set the system property `log.file.path` to the file containing the log output when running the logs TCK. For example:
+OpenTelemetry logs are sent to stdout in the tests. Ensure logs written to stdout are captured in a file and set the system property `log.file.path` to the file containing the log output when running the logs TCK. For example:
 
 [source, xml]
 ----
 log.file.path=console.log
 ----
+
 == Configuration in Apache Maven pom.xml
 If you use Apache Maven then the tests are run via the `maven-surefire-plugin`
 

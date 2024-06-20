@@ -76,7 +76,7 @@ public class JvmMemoryTest extends Arquillian {
         MetricData metric = metricExporter.getMetricData("jvm.memory.used").get(0);
         Assert.assertEquals(metric.getDescription(), "Measure of memory used.");
         Assert.assertEquals(metric.getType(), MetricDataType.LONG_SUM);
-        Assert.assertEquals(metric.getUnit(), "{By}");
+        Assert.assertEquals(metric.getUnit(), "By");
     }
 
     @Test
@@ -84,7 +84,7 @@ public class JvmMemoryTest extends Arquillian {
         MetricData metric = metricExporter.getMetricData("jvm.memory.committed").get(0);
         Assert.assertEquals(metric.getDescription(), "Measure of memory committed.");
         Assert.assertEquals(metric.getType(), MetricDataType.LONG_SUM);
-        Assert.assertEquals(metric.getUnit(), "{By}");
+        Assert.assertEquals(metric.getUnit(), "By");
     }
 
     @Test
@@ -101,7 +101,7 @@ public class JvmMemoryTest extends Arquillian {
         Assert.assertEquals(metric.getDescription(),
                 "Measure of memory used, as measured after the most recent garbage collection event on this pool.");
         Assert.assertEquals(metric.getType(), MetricDataType.LONG_SUM);
-        Assert.assertEquals(metric.getUnit(), "{By}");
+        Assert.assertEquals(metric.getUnit(), "By");
     }
 
 }

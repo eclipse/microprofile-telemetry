@@ -77,7 +77,7 @@ public class JvmCpuTest extends Arquillian {
         MetricData metric = metricExporter.getMetricData("jvm.cpu.time").get(0);
         Assert.assertEquals(metric.getDescription(), "CPU time used by the process as reported by the JVM.");
         Assert.assertEquals(metric.getType(), MetricDataType.LONG_SUM);
-        Assert.assertEquals(metric.getUnit(), "{s}");
+        Assert.assertEquals(metric.getUnit(), "s");
     }
 
     @Test
@@ -93,7 +93,7 @@ public class JvmCpuTest extends Arquillian {
         MetricData metric = metricExporter.getMetricData("jvm.cpu.recent_utilization").get(0);
         Assert.assertEquals(metric.getDescription(), "Recent CPU utilization for the process as reported by the JVM.");
         Assert.assertEquals(metric.getType(), MetricDataType.LONG_GAUGE);
-        Assert.assertEquals(metric.getUnit(), "{1}");
+        Assert.assertEquals(metric.getUnit(), "1");
     }
 
 }

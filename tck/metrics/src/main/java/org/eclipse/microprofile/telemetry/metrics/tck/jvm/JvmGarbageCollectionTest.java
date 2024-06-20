@@ -77,7 +77,7 @@ public class JvmGarbageCollectionTest extends Arquillian {
         MetricData metric = metricExporter.getMetricData("jvm.gc.duration").get(0);
         Assert.assertEquals(metric.getDescription(), "Duration of JVM garbage collection actions.");
         Assert.assertEquals(metric.getType(), MetricDataType.HISTOGRAM);
-        Assert.assertEquals(metric.getUnit(), "{thread}");
+        Assert.assertEquals(metric.getUnit(), "{s}");
     }
 
 }
