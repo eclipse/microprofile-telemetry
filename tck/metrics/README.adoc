@@ -53,11 +53,11 @@ To enable the tests in your project you need to add the following dependency to 
 
 The JVM metrics tests require runtime configuration to enable metric reading at a runtime level. The metrics must be sent to stdout in the tests. Ensure logs written to stdout are captured in a file and set the system property `log.file.path` to the file containing the log output when running the logs TCK. Configure the runtime with the following as system properties / environment variables:
 
- * otel.sdk.disabled=false/OTEL_SDK_DISABLED=FALSE
- * otel.metrics.exporter=logging/OTEL_METRICS_EXPORTER=LOGGING
- * otel.traces.exporter=none/OTEL_TRACES_EXPORTER=none
- * otel.logs.exporter=none/OTEL_LOGS_EXPORTER=none
- * otel.metric.export.interval=3000/OTEL_METRIC_EXPORT_INTERVAL=3000
+ * `otel.sdk.disabled=false`/`OTEL_SDK_DISABLED=FALSE`
+ * `otel.metrics.exporter=logging`/`OTEL_METRICS_EXPORTER=LOGGING`
+ * `otel.traces.exporter=none`/`OTEL_TRACES_EXPORTER=none`
+ * `otel.logs.exporter=none`/`OTEL_LOGS_EXPORTER=none`
+ * `otel.metric.export.interval=3000`/`OTEL_METRIC_EXPORT_INTERVAL=3000`
 
 To run the JVM metrics tests, include the following content in the `tck-suite.xml` in your project:
 
