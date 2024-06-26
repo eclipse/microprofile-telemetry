@@ -64,7 +64,7 @@ public class JvmMemoryTest extends Arquillian {
     @Test
     void testMemoryLimitMetric() throws IOException {
         Assert.assertTrue(
-                MetricsReader.checkMessage("jvm.memory.limit", "Measure of max obtainable memory.", "{class}",
+                MetricsReader.checkMessage("jvm.memory.limit", "Measure of max obtainable memory.", "By",
                         MetricDataType.LONG_SUM.toString()));
     }
 

@@ -51,7 +51,7 @@ public class JvmCpuTest extends Arquillian {
     void testCpuTimeMetric() throws IOException {
         Assert.assertTrue(
                 MetricsReader.checkMessage("jvm.cpu.time", "CPU time used by the process as reported by the JVM.", "s",
-                        MetricDataType.LONG_SUM.toString()));
+                        MetricDataType.DOUBLE_SUM.toString()));
     }
 
     @Test
@@ -65,7 +65,7 @@ public class JvmCpuTest extends Arquillian {
     void testCpuRecentUtilizationMetric() throws IOException {
         Assert.assertTrue(MetricsReader.checkMessage("jvm.cpu.recent_utilization",
                 "Recent CPU utilization for the process as reported by the JVM.", "1",
-                MetricDataType.LONG_GAUGE.toString()));
+                MetricDataType.DOUBLE_GAUGE.toString()));
     }
 
 }

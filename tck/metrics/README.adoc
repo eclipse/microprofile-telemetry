@@ -51,13 +51,18 @@ To enable the tests in your project you need to add the following dependency to 
 
 == Running the tests
 
-The JVM metrics tests require runtime configuration to enable metric reading at a runtime level. The metrics must be sent to stdout in the tests. Ensure logs written to stdout are captured in a file and set the system property `log.file.path` to the file containing the log output when running the logs TCK. Configure the runtime with `otel.metrics.exporter=console`/`OTEL_METRICS_EXPORTER=CONSOLE` and `otel.sdk.disabled=false`/`OTEL_SDK_DISABLED=FALSE` as a system property or environment variable.  For example:
+The JVM metrics tests require runtime configuration to enable metric reading at a runtime level. The metrics must be sent to stdout in the tests. Ensure logs written to stdout are captured in a file and set the system property `log.file.path` to the file containing the log output when running the logs TCK. Configure the runtime with `otel.metrics.exporter=logging`/`OTEL_METRICS_EXPORTER=LOGGING` and `otel.sdk.disabled=false`/`OTEL_SDK_DISABLED=FALSE` as a system property or environment variable.
+The metric export interval `otel.metric.export.interval`/`OTEL_METRIC_EXPORT_INTERVAL` should be configured as well and it is recommended to be set to a value of `3000` (i.e., 3 seconds).
+Note: it is recommended to set `otel.traces.exporter` /  `OTEL_TRACES_EXPORTER` and `otel.logs.exporter` / `OTEL_LOGS_EXPORTER` to `none` for the execution of the metric tests. For example:
 
 
 [source, xml]
 ----
 otel.sdk.disabled=false
-otel.metrics.exporter=console
+otel.metrics.exporter=logging
+otel.traces.exporter=none
+otel.logs.exporter=none
+otel.metric.export.interval=3000
 log.file.path=console.log
 ----
 
