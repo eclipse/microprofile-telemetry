@@ -49,7 +49,17 @@ To enable the tests in your project you need to add the following dependency to 
 
 ----
 
-If you want to run the metrics tests, you can specify all tests in the `tck-suite.xml`. E.g. 
+== Running the tests
+
+The JVM metrics tests require runtime configuration to enable metric reading at a runtime level. The metrics must be sent to stdout in the tests. Ensure logs written to stdout are captured in a file and set the system property `log.file.path` to the file containing the log output when running the logs TCK. Configure the runtime with the following as system properties / environment variables:
+
+ * `otel.sdk.disabled=false`/`OTEL_SDK_DISABLED=FALSE`
+ * `otel.metrics.exporter=logging`/`OTEL_METRICS_EXPORTER=LOGGING`
+ * `otel.traces.exporter=none`/`OTEL_TRACES_EXPORTER=none`
+ * `otel.logs.exporter=none`/`OTEL_LOGS_EXPORTER=none`
+ * `otel.metric.export.interval=3000`/`OTEL_METRIC_EXPORT_INTERVAL=3000`
+
+To run the JVM metrics tests, include the following content in the `tck-suite.xml` in your project:
 
 [source, xml]
 ----
@@ -58,7 +68,22 @@ If you want to run the metrics tests, you can specify all tests in the `tck-suit
 <suite name="microprofile-telemetry-metrics-TCK" verbose="2" configfailurepolicy="continue" >
     <test name="telemetry-metrics-tests" verbose="10">
         <packages>
-            <package name="org.eclipse.microprofile.telemetry.metrics.tck.*" />
+            <package name="org.eclipse.microprofile.telemetry.metrics.tck.jvm.*" />
+        </packages>
+    </test>
+</suite>
+----
+
+The remaining metrics tests must use an OpenTelemetry SDK instance that is configured by the configuration properties set in the application. Ensure that `otel.sdk.disabled` and `otel.metrics.exporter` are NOT set by the runtime. To run the application metrics tests, include the following content in the `tck-suite.xml` in your project:
+
+[source, xml]
+----
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+
+<suite name="microprofile-telemetry-metrics-TCK" verbose="2" configfailurepolicy="continue" >
+    <test name="telemetry-metrics-tests" verbose="10">
+        <packages>
+            <package name="org.eclipse.microprofile.telemetry.metrics.tck.application.*" />
         </packages>
     </test>
 </suite>

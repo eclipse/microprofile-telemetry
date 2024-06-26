@@ -18,7 +18,7 @@
  *
  */
 
-package org.eclipse.microprofile.telemetry.metrics.tck.exporter;
+package org.eclipse.microprofile.telemetry.metrics.tck.application.exporter;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
@@ -35,7 +35,6 @@ import io.opentelemetry.sdk.common.CompletableResultCode;
 import io.opentelemetry.sdk.metrics.InstrumentType;
 import io.opentelemetry.sdk.metrics.data.AggregationTemporality;
 import io.opentelemetry.sdk.metrics.data.MetricData;
-import io.opentelemetry.sdk.metrics.data.MetricDataType;
 import io.opentelemetry.sdk.metrics.export.MetricExporter;
 import jakarta.enterprise.context.ApplicationScoped;
 
@@ -55,21 +54,22 @@ public class InMemoryMetricExporter implements MetricExporter {
      *
      * @return a {@code List} of the finished {@code Metric}s.
      */
-    public List<MetricData> getFinishedMetricItems(int itemCount) {
-        assertItemCount(itemCount);
+    public List<MetricData> getFinishedMetricItems() {
         return finishedMetricItems.stream()
                 .collect(Collectors.toList());
     }
 
-    public void assertItemCount(int itemCount) {
-        Awaitility.await().pollDelay(3, SECONDS).atMost(10, SECONDS)
-                .untilAsserted(() -> Assert.assertEquals(finishedMetricItems.size(), itemCount));
-    }
-
-    public List<MetricData> getMetricData(MetricDataType dataType) {
-        return getFinishedMetricItems(1).stream().filter(metric -> metric.getType() == dataType)
+    public List<MetricData> getMetricData(String metricName) {
+        assertMetricNameFound(metricName);
+        return getFinishedMetricItems().stream().filter(metric -> metric.getName() == metricName)
                 .collect(Collectors.toList());
         // .orElseThrow(() -> new IllegalStateException("No metric found with type " + dataType));
+    }
+    public void assertMetricNameFound(String metricName) {
+        Awaitility.await().pollDelay(5, SECONDS).atMost(10, SECONDS)
+                .untilAsserted(() -> Assert.assertTrue(
+                        getFinishedMetricItems().stream().filter(metric -> metric.getName() == metricName)
+                                .collect(Collectors.toList()).size() > 0));
     }
 
     /**
@@ -98,7 +98,6 @@ public class InMemoryMetricExporter implements MetricExporter {
         if (isStopped) {
             return CompletableResultCode.ofFailure();
         }
-        System.out.println("Exporting metrics :" + metrics);
         finishedMetricItems.addAll(metrics);
         return CompletableResultCode.ofSuccess();
     }

@@ -17,16 +17,21 @@
  * limitations under the License.
  *
  */
-package org.eclipse.microprofile.telemetry.metrics.tck;
+package org.eclipse.microprofile.telemetry.metrics.tck.application.exporter;
 
-import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.spec.JavaArchive;
+import io.opentelemetry.sdk.autoconfigure.spi.ConfigProperties;
+import io.opentelemetry.sdk.autoconfigure.spi.metrics.ConfigurableMetricExporterProvider;
+import io.opentelemetry.sdk.metrics.export.MetricExporter;
+import jakarta.enterprise.inject.spi.CDI;
 
-public class TestLibraries {
+public class InMemoryMetricExporterProvider implements ConfigurableMetricExporterProvider {
+    @Override
+    public MetricExporter createExporter(final ConfigProperties config) {
+        return CDI.current().select(InMemoryMetricExporter.class).get();
+    }
 
-    public static final JavaArchive AWAITILITY_LIB = ShrinkWrap.create(JavaArchive.class, "awaitility.jar")
-            .addPackages(true, "org.awaitility", "org.hamcrest");
-
-    private TestLibraries() {
+    @Override
+    public String getName() {
+        return "in-memory";
     }
 }

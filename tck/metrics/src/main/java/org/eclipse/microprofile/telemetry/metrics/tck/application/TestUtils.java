@@ -17,16 +17,18 @@
  * limitations under the License.
  *
  */
-package org.eclipse.microprofile.telemetry.logs.tck.config;
+package org.eclipse.microprofile.telemetry.metrics.tck.application;
 
-import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.spec.JavaArchive;
+import java.util.Map;
+import java.util.stream.Collectors;
 
-public class TestLibraries {
+import io.opentelemetry.api.common.AttributeKey;
 
-    public static final JavaArchive AWAITILITY_LIB = ShrinkWrap.create(JavaArchive.class, "awaitility.jar")
-            .addPackages(true, "org.awaitility", "org.hamcrest");
+public class TestUtils {
 
-    private TestLibraries() {
+    public static String mapToString(Map<AttributeKey<?>, ?> map) {
+        return (String) map.keySet().stream()
+                .map(key -> "" + key.getKey() + "=" + map.get(key))
+                .collect(Collectors.joining(", ", "{", "}"));
     }
 }

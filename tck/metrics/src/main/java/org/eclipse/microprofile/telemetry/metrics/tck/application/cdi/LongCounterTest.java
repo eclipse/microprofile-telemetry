@@ -19,16 +19,16 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  **********************************************************************/
-package org.eclipse.microprofile.telemetry.metrics.tck.cdi;
+package org.eclipse.microprofile.telemetry.metrics.tck.application.cdi;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.microprofile.telemetry.metrics.tck.TestLibraries;
-import org.eclipse.microprofile.telemetry.metrics.tck.TestUtils;
-import org.eclipse.microprofile.telemetry.metrics.tck.exporter.InMemoryMetricExporter;
-import org.eclipse.microprofile.telemetry.metrics.tck.exporter.InMemoryMetricExporterProvider;
+import org.eclipse.microprofile.telemetry.metrics.tck.application.TestLibraries;
+import org.eclipse.microprofile.telemetry.metrics.tck.application.TestUtils;
+import org.eclipse.microprofile.telemetry.metrics.tck.application.exporter.InMemoryMetricExporter;
+import org.eclipse.microprofile.telemetry.metrics.tck.application.exporter.InMemoryMetricExporterProvider;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.testng.Arquillian;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
@@ -65,7 +65,7 @@ public class LongCounterTest extends Arquillian {
                 .addAsLibrary(TestLibraries.AWAITILITY_LIB)
                 .addAsServiceProvider(ConfigurableMetricExporterProvider.class, InMemoryMetricExporterProvider.class)
                 .addAsResource(new StringAsset(
-                        "otel.sdk.disabled=false\notel.metrics.exporter=in-memory\notel.traces.exporter=none\notel.metric.export.interval=3000"),
+                        "otel.sdk.disabled=false\notel.metrics.exporter=in-memory\notel.logs.exporter=none\notel.traces.exporter=none\notel.metric.export.interval=3000"),
                         "META-INF/microprofile-config.properties")
                 .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
     }
@@ -100,10 +100,10 @@ public class LongCounterTest extends Arquillian {
 
         expectedResults.keySet().stream().forEach(key -> longCounter.add(key, expectedResults.get(key)));
 
-        List<MetricData> metrics = metricExporter.getMetricData((MetricDataType.LONG_SUM));
+        List<MetricData> metrics = metricExporter.getMetricData((counterName));
         metrics.stream()
                 .peek(metricData -> {
-                    Assert.assertEquals(metricData.getName(), counterName);
+                    Assert.assertEquals(metricData.getType(), MetricDataType.LONG_SUM);
                     Assert.assertEquals(metricData.getDescription(), counterDescription);
                     Assert.assertEquals(metricData.getUnit(), counterUnit);
                 })
