@@ -86,6 +86,7 @@
     </dependencyManagement>
 
     <modules>
+        <module>api</module>
         <module>spec</module>
         <module>tck</module>
     </modules>
