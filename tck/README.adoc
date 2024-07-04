@@ -18,4 +18,4 @@
 //
 
 = MicroProfile Telemetry TCK
-This module contains TCKs for both Metrics and Tracing.
+This module contains TCKs for Logs, Metrics and Tracing.

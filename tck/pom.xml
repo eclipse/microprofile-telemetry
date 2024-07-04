@@ -38,7 +38,7 @@
             <dependency>
                 <groupId>org.eclipse.microprofile</groupId>
                 <artifactId>microprofile-tck-bom</artifactId>
-                <version>3.4</version>
+                <version>${version.mp.parent}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -61,27 +61,4 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>com.coderplus.maven.plugins</groupId>
-                <artifactId>copy-rename-maven-plugin</artifactId>
-                <version>${version.plugin.copy.rename}</version>
-                <executions>
-                    <execution>
-                        <id>copy-readme</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>copy</goal>
-                        </goals>
-                        <configuration>
-                            <sourceFile>../README.adoc</sourceFile>
-                            <destinationFile>target/classes/README.adoc</destinationFile>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
-
 </project>

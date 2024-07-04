@@ -29,4 +29,4 @@ Do you want to contribute to this project? Here is what you can do:
 * Join the discussions on the https://groups.google.com/forum/#!forum/microprofile[MicroProfile Google Group]
 * https://microprofile.io/blog/[Contribute a blog post].
 
-Also see the https://wiki.eclipse.org/MicroProfile/ContributingGuidelines[MicroProfile Contributing Guidelines] on the https://wiki.eclipse.org/MicroProfile[Eclipse MicroProfile wiki page]
+Also see the https://github.com/eclipse/microprofile/wiki/ContributingGuidelines[MicroProfile Contributing Guidelines] on the https://github.com/eclipse/microprofile/wiki[Eclipse MicroProfile wiki page]
