@@ -27,7 +27,7 @@ import java.io.IOException;
 
 public class MetricsReader {
 
-    private static final String logFilePath = System.getProperty("log.file.path");
+    private static final String logFilePath = System.getProperty("mptelemetry.tck.log.file.path");
 
     public static boolean checkMessage(String metricName, String metricDescription, String metricUnit,
             String metricType)
