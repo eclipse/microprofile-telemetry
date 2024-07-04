@@ -54,7 +54,7 @@ public class JulTest extends Arquillian {
 
     private static final Logger julLogger = Logger.getLogger("jul-logger");
 
-    private static final String logFilePath = System.getProperty("log.file.path");
+    private static final String logFilePath = System.getProperty("mptelemetry.tck.log.file.path");
 
     private static final String JUL_INFO_MESSAGE = "a very distinguishable info message";
     private static final String JUL_WARN_MESSAGE = "a very distinguishable warning message";

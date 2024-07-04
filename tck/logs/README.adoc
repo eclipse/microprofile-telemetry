@@ -86,7 +86,7 @@ OpenTelemetry logs are sent to stdout in the tests. Ensure logs written to stdou
 
 [source, xml]
 ----
-log.file.path=console.log
+mptelemetry.tck.log.file.path=console.log
 ----
 
 == Configuration in Apache Maven pom.xml
