@@ -21,6 +21,12 @@
  **********************************************************************/
 package org.eclipse.microprofile.telemetry.metrics.tck.application.http;
 
+import static io.opentelemetry.semconv.ErrorAttributes.ERROR_TYPE;
+import static io.opentelemetry.semconv.HttpAttributes.HTTP_REQUEST_METHOD;
+import static io.opentelemetry.semconv.HttpAttributes.HTTP_RESPONSE_STATUS_CODE;
+import static io.opentelemetry.semconv.HttpAttributes.HTTP_ROUTE;
+import static io.opentelemetry.semconv.UrlAttributes.URL_SCHEME;
+
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
@@ -54,16 +60,6 @@ import jakarta.ws.rs.core.Application;
 import jakarta.ws.rs.core.Response;
 
 public class HttpHistogramTest extends Arquillian {
-
-    private static final AttributeKey<String> HTTP_REQUEST_METHOD = AttributeKey.stringKey("http.request.method");
-    private static final AttributeKey<String> URL_SCHEME = AttributeKey.stringKey("url.scheme");
-    private static final AttributeKey<String> HTTP_RESPONSE_STATUS_CODE =
-            AttributeKey.stringKey("http.response.status_code");
-    private static final AttributeKey<String> NETWORK_PROTOCOL_NAME =
-            AttributeKey.stringKey("network.protocol.name");
-    private static final AttributeKey<String> HTTP_ROUTE = AttributeKey.stringKey("http.route");
-    private static final AttributeKey<String> ERROR_TYPE = AttributeKey.stringKey("error.type");
-
     @Inject
     OpenTelemetry openTelemetry;
 
@@ -97,9 +93,9 @@ public class HttpHistogramTest extends Arquillian {
 
     @Test
     void collectsHttpRouteFromEndAttributes() {
-
-        basicClient.get("/fail"); // Ensure we have metrics from both a successful (entering this method) and failing
-                                  // HTTP call.
+        // Ensure we have metrics from both a successful (entering this method) and failing HTTP call.
+        basicClient.get("/span");
+        basicClient.get("/fail");
 
         try {
             Thread.sleep(4000);
@@ -110,41 +106,32 @@ public class HttpHistogramTest extends Arquillian {
 
         List<MetricData> items = metricExporter.getFinishedMetricItems();
 
-        Map<AttributeKey<String>, String> successfulHTTPMethod = new HashMap<AttributeKey<String>, String>();
+        Map<AttributeKey<?>, Object> successfulHTTPMethod = new HashMap<>();
         successfulHTTPMethod.put(HTTP_REQUEST_METHOD, "GET");
         successfulHTTPMethod.put(URL_SCHEME, "http");
-        successfulHTTPMethod.put(HTTP_RESPONSE_STATUS_CODE, "200");
-        successfulHTTPMethod.put(NETWORK_PROTOCOL_NAME, "HTTP");
-        successfulHTTPMethod.put(HTTP_ROUTE, url.getPath().replaceAll("ArquillianServletRunner.*", ""));
+        successfulHTTPMethod.put(HTTP_RESPONSE_STATUS_CODE, 200L);
+        successfulHTTPMethod.put(HTTP_ROUTE, url.getPath() + "span");
 
-        Map<AttributeKey<String>, String> failingHTTPMethod = new HashMap<AttributeKey<String>, String>();
+        Map<AttributeKey<?>, Object> failingHTTPMethod = new HashMap<>();
         failingHTTPMethod.put(HTTP_REQUEST_METHOD, "GET");
         failingHTTPMethod.put(URL_SCHEME, "http");
-        failingHTTPMethod.put(HTTP_RESPONSE_STATUS_CODE, "500");
-        failingHTTPMethod.put(NETWORK_PROTOCOL_NAME, "HTTP");
+        failingHTTPMethod.put(HTTP_RESPONSE_STATUS_CODE, 500L);
         failingHTTPMethod.put(HTTP_ROUTE, url.getPath() + "fail");
         failingHTTPMethod.put(ERROR_TYPE, "500");
 
         testMetricItem(successfulHTTPMethod, items);
         testMetricItem(failingHTTPMethod, items);
-
     }
 
-    private void testMetricItem(Map<AttributeKey<String>, String> keyAndExpectedValue, List<MetricData> items) {
-
+    private void testMetricItem(Map<AttributeKey<?>, Object> keyAndExpectedValue, List<MetricData> items) {
         Assert.assertTrue(
                 items.stream()
                         .flatMap(md -> md.getHistogramData().getPoints().stream())
                         .anyMatch(point -> {
                             return keyAndExpectedValue.entrySet().stream()
                                     .allMatch(entry -> {
-                                        String attribute = point.getAttributes().get(entry.getKey());
-                                        return attribute != null &&
-                                                (attribute.equals(entry.getValue())
-                                                        || entry.getKey().equals(HTTP_ROUTE) && entry.getValue()
-                                                                .contains(keyAndExpectedValue.get(HTTP_ROUTE))
-                                        // special case for Path to exclude "/ArquillianServletRunnerEE9"
-                                        );
+                                        Object attribute = point.getAttributes().get(entry.getKey());
+                                        return attribute != null && attribute.equals(entry.getValue());
                                     });
                         }),
                 "failed to find a metric with all items in this attribute map: " + dumpTestedMap(keyAndExpectedValue)
@@ -152,7 +139,7 @@ public class HttpHistogramTest extends Arquillian {
                         + dumpMetricItems(items));
     }
 
-    private String dumpTestedMap(Map<AttributeKey<String>, String> keyAndExpectedValue) {
+    private String dumpTestedMap(Map<AttributeKey<?>, Object> keyAndExpectedValue) {
         return keyAndExpectedValue.entrySet().stream()
                 .map(entry -> entry.getKey().toString() + "=" + entry.getValue())
                 .collect(Collectors.joining(", "));
@@ -169,8 +156,14 @@ public class HttpHistogramTest extends Arquillian {
     @Path("/")
     public static class SpanResource {
         @GET
-        @Path("/fail")
+        @Path("/span")
         public Response span() {
+            return Response.ok().build();
+        }
+
+        @GET
+        @Path("/fail")
+        public Response fail() {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
