@@ -23,12 +23,12 @@ package org.eclipse.microprofile.telemetry.metrics.tck.jvm;
 
 import java.io.IOException;
 
+import org.eclipse.microprofile.telemetry.metrics.tck.application.TestLibraries;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.testng.Arquillian;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.opentelemetry.api.OpenTelemetry;
@@ -44,37 +44,35 @@ public class JvmMemoryTest extends Arquillian {
     public static WebArchive createTestArchive() {
         return ShrinkWrap.create(WebArchive.class)
                 .addClasses(MetricsReader.class)
+                .addAsLibrary(TestLibraries.AWAITILITY_LIB)
+                .addAsLibrary(TestLibraries.COMMONS_IO_LIB)
                 .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
     }
 
     @Test
     void testJvmMemoryUsedMetric() throws IOException {
-        Assert.assertTrue(
-                MetricsReader.checkMessage("jvm.memory.used", "Measure of memory used.", "By",
-                        MetricDataType.LONG_SUM.toString()));
+        MetricsReader.assertLogMessage("jvm.memory.used", "Measure of memory used.", "By",
+                MetricDataType.LONG_SUM.toString());
     }
 
     @Test
     void testJvmMemoryCommittedMetric() throws IOException {
-        Assert.assertTrue(
-                MetricsReader.checkMessage("jvm.memory.committed", "Measure of memory committed.", "By",
-                        MetricDataType.LONG_SUM.toString()));
+        MetricsReader.assertLogMessage("jvm.memory.committed", "Measure of memory committed.", "By",
+                MetricDataType.LONG_SUM.toString());
     }
 
     @Test
     void testMemoryLimitMetric() throws IOException {
-        Assert.assertTrue(
-                MetricsReader.checkMessage("jvm.memory.limit", "Measure of max obtainable memory.", "By",
-                        MetricDataType.LONG_SUM.toString()));
+        MetricsReader.assertLogMessage("jvm.memory.limit", "Measure of max obtainable memory.", "By",
+                MetricDataType.LONG_SUM.toString());
     }
 
     @Test
     void testMemoryUsedAfterLastGcMetric() throws IOException {
-        Assert.assertTrue(
-                MetricsReader.checkMessage("jvm.memory.used_after_last_gc",
-                        "Measure of memory used, as measured after the most recent garbage collection event on this pool.",
-                        "By",
-                        MetricDataType.LONG_SUM.toString()));
+        MetricsReader.assertLogMessage("jvm.memory.used_after_last_gc",
+                "Measure of memory used, as measured after the most recent garbage collection event on this pool.",
+                "By",
+                MetricDataType.LONG_SUM.toString());
     }
 
 }

@@ -23,12 +23,12 @@ package org.eclipse.microprofile.telemetry.metrics.tck.jvm;
 
 import java.io.IOException;
 
+import org.eclipse.microprofile.telemetry.metrics.tck.application.TestLibraries;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.testng.Arquillian;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.opentelemetry.api.OpenTelemetry;
@@ -44,28 +44,29 @@ public class JvmCpuTest extends Arquillian {
     public static WebArchive createTestArchive() {
         return ShrinkWrap.create(WebArchive.class)
                 .addClasses(MetricsReader.class)
+                .addAsLibrary(TestLibraries.AWAITILITY_LIB)
+                .addAsLibrary(TestLibraries.COMMONS_IO_LIB)
                 .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
     }
 
     @Test
     void testCpuTimeMetric() throws IOException {
-        Assert.assertTrue(
-                MetricsReader.checkMessage("jvm.cpu.time", "CPU time used by the process as reported by the JVM.", "s",
-                        MetricDataType.DOUBLE_SUM.toString()));
+        MetricsReader.assertLogMessage("jvm.cpu.time", "CPU time used by the process as reported by the JVM.", "s",
+                MetricDataType.DOUBLE_SUM.toString());
     }
 
     @Test
     void testCpuCountMetric() throws IOException {
-        Assert.assertTrue(MetricsReader.checkMessage("jvm.cpu.count",
+        MetricsReader.assertLogMessage("jvm.cpu.count",
                 "Number of processors available to the Java virtual machine.", "{cpu}",
-                MetricDataType.LONG_SUM.toString()));
+                MetricDataType.LONG_SUM.toString());
     }
 
     @Test
     void testCpuRecentUtilizationMetric() throws IOException {
-        Assert.assertTrue(MetricsReader.checkMessage("jvm.cpu.recent_utilization",
+        MetricsReader.assertLogMessage("jvm.cpu.recent_utilization",
                 "Recent CPU utilization for the process as reported by the JVM.", "1",
-                MetricDataType.DOUBLE_GAUGE.toString()));
+                MetricDataType.DOUBLE_GAUGE.toString());
     }
 
 }
