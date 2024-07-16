@@ -23,12 +23,12 @@ package org.eclipse.microprofile.telemetry.metrics.tck.jvm;
 
 import java.io.IOException;
 
+import org.eclipse.microprofile.telemetry.metrics.tck.application.TestLibraries;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.testng.Arquillian;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.opentelemetry.api.OpenTelemetry;
@@ -44,14 +44,15 @@ public class JvmThreadTest extends Arquillian {
     public static WebArchive createTestArchive() {
         return ShrinkWrap.create(WebArchive.class)
                 .addClasses(MetricsReader.class)
+                .addAsLibrary(TestLibraries.AWAITILITY_LIB)
+                .addAsLibrary(TestLibraries.COMMONS_IO_LIB)
                 .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
     }
 
     @Test
     void testThreadCountMetric() throws IOException {
-        Assert.assertTrue(
-                MetricsReader.checkMessage("jvm.thread.count", "Number of executing platform threads.", "{thread}",
-                        MetricDataType.LONG_SUM.toString()));
+        MetricsReader.assertLogMessage("jvm.thread.count", "Number of executing platform threads.", "{thread}",
+                MetricDataType.LONG_SUM.toString());
     }
 
 }

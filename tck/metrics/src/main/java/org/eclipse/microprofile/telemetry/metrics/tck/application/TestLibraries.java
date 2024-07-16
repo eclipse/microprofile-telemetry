@@ -27,6 +27,9 @@ public class TestLibraries {
     public static final JavaArchive AWAITILITY_LIB = ShrinkWrap.create(JavaArchive.class, "awaitility.jar")
             .addPackages(true, "org.awaitility", "org.hamcrest");
 
+    public static final JavaArchive COMMONS_IO_LIB = ShrinkWrap.create(JavaArchive.class, "commons-io.jar")
+            .addPackages(true, "org.apache.commons");
+
     private TestLibraries() {
     }
 }
