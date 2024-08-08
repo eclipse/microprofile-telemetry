@@ -36,7 +36,7 @@
         <opentelemetry.java.instrumentation.version>2.5.0</opentelemetry.java.instrumentation.version>
         <version.mp.rest.client>4.0</version.mp.rest.client>
         <version.microprofile-config-api>3.1</version.microprofile-config-api>
-        <version.awaitility>4.2.1</version.awaitility>
+        <version.awaitility>4.2.2</version.awaitility>
         <!-- Telemetry refers only to Semantic Conversion specification, java artifact is only used in TCK -->
         <version.otel.semconv-java>1.25.0-alpha</version.otel.semconv-java>
         <version.mp.parent>3.4</version.mp.parent>
