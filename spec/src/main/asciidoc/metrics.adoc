@@ -78,11 +78,11 @@ The following metrics MUST be provided by runtimes. These are as defined in the 
 
 All attributes that are listed as required and stable in the OpenTelemetry Semantic Conventions MUST be included.
 
-All attributes that are listed as conditionally required and stable in the OpenTelemetry Semantic Conventions MUST be included when the condition described in the OpenTelemetry Semantic Conventions is satisfied.
+All attributes that are listed as conditionally required and stable in the OpenTelemetry Semantic Conventions MUST be included when the per-attribute condition described in the OpenTelemetry Semantic Conventions is satisfied.
 
 All attributes that are listed as recommended and stable in the OpenTelemetry Semantic Conventions SHOULD be included if they are readily available and can be efficiently populated.
 
-All attributes that are listed as opt-in and stable in the OpenTelemetry Semantic Conventions MUST NOT be included unless the implementation provides a means for users to configure which opt-in attributes to enable. This requirement is based on OpenTelemetry Semantic Conventions documentation indicating that opt-in attributes MUST NOT be included unless the user has a way to choose if they are enabled/disabled.
+All attributes that are listed as Opt-In and stable in the OpenTelemetry Semantic Conventions MUST NOT be included unless the implementation provides a means for users to configure which Opt-In attributes to enable. This requirement is based on OpenTelemetry Semantic Conventions documentation indicating that Opt-In attributes MUST NOT be included unless the user has a way to choose if they are enabled/disabled.
 
 Attribute values and usage guidelines as defined in the semantic conventions document MUST be followed.
 
@@ -111,7 +111,7 @@ recommended
 
 * `network.protocol.version`
 
-opt-in
+Opt-In
 
 * `server.address`
 * `server.port`
