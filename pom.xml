@@ -33,7 +33,7 @@
         <inceptionYear>2022</inceptionYear>
         <opentelemetry.java.version>1.39.0</opentelemetry.java.version>
         <opentelemetry.semconv.version>1.26.0</opentelemetry.semconv.version>
-        <opentelemetry.java.instrumentation.version>2.5.0</opentelemetry.java.instrumentation.version>
+        <opentelemetry.java.instrumentation.version>2.8.0</opentelemetry.java.instrumentation.version>
         <version.mp.rest.client>4.0</version.mp.rest.client>
         <version.microprofile-config-api>3.1</version.microprofile-config-api>
         <version.awaitility>4.2.1</version.awaitility>
