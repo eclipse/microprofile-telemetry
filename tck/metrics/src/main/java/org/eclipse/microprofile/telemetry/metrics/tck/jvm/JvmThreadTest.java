@@ -56,8 +56,9 @@ public class JvmThreadTest extends Arquillian {
 
     @Test
     void testThreadCountMetric() throws IOException {
-        MetricsReader.assertLogMessage("jvm.thread.count", "Number of executing platform threads.", "{thread}",
-                MetricDataType.LONG_SUM.toString());
+        MetricsReader.assertLogMessagePattern(
+                "name=jvm\\.thread\\.count, description=Number of executing(.*) threads(.*), unit=\\{thread\\}, type=" +
+                        MetricDataType.LONG_SUM.toString());
     }
 
 }

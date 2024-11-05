@@ -25,6 +25,8 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.input.Tailer;
 import org.apache.commons.io.input.TailerListenerAdapter;
@@ -79,6 +81,40 @@ public class MetricsReader {
         }
     }
 
+    /**
+     * This method asserts that a log line matching the following format
+     *
+     * "searchPattern=<line pattern that must be matched>"
+     *
+     * Can be found in the log file pointed to by the system property mptelemetry.tck.log.file.path. It will wait for up
+     * to fifteen seconds for the log to appear.
+     *
+     * @param searchPattern
+     *            The pattern to search for in the log file
+     */
+    public static void assertLogMessagePattern(String searchPattern) {
+
+        ExecutorService es = Executors.newFixedThreadPool(1);
+
+        LogFileTailerMatcherAdaptor logFileTailerAdaptor =
+                new LogFileTailerMatcherAdaptor(searchPattern);
+
+        Tailer tailer = Tailer.builder()
+                .setStartThread(true)
+                .setPath(logFilePath)
+                .setExecutorService(es)
+                .setReOpen(false)
+                .setTailerListener(logFileTailerAdaptor)
+                .setTailFromEnd(false)
+                .get();
+
+        try (tailer) {
+            Awaitility.await().atMost(15, SECONDS)
+                    .untilAsserted(() -> Assert.assertTrue(logFileTailerAdaptor.foundMetric(),
+                            "Did not find " + searchPattern + " in logfile: " + logFilePath));
+        }
+    }
+
     private static class LogFileTailerAdaptor extends TailerListenerAdapter {
 
         private final String searchString;
@@ -95,6 +131,33 @@ public class MetricsReader {
 
         public void handle(String line) {
             if (line.contains(searchString)) {
+                foundMetric = true;
+                tailer.close();
+            }
+        }
+
+        public boolean foundMetric() {
+            return foundMetric;
+        }
+    }
+
+    private static class LogFileTailerMatcherAdaptor extends TailerListenerAdapter {
+
+        private final Pattern pattern;
+        private boolean foundMetric = false;
+        private Tailer tailer = null;
+
+        public LogFileTailerMatcherAdaptor(String searchString) {
+            this.pattern = Pattern.compile(searchString);
+        }
+
+        public void init(Tailer tailer) {
+            this.tailer = tailer;
+        }
+
+        public void handle(String line) {
+            Matcher matcher = pattern.matcher(line);
+            if (matcher.find()) {
                 foundMetric = true;
                 tailer.close();
             }
