@@ -31,7 +31,7 @@
 
     <properties>
         <inceptionYear>2022</inceptionYear>
-        <opentelemetry.java.version>1.42.1</opentelemetry.java.version>
+        <opentelemetry.java.version>1.44.1</opentelemetry.java.version>
         <opentelemetry.semconv.version>1.26.0</opentelemetry.semconv.version>
         <opentelemetry.java.instrumentation.version>2.8.0</opentelemetry.java.instrumentation.version>
         <version.mp.rest.client>4.0</version.mp.rest.client>
